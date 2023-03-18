@@ -1,0 +1,59 @@
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(NuGetPackageRoot)\newtonsoft.json\13.0.1\lib\netstandard2.0\Newtonsoft.Json.dll" #>
+<#@ assembly name="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"#>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="Newtonsoft.Json" #>
+<#+
+    // features to be included to other t4 files
+    public class DataItem
+    {
+        public string Name { get; set; }
+        public string Prefix { get; set; }
+        public string Comment { get; set; }
+        public bool IsPartial { get; set; }
+    }
+
+    public class JsonData
+    {
+        public DataItem[] GuidBased { get; set; }
+        public DataItem[] StringBased { get; set; }
+
+        public DataItem[] All
+        {
+            get
+            {
+                List<DataItem> items = new List<DataItem>();
+                items.AddRange(GuidBased);
+                items.AddRange(StringBased);
+                return items.OrderBy(x => x.Name).ToArray();
+            }
+        }
+    }
+
+    public JsonData ReadConfig()
+    {
+        string path = this.Host.ResolvePath("Identities.json");
+        string dataString = File.ReadAllText(path);
+        JsonData? config = JsonConvert.DeserializeObject<JsonData>(dataString);
+        ValidateConfig(config);
+        return config;
+    }
+
+    private void ValidateConfig(JsonData data)
+    {
+        List<string> prefixes = new List<string>();
+        prefixes.AddRange(data.GuidBased.Select(x => x.Prefix));
+        prefixes.AddRange(data.StringBased.Select(x => x.Prefix));
+
+        HashSet<string> hash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        
+        foreach (string prefix in prefixes)
+        {
+            if (hash.Contains(prefix))
+            {
+                throw new InvalidOperationException($"Configuration contains duplicate prefix '{prefix}'");
+            }
+            hash.Add(prefix);
+        }
+    }
+#>

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventSourcing.Core\EventSourcing.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NodaTime" Version="3.1.1" />
+      <PackageReference Include="Npgsql" Version="6.0.6" />
+      <PackageReference Include="Npgsql.NodaTime" Version="6.0.6" />
+    </ItemGroup>
+
+</Project>
