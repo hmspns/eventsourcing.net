@@ -21,11 +21,11 @@ namespace EventSourcing.Abstractions.Contracts
             IIdentity result = raw switch
             {
                 null => throw new ArgumentNullException(nameof(raw)),
-                var s when s.StartsWith("command_") => CommandId.Parse(raw),
-                var s when s.StartsWith("command-sequence_") => CommandSequenceId.Parse(raw),
-                var s when s.StartsWith("event_") => EventId.Parse(raw),
-                var s when s.StartsWith("principal_") => PrincipalId.Parse(raw),
-                var s when s.StartsWith("tenant_") => TenantId.Parse(raw),
+                var s when s.StartsWith("command_", StringComparison.Ordinal) => CommandId.Parse(raw),
+                var s when s.StartsWith("command-sequence_", StringComparison.Ordinal) => CommandSequenceId.Parse(raw),
+                var s when s.StartsWith("event_", StringComparison.Ordinal) => EventId.Parse(raw),
+                var s when s.StartsWith("principal_", StringComparison.Ordinal) => PrincipalId.Parse(raw),
+                var s when s.StartsWith("tenant_", StringComparison.Ordinal) => TenantId.Parse(raw),
                 _ => throw new ArgumentOutOfRangeException(nameof(raw), raw, "Raw is null")
             };
             return result;

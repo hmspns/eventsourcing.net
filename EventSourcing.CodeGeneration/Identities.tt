@@ -279,7 +279,7 @@ namespace EventSourcing.Abstractions.Contracts
 foreach (var item in data.All)
 {
 #>
-                var s when s.StartsWith("<#=item.Prefix#>_") => <#=item.Name#>.Parse(raw),
+                var s when s.StartsWith("<#=item.Prefix#>_", StringComparison.Ordinal) => <#=item.Name#>.Parse(raw),
 <#
 }
 #>

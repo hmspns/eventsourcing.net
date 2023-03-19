@@ -1,14 +1,15 @@
 ﻿using System.Buffers;
 using System.Text;
 using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using Newtonsoft.Json;
 
 namespace EventSourcing.Serialization.Newtonsoft;
 
 /// <inheritdoc />
-public class JsonPayloadSerializer : IPayloadSerializer
+public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
 {
-    private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
+    private static JsonSerializerSettings _settings = new JsonSerializerSettings()
     {
         Formatting = Formatting.Indented,
         Converters = new List<JsonConverter>()
@@ -16,10 +17,22 @@ public class JsonPayloadSerializer : IPayloadSerializer
             new IdentityConverter()
         }
     };
+    
+    /// <summary>
+    /// Get or set serializing options.
+    /// </summary>
+    public static JsonSerializerSettings SerializationOptions
+    {
+        get => _settings;
+        set => Interlocked.Exchange(ref _settings, value);
+    }
 
-    private static readonly Dictionary<string, Type> _mappings = AppDomain.CurrentDomain.GetAssemblies()
-        .SelectMany(x => x.GetTypes())
-        .Where(x => x.IsAssignableTo(typeof(IEvent))).ToDictionary(x => x.FullName, x => x);
+    private readonly IEventTypeMappingHandler _eventTypeMappingHandler;
+
+    public NewtonsoftJsonPayloadSerializer(IEventTypeMappingHandler eventTypeMappingHandler)
+    {
+        _eventTypeMappingHandler = eventTypeMappingHandler;
+    }
     
     public byte[] Serialize(object obj, out string type)
     {
@@ -27,8 +40,8 @@ public class JsonPayloadSerializer : IPayloadSerializer
         {
             throw new ArgumentNullException(nameof(obj));
         }
-        
-        type = obj.GetType().FullName;
+
+        type = _eventTypeMappingHandler.GetStringRepresentation(obj.GetType());
         return SerializeJson(obj);
     }
 
@@ -43,12 +56,9 @@ public class JsonPayloadSerializer : IPayloadSerializer
         {
             throw new ArgumentException("Type must be not an empty string", nameof(type));
         }
-        
-        if (!_mappings.TryGetValue(type, out Type t))
-        {
-            throw new ArgumentOutOfRangeException(nameof(type), "Couldn't proper type for Event");
-        }
 
+        Type t = _eventTypeMappingHandler.GetEventType(type);
+        
         return DeserializeJson(t, data);
     }
 
