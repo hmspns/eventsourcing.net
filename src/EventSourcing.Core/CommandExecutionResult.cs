@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Runtime.CompilerServices;
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
@@ -13,6 +14,7 @@ namespace EventSourcing.Core
         /// <param name="aggregate">Aggregate.</param>
         /// <param name="commandEnvelope">Command data.</param>
         /// <returns>Return Accepted and HasChanges if there is any event that should be committed. Otherwise return NoChange.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static CommandExecutionResult<TId> OkIfChanges(IAggregate<TId> aggregate, ICommandEnvelope<TId> commandEnvelope)
         {
             if (aggregate.Uncommitted.Any())
@@ -27,6 +29,7 @@ namespace EventSourcing.Core
         /// Status for accepted command but without any changes.
         /// </summary>
         /// <param name="commandEnvelope">Command data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static CommandExecutionResult<TId> NoChange(ICommandEnvelope<TId> commandEnvelope)
         {
             return new CommandExecutionResult<TId>(commandEnvelope, true, false, null);
@@ -36,6 +39,7 @@ namespace EventSourcing.Core
         /// Command not valid.
         /// </summary>
         /// <param name="commandEnvelope">Command data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static CommandExecutionResult<TId> CommandNotValid(ICommandEnvelope<TId> commandEnvelope)
         {
             return new CommandExecutionResult<TId>(commandEnvelope, false, false, "Command not valid");
@@ -46,6 +50,7 @@ namespace EventSourcing.Core
         /// </summary>
         /// <param name="commandEnvelope">Command data.</param>
         /// <param name="message">Error message.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static CommandExecutionResult<TId> Error(ICommandEnvelope<TId> commandEnvelope, string message)
         {
             return new CommandExecutionResult<TId>(commandEnvelope, false, false, message);
@@ -55,9 +60,14 @@ namespace EventSourcing.Core
         /// Trying to modify entity that not exists.
         /// </summary>
         /// <param name="commandEnvelope">Command data.</param>
-        public static CommandExecutionResult<TId> NotExists(ICommandEnvelope<TId> commandEnvelope)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static CommandExecutionResult<TId> NotExists(ICommandEnvelope<TId> commandEnvelope, string? message = null)
         {
-            return new CommandExecutionResult<TId>(commandEnvelope, false, false, "Aggregate not exists");
+            if (message == null)
+            {
+                message = "Aggregate not exists";
+            }
+            return new CommandExecutionResult<TId>(commandEnvelope, false, false, message);
         }
         
         /// <summary>

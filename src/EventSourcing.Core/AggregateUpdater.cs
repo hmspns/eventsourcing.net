@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Exceptions;
+using EventSourcing.Core.Extensions;
 
 namespace EventSourcing.Core
 {
@@ -26,7 +28,10 @@ namespace EventSourcing.Core
             _loggerFactory = loggerFactory;
         }
         
-        internal async Task<ICommandExecutionResult<TId>> Execute(ICommandEnvelope<TId> commandEnvelope, Func<TAggregate, ICommandExecutionResult<TId>> handler)
+        internal async Task<ICommandExecutionResult<TId>> Execute(
+            ICommandEnvelope<TId> commandEnvelope,
+            Func<TAggregate, ICommandExecutionResult<TId>> handler,
+            CancellationToken cancellationToken = default)
         {
             ILogger logger = _loggerFactory.CreateLogger<AggregateUpdater<TId, TAggregate>>()
                 .WithProperty("CommandId", commandEnvelope.CommandId.ToString())
@@ -52,6 +57,11 @@ namespace EventSourcing.Core
                 {
                     try
                     {
+                        if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
+                        {
+                            return cancelledResult;
+                        }
+                        
                         IAppendEventsResult result = await eventStore.AppendToStream(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted);
                         await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted);
                         await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.Commit(result));

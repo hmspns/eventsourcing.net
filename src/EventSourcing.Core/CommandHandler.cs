@@ -5,6 +5,7 @@ using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Exceptions;
+using EventSourcing.Core.Extensions;
 
 namespace EventSourcing.Core
 {
@@ -35,7 +36,11 @@ namespace EventSourcing.Core
         /// <exception cref="ArgumentNullException">Command envelope is null.</exception>
         /// <exception cref="ArgumentException">Command envelope contains null for required properties</exception>
         /// <exception cref="CommandExecutionException">Command couldn't executed because of aggregate exception.</exception>
-        protected async Task<ICommandExecutionResult<TId>> Update(ICommandEnvelope<TId> commandEnvelope, Func<TAggregate, ICommandExecutionResult<TId>> handler, CancellationToken cancellationToken = default)
+        protected async Task<ICommandExecutionResult<TId>> Update(
+            ICommandEnvelope<TId> commandEnvelope,
+            Func<TAggregate, ICommandExecutionResult<TId>> handler,
+            CancellationToken cancellationToken = default
+        )
         {
             CommandMessageValidator validator = new CommandMessageValidator();
             validator.Validate(commandEnvelope);
@@ -50,6 +55,11 @@ namespace EventSourcing.Core
             int retryLimit = 5;
             for (int i = 1; i <= retryLimit; i++)
             {
+                if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
+                {
+                    return cancelledResult;
+                }
+                
                 try
                 {
                     string? commandPayloadName = commandEnvelope.Payload.GetType().FullName;

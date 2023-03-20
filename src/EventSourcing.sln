@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Serialization
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Serialization.SystemText", "EventSourcing.Serialization.SystemText\EventSourcing.Serialization.SystemText.csproj", "{E3C976B2-237D-4522-A30C-C336D2055D14}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Simple", "..\samples\EventSourcing.Samples\EventSourcing.Samples.Simple\EventSourcing.Samples.Simple.csproj", "{3917E893-5C17-4716-84D8-025866776561}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,9 +57,16 @@ Global
 		{E3C976B2-237D-4522-A30C-C336D2055D14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3C976B2-237D-4522-A30C-C336D2055D14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3C976B2-237D-4522-A30C-C336D2055D14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3917E893-5C17-4716-84D8-025866776561}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3917E893-5C17-4716-84D8-025866776561}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3917E893-5C17-4716-84D8-025866776561}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3917E893-5C17-4716-84D8-025866776561}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3917E893-5C17-4716-84D8-025866776561} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 	EndGlobalSection
 EndGlobal
