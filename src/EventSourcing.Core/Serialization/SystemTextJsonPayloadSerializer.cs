@@ -1,8 +1,10 @@
-﻿using EventSourcing.Abstractions;
-using EventSourcing.Abstractions.Contracts;
+﻿using System;
 using System.Text.Json;
+using System.Threading;
+using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 
-namespace EventSourcing.Serialization.SystemText;
+namespace EventSourcing.Core.Serialization;
 
 /// <inheritdoc />
 public sealed class SystemTextJsonPayloadSerializer : IPayloadSerializer

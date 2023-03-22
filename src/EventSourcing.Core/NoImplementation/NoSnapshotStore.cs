@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 
-namespace EventSourcing.Core.Implementations
+namespace EventSourcing.Core.NoImplementation
 {
     /// <inheritdoc />
-    public sealed class SnapshotStoreResolver : IResolveSnapshotStore
+    public sealed class NoSnapshotStoreResolver : IResolveSnapshotStore
     {
         public ISnapshotStore Get(TenantId tenantId)
         {

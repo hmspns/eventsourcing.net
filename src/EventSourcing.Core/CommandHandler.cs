@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions;
@@ -6,6 +8,7 @@ using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Exceptions;
 using EventSourcing.Core.Extensions;
+using EventSourcing.Core.NoImplementation;
 
 namespace EventSourcing.Core
 {
@@ -18,11 +21,9 @@ namespace EventSourcing.Core
     {
         private readonly Func<TId, TAggregate> _aggregateActivator;
         private readonly IEventSourcingEngine _engine;
-        private readonly ILoggerFactory _loggerFactory;
 
-        protected CommandHandler(Func<TId, TAggregate> activator, IEventSourcingEngine engine, ILoggerFactory loggerFactory)
+        protected CommandHandler(Func<TId, TAggregate> activator, IEventSourcingEngine engine)
         {
-            _loggerFactory = loggerFactory;
             _engine = engine;
             _aggregateActivator = activator;
         }
@@ -44,41 +45,30 @@ namespace EventSourcing.Core
         {
             CommandMessageValidator validator = new CommandMessageValidator();
             validator.Validate(commandEnvelope);
-
-            ILoggerFactory nestedFactory = _loggerFactory
-                .WithProperty(nameof(commandEnvelope.AggregateId), commandEnvelope.AggregateId.ToString())
-                .WithProperty(nameof(commandEnvelope.CommandId), commandEnvelope.CommandId.ToString())
-                .WithProperty(nameof(commandEnvelope.SequenceId), commandEnvelope.SequenceId.ToString())
-                .WithProperty("CommandPayloadType", commandEnvelope.Payload.GetType().FullName);
-            ILogger logger = nestedFactory.CreateLogger<CommandHandler<TId, TAggregate>>();
-
+            
             int retryLimit = 5;
             for (int i = 1; i <= retryLimit; i++)
             {
-                if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
-                {
-                    return cancelledResult;
-                }
-                
                 try
                 {
-                    string? commandPayloadName = commandEnvelope.Payload.GetType().FullName;
-                    logger.Debug("Executing command {commandType}. Iteration {iteration}", commandPayloadName, i.ToString());
-                    using (ITimedOperation timedOperation = logger.StartTimedOperation(LogLevel.Debug, "Command {command} for id {aggregateId} executed on iteration {iteration}", 
-                               commandPayloadName, 
-                               commandEnvelope!.AggregateId!.ToString(),
-                               i.ToString()))
+                    if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
                     {
-                        AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine, _aggregateActivator, nestedFactory);
-                        ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler);
-                        return result;
+                        return cancelledResult;
                     }
+                    
+                    AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine, _aggregateActivator);
+                    ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler, cancellationToken);
+                    return result;
                 }
                 catch (AggregateConcurrencyException<TId> e)
                 {
-                    logger.Debug(nameof(AggregateConcurrencyException<TId>) + " occurs. Expected version {expected}. Actual version {actual}", e.ExpectedVersion.ToString(), e.ActualVersion.ToString());
+                    Trace.WriteLine(nameof(AggregateConcurrencyException<TId>) + $" occurs on iteration {i.ToString()} occurs." +
+                                    $" Expected version {e.ExpectedVersion.ToString()}. Actual version {e.ActualVersion.ToString()}." +
+                                    "It means concurrent thread update an aggregate with the same AggregateId during execution of current aggregate." +
+                                    $"Will try execute command again {(retryLimit - i).ToString()} times");
                 }
             }
+            Trace.WriteLine($"It's impossible to execute command after {retryLimit.ToString()} tries");
 
             throw new CommandExecutionException("Couldn't execute command", commandEnvelope);
         }

@@ -19,13 +19,11 @@ namespace EventSourcing.Core
     {
         private readonly IEventSourcingEngine _engine;
         private readonly Func<TId, TAggregate> _activator;
-        private readonly ILoggerFactory _loggerFactory;
         
-        internal AggregateUpdater(IEventSourcingEngine engine, Func<TId, TAggregate> activator, ILoggerFactory loggerFactory)
+        internal AggregateUpdater(IEventSourcingEngine engine, Func<TId, TAggregate> activator)
         {
             _activator = activator;
             _engine = engine;
-            _loggerFactory = loggerFactory;
         }
         
         internal async Task<ICommandExecutionResult<TId>> Execute(
@@ -33,55 +31,49 @@ namespace EventSourcing.Core
             Func<TAggregate, ICommandExecutionResult<TId>> handler,
             CancellationToken cancellationToken = default)
         {
-            ILogger logger = _loggerFactory.CreateLogger<AggregateUpdater<TId, TAggregate>>()
-                .WithProperty("CommandId", commandEnvelope.CommandId.ToString())
-                .WithProperty("AggregateId", commandEnvelope.AggregateId.ToString());
-            using (ITimedOperation operation = logger.StartTimedOperation(LogLevel.Verbose, "Processing command '{command}'", commandEnvelope.Payload.GetType().Name))
+            ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(commandEnvelope.TenantId);
+            IEventStore eventStore = _engine.EventStoreResolver.Get(commandEnvelope.TenantId);
+            IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
+            
+            StreamId streamId = StreamId.Parse(commandEnvelope.AggregateId.ToString());
+            ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
+            EventsStream events = await eventStore.LoadEventsStream(streamId, (StreamPosition)snapshot.Version, StreamPosition.End);
+            
+            TAggregate aggregate = _activator(commandEnvelope.AggregateId);
+
+            aggregate.LoadSnapshot(snapshot);
+            aggregate.LoadEvents(events);
+
+            ICommandExecutionResult<TId> aggregationResult = handler(aggregate);
+
+            if (aggregate.Uncommitted.Any())
             {
-                ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(commandEnvelope.TenantId);
-                IEventStore eventStore = _engine.EventStoreResolver.Get(commandEnvelope.TenantId);
-                IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
-            
-                StreamId streamId = StreamId.Parse(commandEnvelope.AggregateId.ToString());
-                ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
-                EventsStream events = await eventStore.LoadEventsStream(streamId, (StreamPosition)snapshot.Version, StreamPosition.End);
-            
-                TAggregate aggregate = _activator(commandEnvelope.AggregateId);
-
-                aggregate.LoadSnapshot(snapshot);
-                aggregate.LoadEvents(events);
-
-                ICommandExecutionResult<TId> aggregationResult = handler(aggregate);
-
-                if (aggregate.Uncommitted.Any())
+                try
                 {
-                    try
+                    if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
                     {
-                        if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
-                        {
-                            return cancelledResult;
-                        }
+                        return cancelledResult;
+                    }
                         
-                        IAppendEventsResult result = await eventStore.AppendToStream(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted);
-                        await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted);
-                        await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.Commit(result));
-                    }
-                    catch (AppendOnlyStoreConcurrencyException e)
-                    {
-                        throw new AggregateConcurrencyException<TId>("There is an exception during aggregate execution", e)
-                        {
-                            AggregateId = commandEnvelope.AggregateId,
-                            CommandId = commandEnvelope.CommandId,
-                            ExpectedVersion = e.ExpectedStreamVersion,
-                            SequenceId = commandEnvelope.SequenceId,
-                            Source = commandEnvelope.Source,
-                            ActualVersion = e.ActualStreamVersion,
-                        };
-                    }
+                    IAppendEventsResult result = await eventStore.AppendToStream(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted);
+                    await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted);
+                    await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.Commit(result));
                 }
-
-                return aggregationResult;
+                catch (AppendOnlyStoreConcurrencyException e)
+                {
+                    throw new AggregateConcurrencyException<TId>("There is an exception during aggregate execution", e)
+                    {
+                        AggregateId = commandEnvelope.AggregateId,
+                        CommandId = commandEnvelope.CommandId,
+                        ExpectedVersion = e.ExpectedStreamVersion,
+                        SequenceId = commandEnvelope.SequenceId,
+                        Source = commandEnvelope.Source,
+                        ActualVersion = e.ActualStreamVersion,
+                    };
+                }
             }
+
+            return aggregationResult;
         }
     }
 }

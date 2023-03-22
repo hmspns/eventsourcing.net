@@ -6,8 +6,8 @@ namespace EventSourcing.Samples.Simple.UserAggregate;
 
 public class UserCommandHandler : CommandHandler<Guid, UserAggregate>
 {
-    public UserCommandHandler(IEventSourcingEngine engine, ILoggerFactory loggerFactory) :
-        base(aggregateId => new UserAggregate(aggregateId), engine, loggerFactory)
+    public UserCommandHandler(IEventSourcingEngine engine) :
+        base(aggregateId => new UserAggregate(aggregateId), engine)
     {
     }
 

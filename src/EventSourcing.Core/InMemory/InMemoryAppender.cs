@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 
-namespace EventSourcing.Core.Implementations
+namespace EventSourcing.Core.InMemory
 {
     /// <inheritdoc />
     public sealed class InMemoryAppender : IAppendOnly

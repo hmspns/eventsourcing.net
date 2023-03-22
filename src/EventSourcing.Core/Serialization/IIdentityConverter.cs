@@ -1,8 +1,9 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using EventSourcing.Abstractions.Contracts;
 
-namespace EventSourcing.Serialization.SystemText;
+namespace EventSourcing.Core.Serialization;
 
 internal sealed class IIdentityConverter : JsonConverter<IIdentity>
 {

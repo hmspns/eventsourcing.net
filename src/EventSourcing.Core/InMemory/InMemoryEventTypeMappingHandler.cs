@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 
-namespace EventSourcing.Core.Implementations;
+namespace EventSourcing.Core.InMemory;
 
 /// <inheritdoc />
 public class InMemoryEventTypeMappingHandler : IEventTypeMappingHandler
