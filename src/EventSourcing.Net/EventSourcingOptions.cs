@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Implementations;
 using EventSourcing.Core.InMemory;
@@ -16,23 +17,6 @@ public sealed class EventSourcingOptions
     internal EventSourcingOptions(IServiceCollection services)
     {
         _services = services;
-        
-
-
-
-        // services.AddTransient<IEventSourcingCommandBus, EventSourcingCommandBus>();
-        // services.AddTransient<IResolveEventPublisher, EventPublisherResolver>();
-        // services.AddTransient<IResolveEventStore, EventStoreResolver>();
-        // services.AddTransient<IResolveSnapshotStore, SnapshotStoreResolver>();
-        // services.AddTransient<IEventSourcingEngine, EventSourcingEngine>();
-        // services.AddTransient<IPayloadSerializer, JsonPayloadSerializer>();
-        //
-        // services.AddTransient<IResolveAppender, PgAppenderResolver>(
-        //     provider => new PgAppenderResolver(
-        //         connectionString, provider.GetRequiredService<IPayloadSerializer>()));
-        //
-        // // должен быть singleton
-        // services.AddSingleton<IPublicationAwaiter, MediatorPublicationAwaiter>();
     }
 
     internal void Build()
@@ -42,6 +26,14 @@ public sealed class EventSourcingOptions
         _services.AddTransient<IEventSourcingEngine, EventSourcingEngine>();
         _services.AddSingleton<IResolveAppender, InMemoryResolveAppender>();
         _services.AddTransient<IPayloadSerializer, SystemTextJsonPayloadSerializer>();
-        _services.AddSingleton<ILoggerFactory, NoLoggerFactory>();
+    }
+
+    internal void Remove(Type interfaceType)
+    {
+        ServiceDescriptor? descriptor = _services.FirstOrDefault(x => x.ServiceType == interfaceType);
+        if (descriptor != null)
+        {
+            _services.Remove(descriptor);
+        }
     }
 }

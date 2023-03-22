@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Core.Contracts

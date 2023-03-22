@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventSourcing.Abstractions;
+namespace EventSourcing.Abstractions.Contracts;
 
 /// <summary>
 /// Will add execution time measurement for operation.

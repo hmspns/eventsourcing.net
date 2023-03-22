@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core.Contracts;
 
 namespace EventSourcing.Core.Extensions;

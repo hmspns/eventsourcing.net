@@ -1,7 +1,7 @@
 ﻿using System;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Abstractions
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Envelope for the command.

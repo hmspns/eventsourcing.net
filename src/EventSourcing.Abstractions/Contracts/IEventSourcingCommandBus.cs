@@ -1,15 +1,24 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Command bus.
     /// </summary>
     public interface IEventSourcingCommandBus
     {
+        /// <summary>
+        /// Send the command.
+        /// </summary>
+        /// <param name="id">Aggregate id.</param>
+        /// <param name="command">Command.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Result of executed command.</returns>
+        Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TId id, TPayload command,
+            CancellationToken cancellationToken = default) where TPayload : ICommand;
+        
         /// <summary>
         /// Send message to bus.
         /// </summary>

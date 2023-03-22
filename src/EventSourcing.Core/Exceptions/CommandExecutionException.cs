@@ -1,5 +1,6 @@
 ﻿using System;
 using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Exceptions
 {

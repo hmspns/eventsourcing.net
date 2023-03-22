@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core;
 using EventSourcing.Core.Contracts;

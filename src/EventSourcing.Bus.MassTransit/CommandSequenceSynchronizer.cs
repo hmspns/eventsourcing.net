@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 using MassTransit;
@@ -9,7 +10,7 @@ using MassTransit;
 namespace EventSourcing.Bus.MassTransit
 {
     /// <summary>
-    /// Listening notification about completion of sequence of commands and notify <see cref="IPublicationAwaiter"/> about it.
+    /// Listening notification about completion of sequence of commands and notify <see cref="EventSourcing.Abstractions.Contracts.IPublicationAwaiter"/> about it.
     /// </summary>
     /// <see cref="CommandsSequenceSaga"/>
     public sealed class CommandSequenceSynchronizer : IConsumer<IEsSequenceCompleted>

@@ -1,4 +1,4 @@
-﻿namespace EventSourcing.Abstractions
+﻿namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Contract for payload serialization.

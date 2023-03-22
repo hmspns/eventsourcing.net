@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Contracts;
 using MassTransit;
@@ -19,7 +20,16 @@ namespace EventSourcing.Bus.MassTransit
             _mediator = mediator;
             PublicationAwaiter = publicationAwaiter;
         }
-        
+
+        public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(
+            TId id,
+            TPayload command,
+            CancellationToken cancellationToken = default)
+        where TPayload : ICommand
+        {
+            return Send(TenantId.Empty, PrincipalId.Empty, string.Empty, id, command, cancellationToken);
+        }
+
         public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
                                                  TId aggregateId, TPayload commandPayload,
                                                  CancellationToken cancellationToken = default)

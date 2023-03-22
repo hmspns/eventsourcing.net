@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Abstractions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core;
 using EventSourcing.Core.Contracts;
 

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Provide functionality to await moment when event will be published.
