@@ -1,9 +1,8 @@
-using System.Collections.Generic;
-using EventSourcing.Abstractions;
+﻿using System.Collections.Generic;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core
+namespace EventSourcing.Abstractions.Types
 {
     /// <summary>
     /// Events stream.

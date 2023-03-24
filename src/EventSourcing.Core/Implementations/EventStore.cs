@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
-using EventSourcing.Core.Contracts;
+using EventSourcing.Abstractions.Types;
 using EventSourcing.Core.Extensions;
 
 namespace EventSourcing.Core.Implementations

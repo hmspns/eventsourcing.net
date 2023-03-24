@@ -1,7 +1,8 @@
 ﻿using System;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Aggregate state snapshot.

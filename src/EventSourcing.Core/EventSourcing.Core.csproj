@@ -10,4 +10,8 @@
       <ProjectReference Include="..\EventSourcing.Abstractions\EventSourcing.Abstractions.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Contracts" />
+    </ItemGroup>
+
 </Project>

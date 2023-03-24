@@ -1,7 +1,4 @@
-﻿using EventSourcing.Abstractions;
-using EventSourcing.Abstractions.Contracts;
-
-namespace EventSourcing.Core.Contracts
+﻿namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Mutator of the state.

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventSourcing.Abstractions;
-using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Factory to resolve tenant specific event publisher.

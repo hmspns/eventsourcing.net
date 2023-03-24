@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace EventSourcing.Core
+namespace EventSourcing.Abstractions.Types
 {
     /// <summary>
     /// Position inside a stream.

@@ -2,8 +2,8 @@
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 using EventSourcing.Core;
-using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Exceptions;
 using Npgsql;
 using NpgsqlTypes;

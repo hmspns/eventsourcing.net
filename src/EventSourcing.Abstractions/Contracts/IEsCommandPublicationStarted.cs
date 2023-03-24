@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Publication of commands was started.

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
-using EventSourcing.Core.Contracts;
 
 namespace EventSourcing.Core
 {

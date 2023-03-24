@@ -1,4 +1,4 @@
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Event sourcing engine.

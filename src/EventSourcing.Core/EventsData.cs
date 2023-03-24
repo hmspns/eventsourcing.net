@@ -1,4 +1,5 @@
-﻿using EventSourcing.Core.Contracts;
+﻿using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Abstractions.Types;
 
 namespace EventSourcing.Core;
 

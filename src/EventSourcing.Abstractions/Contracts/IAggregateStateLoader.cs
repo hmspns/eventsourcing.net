@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
-using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts;
+namespace EventSourcing.Abstractions.Contracts;
 
 /// <summary>
 /// Load state for an aggregate.

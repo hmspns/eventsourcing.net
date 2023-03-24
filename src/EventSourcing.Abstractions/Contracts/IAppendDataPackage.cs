@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Data added to storage.

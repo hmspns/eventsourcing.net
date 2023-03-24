@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventSourcing.Core
+namespace EventSourcing.Abstractions.Types
 {
     /// <summary>
     /// Version of the aggregate.

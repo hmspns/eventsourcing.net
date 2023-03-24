@@ -1,7 +1,6 @@
 ﻿using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core;
-using EventSourcing.Core.Contracts;
 
 namespace EventSourcing.Samples.Simple.UserAggregate;
 
@@ -12,9 +11,9 @@ public class UserCommandHandler : CommandHandler<Guid, UserAggregate>
     {
     }
 
-    public async Task<ICommandExecutionResult<Guid>> CreateUser(ICommandEnvelope<Guid, CreateUserCommand> cmd)
+    public async Task<ICommandExecutionResult<Guid>> CreateUser(ICommandEnvelope<Guid, CreateUserCommand> cmd, CancellationToken token)
     {
-        return await Update(cmd, aggregate => aggregate.CreateUser(cmd));
+        return await Update(cmd, aggregate => aggregate.CreateUser(cmd), token);
     }
 
     public async Task<ICommandExecutionResult<Guid>> UpdateUser(ICommandEnvelope<Guid, UpdateUserCommand> cmd)

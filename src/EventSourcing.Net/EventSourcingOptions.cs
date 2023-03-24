@@ -1,6 +1,5 @@
 ﻿using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Implementations;
 using EventSourcing.Core.InMemory;
 using EventSourcing.Core.NoImplementation;
@@ -26,6 +25,7 @@ public sealed class EventSourcingOptions
         _services.AddTransient<IEventSourcingEngine, EventSourcingEngine>();
         _services.AddSingleton<IResolveAppender, InMemoryResolveAppender>();
         _services.AddTransient<IPayloadSerializer, SystemTextJsonPayloadSerializer>();
+        _services.AddTransient<IEventSourcingCommandBus, InMemoryCommandBus>();
     }
 
     internal void Remove(Type interfaceType)

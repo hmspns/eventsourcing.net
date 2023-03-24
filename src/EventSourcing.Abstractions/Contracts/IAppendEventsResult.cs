@@ -1,4 +1,6 @@
-namespace EventSourcing.Core.Contracts
+using EventSourcing.Abstractions.Types;
+
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Append events result.

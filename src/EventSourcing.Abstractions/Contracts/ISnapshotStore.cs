@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using EventSourcing.Abstractions.Identities;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Factory to resolve tenant specific snapshot store.

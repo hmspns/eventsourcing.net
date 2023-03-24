@@ -6,19 +6,23 @@ using System.Threading.Tasks;
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
-using EventSourcing.Core.Contracts;
 using EventSourcing.Core.Exceptions;
 using EventSourcing.Core.Extensions;
 using EventSourcing.Core.NoImplementation;
 
 namespace EventSourcing.Core
 {
+    internal interface ICommandHandler
+    {
+        
+    }
+    
     /// <summary>
     /// Base class for command handler.
     /// </summary>
     /// <typeparam name="TId">Aggregate id type.</typeparam>
     /// <typeparam name="TAggregate">Aggregate type.</typeparam>
-    public abstract class CommandHandler<TId, TAggregate> where TAggregate : IAggregate
+    public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TAggregate : IAggregate
     {
         private readonly Func<TId, TAggregate> _aggregateActivator;
         private readonly IEventSourcingEngine _engine;

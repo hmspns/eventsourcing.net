@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
-using EventSourcing.Core.Contracts;
+using EventSourcing.Abstractions.Types;
 
 namespace EventSourcing.Core.InMemory
 {

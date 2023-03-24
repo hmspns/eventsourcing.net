@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using EventSourcing.Abstractions;
-using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// The typed version of this interface must implement each aggregate.

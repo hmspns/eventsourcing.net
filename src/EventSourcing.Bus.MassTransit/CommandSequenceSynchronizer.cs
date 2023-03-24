@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
-using EventSourcing.Core.Contracts;
 using MassTransit;
 
 namespace EventSourcing.Bus.MassTransit

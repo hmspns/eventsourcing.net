@@ -2,9 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Identities;
-using EventSourcing.Core.Exceptions;
+using EventSourcing.Abstractions.Types;
 
-namespace EventSourcing.Core.Contracts
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Factory to get appender for specific tenant.
@@ -32,7 +32,7 @@ namespace EventSourcing.Core.Contracts
         /// <param name="expectedStreamVersion">Expected version of events stream.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>The result of append operation.</returns>
-        /// <exception cref="AppendOnlyStoreConcurrencyException">Event with the given version already presents in the stream.</exception>
+        /// <exception cref="EventSourcing.Core.Exceptions.AppendOnlyStoreConcurrencyException">Event with the given version already presents in the stream.</exception>
         Task<IAppendEventsResult> Append(StreamId streamName, IAppendDataPackage data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default);
 
         /// <summary>

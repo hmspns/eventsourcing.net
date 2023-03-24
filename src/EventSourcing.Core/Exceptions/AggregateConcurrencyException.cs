@@ -1,5 +1,6 @@
 ﻿using System;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 
 namespace EventSourcing.Core.Exceptions;
 

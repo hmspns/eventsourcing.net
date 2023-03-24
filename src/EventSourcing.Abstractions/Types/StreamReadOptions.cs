@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace EventSourcing.Core
+namespace EventSourcing.Abstractions.Types
 {
     /// <summary>
     /// Iteration stream direction.
