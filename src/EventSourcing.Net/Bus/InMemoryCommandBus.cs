@@ -8,11 +8,13 @@ namespace EventSourcing.Net;
 
 public sealed class InMemoryCommandBus : IEventSourcingCommandBus
 {
-    public IPublicationAwaiter PublicationAwaiter { get; }
+    public IPublicationAwaiter PublicationAwaiter => _publicationAwaiter;
 
     private readonly ReadOnlyDictionary<Type, CommandHandlerActivation> _handlers;
     private readonly IServiceProvider _provider;
-    private readonly object _boxedCancellationTokenNone = CancellationToken.None;
+    // cached boxed CancellationToken.None to prevent boxing in case when cancellation token wasn't pass.
+    private readonly object _boxedCancellationTokenNone = CancellationToken.None; 
+    private readonly InMemoryPublicationAwaiter _publicationAwaiter = new();
 
     internal InMemoryCommandBus(IServiceProvider provider, Dictionary<Type, CommandHandlerActivation> handlers)
     {

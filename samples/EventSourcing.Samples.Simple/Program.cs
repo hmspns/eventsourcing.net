@@ -23,6 +23,7 @@ CreateUserCommand cmd = new CreateUserCommand("Test", DateTime.UtcNow, "79999999
 IEventSourcingCommandBus bus = provider.GetService<IEventSourcingCommandBus>();
 
 ICommandExecutionResult<Guid> result = await bus.Send(Guid.NewGuid(), cmd);
+await bus.PublicationAwaiter.WaitForPublication(result.CommandSequenceId);
 
 Console.WriteLine(result);
 

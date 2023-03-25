@@ -21,7 +21,7 @@ namespace EventSourcing.Abstractions.Contracts
         /// <summary>
         /// Id of commands sequence.
         /// </summary>
-        CommandSequenceId SequenceId { get; }
+        CommandSequenceId CommandSequenceId { get; }
 
         /// <summary>
         /// Whether command was accepted.

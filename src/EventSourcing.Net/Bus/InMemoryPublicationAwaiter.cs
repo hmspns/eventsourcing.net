@@ -7,11 +7,11 @@ public sealed class InMemoryPublicationAwaiter : IPublicationAwaiter
 {
     public void MarkAsReady(CommandSequenceId sequenceId)
     {
-        throw new NotSupportedException();
+        // do nothing here
     }
 
     public Task WaitForPublication(CommandSequenceId sequenceId, TimeSpan timeout = default)
     {
-        throw new NotSupportedException();
+        return Task.CompletedTask;
     }
 }

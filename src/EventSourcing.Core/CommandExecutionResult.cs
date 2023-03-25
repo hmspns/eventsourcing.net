@@ -81,7 +81,7 @@ namespace EventSourcing.Core
         {
             AggregateId = commandEnvelope.AggregateId;
             CommandId = commandEnvelope.CommandId;
-            SequenceId = commandEnvelope.SequenceId;
+            CommandSequenceId = commandEnvelope.SequenceId;
             IsAccepted = isAccepted;
             HasChanges = hasChanges;
             ErrorCode = errorCode;
@@ -100,7 +100,7 @@ namespace EventSourcing.Core
         /// <summary>
         /// Id of commands sequence.
         /// </summary>
-        public CommandSequenceId SequenceId { get; }
+        public CommandSequenceId CommandSequenceId { get; }
         
         /// <summary>
         /// Whether command accepted by aggregate.
