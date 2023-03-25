@@ -1,5 +1,7 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Collections.ObjectModel;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
@@ -8,17 +10,14 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
 {
     public IPublicationAwaiter PublicationAwaiter { get; }
 
-    private static Dictionary<Type, CommandHandlerActivation> _handlers = new();
+    private readonly ReadOnlyDictionary<Type, CommandHandlerActivation> _handlers;
     private readonly IServiceProvider _provider;
+    private readonly object _boxedCancellationTokenNone = CancellationToken.None;
 
-    public InMemoryCommandBus(IServiceProvider provider)
+    internal InMemoryCommandBus(IServiceProvider provider, Dictionary<Type, CommandHandlerActivation> handlers)
     {
         _provider = provider;
-    }
-
-    internal static void Initialize(Dictionary<Type, CommandHandlerActivation> handlers)
-    {
-        _handlers = handlers;
+        _handlers = new ReadOnlyDictionary<Type, CommandHandlerActivation>(handlers);
     }
 
     /// <summary>
@@ -31,7 +30,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
     /// <typeparam name="TPayload">Type of command payload.</typeparam>
     /// <returns>Result of command execution.</returns>
     /// <exception cref="InvalidOperationException">Handler not registered.</exception>
-    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TId id, TPayload command, CancellationToken cancellationToken = default) where TPayload : ICommand
+    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TId id, TPayload command, CancellationToken cancellationToken = default) where TPayload : ICommand
     {
         return Send(TenantId.Empty, PrincipalId.Empty, string.Empty, id, command, cancellationToken);
     }
@@ -49,7 +48,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
     /// <typeparam name="TPayload">Type of command payload.</typeparam>
     /// <returns>Result of command execution.</returns>
     /// <exception cref="InvalidOperationException">Handler not registered.</exception>
-    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
+    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
         TId aggregateId, TPayload commandPayload, CancellationToken cancellationToken = default) where TPayload : ICommand
     {
         ICommandEnvelope<TId, TPayload> command = new CommandEnvelope<TId, TPayload>()
@@ -71,10 +70,14 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
         }
 
         object instance = ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
+        
         object? result;
         if (activator.UseCancellation)
         {
-            result = activator.Method.Invoke(instance,new object?[]{ command, cancellationToken});
+            object objCancellationToken = cancellationToken == CancellationToken.None
+                ? _boxedCancellationTokenNone // to avoid boxing
+                : cancellationToken; // real token with value
+            result = activator.Method.Invoke(instance,new object?[]{ command, objCancellationToken});
         }
         else
         {

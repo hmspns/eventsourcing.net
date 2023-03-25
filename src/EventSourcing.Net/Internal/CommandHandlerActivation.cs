@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace EventSourcing.Net;
+namespace EventSourcing.Net.Internal;
 
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct CommandHandlerActivation

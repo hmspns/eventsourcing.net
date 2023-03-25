@@ -32,4 +32,13 @@ public static class EventSourcingServicesExtensions
 
         return services;
     }
+
+    internal static void Remove(this IServiceCollection services, Type interfaceType)
+    {
+        ServiceDescriptor? descriptor = services.FirstOrDefault(x => x.ServiceType == interfaceType);
+        if (descriptor != null)
+        {
+            services.Remove(descriptor);
+        }
+    }
 }

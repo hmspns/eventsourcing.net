@@ -98,10 +98,10 @@ namespace EventSourcing.Core
                 throw new ArgumentException("Command.Payload mustn't be null");
             }
 
-            if (string.IsNullOrEmpty(cmd.Source))
-            {
-                throw new ArgumentException("Command.Source mustn't be null nor empty string");
-            }
+            // if (string.IsNullOrEmpty(cmd.Source))
+            // {
+            //     throw new ArgumentException("Command.Source mustn't be null nor empty string");
+            // }
 
             if (cmd.Timestamp == default || cmd.Timestamp.Kind != DateTimeKind.Utc)
             {
@@ -113,20 +113,20 @@ namespace EventSourcing.Core
                 throw new ArgumentException("Command.CommandId mustn't be CommandId.Empty");
             }
 
-            if (cmd.PrincipalId == PrincipalId.Empty)
-            {
-                throw new ArgumentException("Command.PrincipalId mustn't be PrincipalId.Empty");
-            }
+            // if (cmd.PrincipalId == PrincipalId.Empty)
+            // {
+            //     throw new ArgumentException("Command.PrincipalId mustn't be PrincipalId.Empty");
+            // }
 
             if (cmd.SequenceId == CommandSequenceId.Empty)
             {
                 throw new ArgumentException("Command.SequenceId mustn't be CommandSequenceId.Empty");
             }
 
-            if (cmd.TenantId == TenantId.Empty)
-            {
-                throw new ArgumentException("Command.TenantId mustn't be TenantId.Empty");
-            }
+            // if (cmd.TenantId == TenantId.Empty)
+            // {
+            //     throw new ArgumentException("Command.TenantId mustn't be TenantId.Empty");
+            // }
         }
     }
 }

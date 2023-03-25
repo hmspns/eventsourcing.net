@@ -1,19 +1,17 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Reflection;
+﻿using System.Reflection;
 using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Core.InMemory;
 using EventSourcing.Net;
 using EventSourcing.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
 
-Console.WriteLine("Hello, World!");
+Assembly assembly = Assembly.GetExecutingAssembly();
 
 IServiceCollection services = new ServiceCollection();
 services
     .AddEventSourcing(options =>
     {
-        options.RegisterImplicitHandlers(Assembly.GetExecutingAssembly());
+        options.Bus.RegisterImplicitCommandHandlers(assembly);
+        options.Bus.RegisterEventConsumers(assembly);
     });
 var provider = services.BuildServiceProvider();
 

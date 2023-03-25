@@ -15,8 +15,8 @@ public static class EventSourcingOptionsExtensions
     /// <returns>Configuration options.</returns>
     public static EventSourcingOptions UsePostgresEventsStore(this EventSourcingOptions options, string connectionString)
     {
-        options.Remove(typeof(IResolveAppender));
-        options.Remove(typeof(IAppendOnly));
+        options._services.Remove(typeof(IResolveAppender));
+        options._services.Remove(typeof(IAppendOnly));
         options._services.AddTransient<IResolveAppender>(x =>
         {
             IPayloadSerializer payloadSerializer = x.GetRequiredService<IPayloadSerializer>();
@@ -35,8 +35,8 @@ public static class EventSourcingOptionsExtensions
         this EventSourcingOptions options,
         string connectionString)
     {
-        options.Remove(typeof(IResolveSnapshotStore));
-        options.Remove(typeof(ISnapshotStore));
+        options._services.Remove(typeof(IResolveSnapshotStore));
+        options._services.Remove(typeof(ISnapshotStore));
 
         options._services.AddTransient<IResolveSnapshotStore>(x =>
         {
