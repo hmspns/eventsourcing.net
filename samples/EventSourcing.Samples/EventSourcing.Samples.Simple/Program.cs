@@ -1,8 +1,12 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
+
+Trace.Listeners.Add(new ConsoleTraceListener());
+Trace.AutoFlush = true;
 
 Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -13,10 +17,12 @@ services
         options.Bus.RegisterImplicitCommandHandlers(assembly);
         options.Bus.RegisterEventConsumers(assembly);
     });
-var provider = services.BuildServiceProvider();
+ServiceProvider provider = services.BuildServiceProvider();
 
 CreateUserCommand cmd = new CreateUserCommand("Test", DateTime.UtcNow, "79999999999");
-var bus = provider.GetService<IEventSourcingCommandBus>();
+IEventSourcingCommandBus bus = provider.GetService<IEventSourcingCommandBus>();
 
-var result = await bus.Send(Guid.NewGuid(), cmd);
+ICommandExecutionResult<Guid> result = await bus.Send(Guid.NewGuid(), cmd);
+
+Console.WriteLine(result);
 

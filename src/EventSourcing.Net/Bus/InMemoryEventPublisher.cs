@@ -1,46 +1,52 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Linq.Expressions;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <inheritdoc />
 public sealed class InMemoryEventPublisherResolver : IResolveEventPublisher
 {
     private readonly IServiceProvider _provider;
     private readonly IReadOnlyDictionary<Type, EventConsumerActivation[]> _handlers;
 
-    internal InMemoryEventPublisherResolver(IServiceProvider provider, IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
+    internal InMemoryEventPublisherResolver(IServiceProvider provider,
+        IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
     {
         _provider = provider;
         _handlers = handlers;
     }
-    
+
     public IEventPublisher Get(TenantId tenantId)
     {
         return new InMemoryEventPublisher(_provider, _handlers);
     }
 }
 
+/// <inheritdoc />
 public sealed class InMemoryEventPublisher : IEventPublisher
 {
     private readonly IReadOnlyDictionary<Type, EventConsumerActivation[]> _handlers;
     private readonly IServiceProvider _provider;
 
-    internal InMemoryEventPublisher(IServiceProvider provider, IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
+    internal InMemoryEventPublisher(IServiceProvider provider,
+        IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
     {
         _provider = provider;
         _handlers = handlers;
     }
-    
+
     public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
-        var envelopeType = commandEnvelope.GetType();
-        if (_handlers.TryGetValue(envelopeType, out var activators))
+        foreach (IEventEnvelope envelope in events)
         {
-            foreach (IEventEnvelope envelope in events)
+            Type envelopeType = GetEnvelopeInterfaceType(envelope);
+            
+            if (_handlers.TryGetValue(envelopeType, out var activators))
             {
-                foreach (var activator in activators)
+                foreach (EventConsumerActivation activator in activators)
                 {
                     object instance = ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
                     Task result = (Task)activator.Method.Invoke(instance, new[] { envelope });
@@ -48,5 +54,21 @@ public sealed class InMemoryEventPublisher : IEventPublisher
                 }
             }
         }
+    }
+
+    private Type GetEnvelopeInterfaceType(IEventEnvelope envelope)
+    {
+        Type envelopeType = envelope.GetType();
+        Type genericInterfaceType = typeof(IEventEnvelope<,>);
+
+        foreach (Type interfaceType in envelopeType.GetInterfaces())
+        {
+            if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == genericInterfaceType)
+            {
+                return interfaceType;
+            }
+        }
+
+        throw new InvalidOperationException($"Type {envelope.GetType()} should implement interface IEventEnvelope<TId, TPayload>");
     }
 }

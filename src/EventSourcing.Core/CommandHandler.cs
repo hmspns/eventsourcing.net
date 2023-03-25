@@ -61,6 +61,8 @@ namespace EventSourcing.Core
                         return cancelledResult;
                     }
                     
+                    Trace.WriteLine($"Processing command {commandEnvelope.Payload.GetType().Name} on iteration {i.ToString()}");
+                    
                     AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine, _aggregateActivator);
                     ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler, cancellationToken);
                     return result;

@@ -66,7 +66,8 @@ public sealed class EventSourcingBusOptions
                     MethodInfo methodInfo = interfaceType.GetMethods().First();
                     EventConsumerActivation activation = new EventConsumerActivation()
                     {
-                        Method = methodInfo
+                        Method = methodInfo,
+                        Type = type
                     };
                     Type argumentType = methodInfo.GetParameters().First().ParameterType;
                     consumers.Add(argumentType, activation);

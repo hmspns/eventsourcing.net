@@ -45,13 +45,4 @@ namespace EventSourcing.Bus.MassTransit
             await _mediator.Publish<IEsCommandPublicationCompleted>(new EsCommandPublicationCompleted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
         }
     }
-
-    /// <inheritdoc />
-    public sealed class NoEventPublisher : IEventPublisher
-    {
-        public Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
-        {
-            return Task.CompletedTask;
-        }
-    }
 }
