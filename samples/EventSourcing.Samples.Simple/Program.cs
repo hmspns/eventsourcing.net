@@ -1,12 +1,8 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
-
-Trace.Listeners.Add(new ConsoleTraceListener());
-Trace.AutoFlush = true;
 
 Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -19,11 +15,10 @@ services
     });
 ServiceProvider provider = services.BuildServiceProvider();
 
-CreateUserCommand cmd = new CreateUserCommand("Test", DateTime.UtcNow, "79999999999");
+CreateUserCommand cmd = new CreateUserCommand("Test", DateTime.UtcNow, "123-456-789");
 IEventSourcingCommandBus bus = provider.GetService<IEventSourcingCommandBus>();
 
 ICommandExecutionResult<Guid> result = await bus.Send(Guid.NewGuid(), cmd);
-await bus.PublicationAwaiter.WaitForPublication(result.CommandSequenceId);
 
 Console.WriteLine(result);
 

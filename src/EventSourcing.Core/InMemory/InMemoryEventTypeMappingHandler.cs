@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,12 +10,10 @@ namespace EventSourcing.Core.InMemory;
 /// <inheritdoc />
 public class InMemoryEventTypeMappingHandler : IEventTypeMappingHandler
 {
-    private static readonly ReadOnlyDictionary<string, Type> _mappings = new ReadOnlyDictionary<string, Type>(
-        AppDomain.CurrentDomain.GetAssemblies()
+    private static readonly IReadOnlyDictionary<string, Type> _mappings = AppDomain.CurrentDomain.GetAssemblies()
         .SelectMany(x => x.GetTypes())
         .Where(x => x.IsAssignableTo(typeof(IEvent)))
-        .ToDictionary(x => x.FullName, x => x, StringComparer.Ordinal)
-    );
+        .ToDictionary(x => x.FullName, x => x, StringComparer.Ordinal);
     
     public Type GetEventType(string stringRepresentation)
     {

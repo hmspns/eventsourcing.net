@@ -8,7 +8,7 @@ namespace EventSourcing.Abstractions.Identities
     /// Tenant identifier.
     /// </summary>
     /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
-    public readonly partial struct TenantId : IIdentity, IEquatable<TenantId>
+    public readonly struct TenantId : IIdentity, IEquatable<TenantId>
     {
         private readonly Guid _id;
 

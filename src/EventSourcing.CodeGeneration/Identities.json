@@ -3,7 +3,7 @@
     { "Name": "CommandId", "Prefix": "command", "Comment": "Command identifier" },
     { "Name": "EventId", "Prefix": "event", "Comment": "Event identifier"},
     { "Name": "CommandSequenceId", "Prefix": "command-sequence", "Comment": "Command sequence identifier"},
-    { "Name": "TenantId", "Prefix": "tenant", "Comment": "Tenant identifier", "IsPartial": "true" }
+    { "Name": "TenantId", "Prefix": "tenant", "Comment": "Tenant identifier" }
   ],
   "StringBased": [
     { "Name": "PrincipalId", "Prefix": "principal", "Comment": "Principal identifier"}
