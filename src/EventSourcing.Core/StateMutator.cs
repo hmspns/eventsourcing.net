@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventSourcing.Abstractions;
+using System.Collections.Specialized;
 using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core
@@ -8,7 +8,7 @@ namespace EventSourcing.Core
     /// <inheritdoc />
     public abstract class StateMutator<TState> : IStateMutator<TState> where TState : class
     {
-        private readonly Dictionary<Type, Func<object, TState, TState>> _handlers = new ();
+        private readonly Dictionary<Type, Func<IEventEnvelope, TState, TState>> _handlers = new ();
         
         /// <summary>
         /// Register event handler.
@@ -16,9 +16,9 @@ namespace EventSourcing.Core
         /// <param name="handler">Handler.</param>
         /// <typeparam name="TId">Type of id.</typeparam>
         /// <typeparam name="TPayload">Type of payload.</typeparam>
-        protected void Register<TId, TPayload>(Func<EventEnvelope<TId, TPayload>, TState, TState> handler) where TPayload : IEvent
+        protected void Register<TId, TPayload>(Func<IEventEnvelope<TId, TPayload>, TState, TState> handler) where TPayload : IEvent
         {
-            _handlers[typeof(EventEnvelope<TId, TPayload>)] = (@event, state) => handler((EventEnvelope<TId, TPayload>)@event, state);
+            _handlers[typeof(TPayload)] = (@event, state) => handler((IEventEnvelope<TId, TPayload>)@event, state);
         }
 
         /// <summary>
@@ -33,13 +33,13 @@ namespace EventSourcing.Core
         /// <returns>State after changes.</returns>
         public TState Transition(IEventEnvelope eventEnvelope)
         {
-            if (_handlers.TryGetValue(eventEnvelope.GetType(), out Func<object, TState, TState>? handler))
+            if (_handlers.TryGetValue(eventEnvelope.Payload.GetType(), out Func<IEventEnvelope, TState, TState>? handler))
             {
                 Current = handler(eventEnvelope, Current);
                 return Current;
             }
-
-            throw new InvalidOperationException($"Couldn't find handler for type {eventEnvelope.GetType().FullName}");
+            
+            throw new InvalidOperationException($"Couldn't find handler for type {eventEnvelope.Payload.GetType().FullName}");
         }
 
         /// <summary>

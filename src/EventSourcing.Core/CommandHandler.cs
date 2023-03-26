@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
-using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Exceptions;
 using EventSourcing.Core.Extensions;
-using EventSourcing.Core.NoImplementation;
 
 namespace EventSourcing.Core
 {

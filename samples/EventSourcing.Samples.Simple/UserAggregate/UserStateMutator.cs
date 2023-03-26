@@ -1,4 +1,5 @@
-﻿using EventSourcing.Core;
+﻿using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Core;
 
 namespace EventSourcing.Samples.Simple.UserAggregate;
 
@@ -24,7 +25,7 @@ public class UserStateMutator : StateMutator<UserState>
         Register<Guid, UserDeletedEvent>(Handle);
     }
     
-    private UserState Handle(EventEnvelope<Guid, UserCreatedEvent> e, UserState state)
+    private UserState Handle(IEventEnvelope<Guid, UserCreatedEvent> e, UserState state)
     {
         state.Name = e.Payload.Name;
         state.BirthDate = e.Payload.BirthDate;
@@ -34,21 +35,21 @@ public class UserStateMutator : StateMutator<UserState>
         return state;
     }
 
-    private UserState Handle(EventEnvelope<Guid, UserNameChangedEvent> e, UserState state)
+    private UserState Handle(IEventEnvelope<Guid, UserNameChangedEvent> e, UserState state)
     {
         state.Name = e.Payload.NewName;
 
         return state;
     }
     
-    private UserState Handle(EventEnvelope<Guid, UserPhoneChangedEvent> e, UserState state)
+    private UserState Handle(IEventEnvelope<Guid, UserPhoneChangedEvent> e, UserState state)
     {
         state.PhoneNumber = e.Payload.NewPhoneNumber;
 
         return state;
     }
     
-    private UserState Handle(EventEnvelope<Guid, UserDeletedEvent> e, UserState state)
+    private UserState Handle(IEventEnvelope<Guid, UserDeletedEvent> e, UserState state)
     {
         state.IsDeleted = true; // mark that current user is deleted now
 

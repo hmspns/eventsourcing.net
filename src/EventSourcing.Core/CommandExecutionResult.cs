@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
-using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 
@@ -51,7 +50,7 @@ namespace EventSourcing.Core
         /// <param name="commandEnvelope">Command data.</param>
         /// <param name="message">Error message.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static CommandExecutionResult<TId> Error(ICommandEnvelope<TId> commandEnvelope, string message)
+        public static CommandExecutionResult<TId> Error(ICommandEnvelope<TId> commandEnvelope, string? message)
         {
             return new CommandExecutionResult<TId>(commandEnvelope, false, false, message);
         }
@@ -77,7 +76,7 @@ namespace EventSourcing.Core
         /// <param name="isAccepted">Whether command was accepted.</param>
         /// <param name="hasChanges">Whether there are some changes (= events were produced).</param>
         /// <param name="errorCode">Optional error code.</param>
-        public CommandExecutionResult(ICommandEnvelope<TId> commandEnvelope, bool isAccepted, bool hasChanges, string errorCode = null)
+        public CommandExecutionResult(ICommandEnvelope<TId> commandEnvelope, bool isAccepted, bool hasChanges, string? errorCode = null)
         {
             AggregateId = commandEnvelope.AggregateId;
             CommandId = commandEnvelope.CommandId;
@@ -116,6 +115,6 @@ namespace EventSourcing.Core
         /// <summary>
         /// Error code.
         /// </summary>
-        public string ErrorCode { get; }
+        public string? ErrorCode { get; }
     }
 }

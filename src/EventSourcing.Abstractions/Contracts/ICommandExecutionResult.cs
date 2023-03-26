@@ -36,6 +36,6 @@ namespace EventSourcing.Abstractions.Contracts
         /// <summary>
         /// Error code.
         /// </summary>
-        string ErrorCode { get; }
+        string? ErrorCode { get; }
     }
 }

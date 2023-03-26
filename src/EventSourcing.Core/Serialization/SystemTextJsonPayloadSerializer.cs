@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.Json;
 using System.Threading;
-using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Serialization;

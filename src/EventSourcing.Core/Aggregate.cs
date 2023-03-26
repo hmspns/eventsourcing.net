@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;

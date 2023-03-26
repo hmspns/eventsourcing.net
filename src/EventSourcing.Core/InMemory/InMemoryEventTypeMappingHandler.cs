@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core.InMemory;
