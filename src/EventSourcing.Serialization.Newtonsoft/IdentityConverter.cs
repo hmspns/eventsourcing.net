@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace EventSourcing.Serialization.Newtonsoft
 {
-    public class IdentityConverter : JsonConverter<IIdentity>
+    public sealed class IdentityConverter : JsonConverter<IIdentity>
     {
         public override void WriteJson(JsonWriter writer, IIdentity value, JsonSerializer serializer)
         {

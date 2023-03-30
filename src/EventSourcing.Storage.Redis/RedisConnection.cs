@@ -2,7 +2,7 @@
 
 namespace EventSourcing.Storage.Redis;
 
-public class RedisConnection : IRedisConnection, IDisposable
+public sealed class RedisConnection : IRedisConnection, IDisposable
 {
     private long _lastReconnectTicks = DateTimeOffset.MinValue.UtcTicks;
     private DateTimeOffset _firstError = DateTimeOffset.MinValue;

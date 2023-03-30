@@ -30,7 +30,8 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             RedisValue value = await database.HashGetAsync(_tenantId.ToString(), streamName.ToString());
-            SnapshotEnvelope envelope = FromRedisValue(ref value);
+            SnapshotEnvelope envelope = SnapshotEnvelope.Empty;
+            FromRedisValue(ref value, ref envelope);
             if (envelope.IsEmpty)
             {
                 return NoSnapshot(streamName);
@@ -69,7 +70,8 @@ public sealed class RedisSnapshotStore : ISnapshotStore
                 AggregateVersion = snapshot.Version,
                 Type = type
             };
-            RedisValue value = ToRedisValue(ref envelope);
+            RedisValue value = RedisValue.Null;
+            ToRedisValue(ref envelope, ref value);
 
             await database.HashSetAsync(_tenantId.ToString(), streamName.ToString(), value);
         }
@@ -87,7 +89,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         Version = AggregateVersion.NotCreated
     };
 
-    private RedisValue ToRedisValue(ref SnapshotEnvelope envelope)
+    private void ToRedisValue(ref SnapshotEnvelope envelope, ref RedisValue result)
     {
         int capacity = envelope.State.Length + envelope.Type.Length * 2 + 24;
         using MemoryStream ms = new MemoryStream(capacity);
@@ -102,15 +104,15 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         Memory<byte> rawMemory = rawData.AsMemory();
         Memory<byte> data = rawMemory.Slice(0, (int)ms.Length);
         
-        RedisValue result = data;
-        return result;
+        result = data;
     }
 
-    private SnapshotEnvelope FromRedisValue(ref RedisValue value)
+    private void FromRedisValue(ref RedisValue value, ref SnapshotEnvelope result)
     {
         if (!value.HasValue)
         {
-            return SnapshotEnvelope.Empty;
+            result = SnapshotEnvelope.Empty;
+            return;
         }
 
         ReadOnlyMemory<byte> memory = value;
@@ -122,7 +124,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         int dataLength = reader.ReadInt32();
         byte[] data = reader.ReadBytes(dataLength);
 
-        return new SnapshotEnvelope()
+        result = new SnapshotEnvelope()
         {
             State = data,
             AggregateVersion = version,

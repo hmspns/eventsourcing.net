@@ -19,7 +19,8 @@ public static class EventSourcingOptionsExtensions
         options._services.Remove(typeof(IAppendOnly));
         options._services.AddTransient<IResolveAppender>(x =>
         {
-            IPayloadSerializer payloadSerializer = x.GetRequiredService<IPayloadSerializer>();
+            IEventsPayloadSerializerFactory serializerFactory = x.GetRequiredService<IEventsPayloadSerializerFactory>();
+            IPayloadSerializer payloadSerializer = serializerFactory.GetSerializer();
             return new PgAppenderResolver(connectionString, payloadSerializer);
         });
         return options;

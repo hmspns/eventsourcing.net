@@ -5,7 +5,7 @@ using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Core.NoImplementation;
 
-public class NoEventPublisherResolver : IResolveEventPublisher
+public sealed class NoEventPublisherResolver : IResolveEventPublisher
 {
     private static IEventPublisher _publisher = new NoEventPublisher();
     
@@ -15,7 +15,7 @@ public class NoEventPublisherResolver : IResolveEventPublisher
     }
 }
 
-public class NoEventPublisher : IEventPublisher
+public sealed class NoEventPublisher : IEventPublisher
 {
     public Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {

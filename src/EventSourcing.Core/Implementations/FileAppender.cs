@@ -9,7 +9,7 @@ using EventSourcing.Abstractions.Types;
 namespace EventSourcing.Core.Implementations;
 
 /// <inheritdoc />
-public class FileAppender : IAppendOnly
+public sealed class FileAppender : IAppendOnly
 {
     private readonly Stream? _stream;
 

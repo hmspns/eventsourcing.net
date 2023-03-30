@@ -5,7 +5,7 @@ using EventSourcing.Abstractions.Identities;
 namespace EventSourcing.Storage.Postgres
 {
     /// <inheritdoc />
-    public class PgAppenderResolver : IResolveAppender
+    public sealed class PgAppenderResolver : IResolveAppender
     {
         private readonly string _connectionString;
         private readonly IPayloadSerializer _serializer;

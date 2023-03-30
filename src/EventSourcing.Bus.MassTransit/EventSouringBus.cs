@@ -10,7 +10,7 @@ using MassTransit.Mediator;
 namespace EventSourcing.Bus.MassTransit
 {
     /// <inheritdoc />
-    public class EventSourcingCommandBus : IEventSourcingCommandBus
+    public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     {
         private readonly IMediator _mediator;
 

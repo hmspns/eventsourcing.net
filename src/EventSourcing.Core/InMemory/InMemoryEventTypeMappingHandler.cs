@@ -8,13 +8,15 @@ using EventSourcing.Abstractions.Contracts;
 namespace EventSourcing.Core.InMemory;
 
 /// <inheritdoc />
-public class InMemoryEventTypeMappingHandler : IEventTypeMappingHandler
+public sealed class InMemoryEventTypeMappingHandler : IEventTypeMappingHandler
 {
-    private static readonly IReadOnlyDictionary<string, Type> _mappings = AppDomain.CurrentDomain.GetAssemblies()
-        .SelectMany(x => x.GetTypes())
-        .Where(x => x.IsAssignableTo(typeof(IEvent)))
-        .ToDictionary(x => x.FullName, x => x, StringComparer.Ordinal);
-    
+    private readonly IReadOnlyDictionary<string, Type> _mappings;
+
+    public InMemoryEventTypeMappingHandler(IReadOnlyDictionary<string, Type> mappings)
+    {
+        _mappings = mappings;
+    }
+
     public Type GetEventType(string stringRepresentation)
     {
         if (stringRepresentation == null)
@@ -32,7 +34,7 @@ public class InMemoryEventTypeMappingHandler : IEventTypeMappingHandler
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual string GetStringRepresentation(Type type)
+    public string GetStringRepresentation(Type type)
     {
         return type.FullName;
     }
