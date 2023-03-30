@@ -33,7 +33,6 @@ namespace EventSourcing.Core
         {
             ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(commandEnvelope.TenantId);
             IEventStore eventStore = _engine.EventStoreResolver.Get(commandEnvelope.TenantId);
-            IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
             
             StreamId streamId = StreamId.Parse(commandEnvelope.AggregateId.ToString());
             ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
@@ -54,7 +53,8 @@ namespace EventSourcing.Core
                     {
                         return cancelledResult;
                     }
-                        
+                    
+                    IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
                     IAppendEventsResult result = await eventStore.AppendToStream(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted);
                     await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted);
                     await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.Commit(result));

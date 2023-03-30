@@ -22,12 +22,7 @@ namespace EventSourcing.Abstractions.Contracts
         /// <summary>
         /// State data.
         /// </summary>
-        object State { get; }
-
-        /// <summary>
-        /// Id of snapshot.
-        /// </summary>
-        Guid Id { get; }
+        object? State { get; }
 
         /// <summary>
         /// Name of the stream.

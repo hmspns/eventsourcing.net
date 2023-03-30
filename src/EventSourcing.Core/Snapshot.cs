@@ -11,15 +11,13 @@ namespace EventSourcing.Core
         public Snapshot()
         {
             HasSnapshot = false;
-            Id = Guid.Empty;
-            Version = 0;
+            Version = AggregateVersion.NotCreated;
             State = null;
         }
 
         public Snapshot(StreamId streamId, object state, AggregateVersion version)
         {
             StreamName = streamId;
-            Id = Guid.NewGuid();
             State = state;
             HasSnapshot = state != null;
             Version = version;
@@ -35,8 +33,6 @@ namespace EventSourcing.Core
         public AggregateVersion Version { get; init; }
 
         public object State { get; init; }
-
-        public Guid Id { get; init; }
 
         public StreamId StreamName { get; init; }
     }

@@ -30,7 +30,6 @@ namespace EventSourcing.Core.NoImplementation
             return Task.FromResult<ISnapshot>(new Snapshot(streamName, null, AggregateVersion.NotCreated)
             {
                 HasSnapshot = false,
-                Id = Guid.Empty,
             });
         }
 
