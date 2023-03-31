@@ -14,12 +14,12 @@ public sealed class RedisSnapshotStore : ISnapshotStore
 {
     private readonly IRedisConnection _redisConnection;
     private readonly TenantId _tenantId;
-    private readonly IPayloadSerializer _payloadSerializer;
+    private readonly ISnapshotsSerializerFactory _serializerFactory;
 
-    internal RedisSnapshotStore(IRedisConnection redisConnection, IPayloadSerializer payloadSerializer,
+    internal RedisSnapshotStore(IRedisConnection redisConnection, ISnapshotsSerializerFactory _serializerFactory,
         TenantId tenantId)
     {
-        _payloadSerializer = payloadSerializer;
+        this._serializerFactory = _serializerFactory;
         _tenantId = tenantId;
         _redisConnection = redisConnection;
     }
@@ -37,7 +37,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
                 return NoSnapshot(streamName);
             }
 
-            object state = _payloadSerializer.Deserialize(envelope.State, envelope.Type);
+            object state = _serializerFactory.Get().Deserialize(envelope.State, envelope.Type);
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
@@ -63,7 +63,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
-            byte[] data = _payloadSerializer.Serialize(snapshot.State, out string type);
+            byte[] data = _serializerFactory.Get().Serialize(snapshot.State, out string type);
             SnapshotEnvelope envelope = new SnapshotEnvelope()
             {
                 State = data,

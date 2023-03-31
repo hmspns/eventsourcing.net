@@ -5,20 +5,15 @@ namespace EventSourcing.Core.Serialization;
 /// <inheritdoc />
 public sealed class SystemTextJsonEventsSerializerFactory : IEventsPayloadSerializerFactory
 {
-    private readonly SystemTextJsonPayloadSerializer _serializer;
+    private readonly SystemTextJsonEventsPayloadSerializer _serializer;
 
     public SystemTextJsonEventsSerializerFactory(IEventTypeMappingHandler handler)
     {
-        _serializer = new SystemTextJsonPayloadSerializer(handler);
+        _serializer = new SystemTextJsonEventsPayloadSerializer(handler);
     }
     
     public IPayloadSerializer GetSerializer()
     {
         return _serializer;
     }
-}
-
-public sealed class SystemTextJsonSnapshotsSerializerFactory
-{
-    
 }

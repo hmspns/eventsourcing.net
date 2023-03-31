@@ -77,6 +77,7 @@ public sealed class EventSourcingOptions
         _services.AddTransient<IEventSourcingEngine, EventSourcingEngine>();
         _services.AddSingleton<IResolveAppender, InMemoryResolveAppender>();
         _services.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>();
+        _services.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>();
         
          if (_eventTypeMappingHandler == null)
          {

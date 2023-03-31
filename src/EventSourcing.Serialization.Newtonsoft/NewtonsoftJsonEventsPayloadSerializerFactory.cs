@@ -8,7 +8,7 @@ public sealed class NewtonsoftJsonEventsPayloadSerializerFactory : IEventsPayloa
     
     public NewtonsoftJsonEventsPayloadSerializerFactory(IEventTypeMappingHandler mappingHandler)
     {
-        _serializer = new NewtonsoftJsonPayloadSerializer(mappingHandler);
+        _serializer = new NewtonsoftJsonEventsPayloadSerializer(mappingHandler);
     }
     
     public IPayloadSerializer GetSerializer()

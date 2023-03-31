@@ -7,29 +7,21 @@ using Newtonsoft.Json;
 namespace EventSourcing.Serialization.Newtonsoft;
 
 /// <inheritdoc />
-public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
+public sealed class NewtonsoftJsonEventsPayloadSerializer : IPayloadSerializer
 {
-    private static JsonSerializerSettings _settings = new JsonSerializerSettings()
+    private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
     {
         Formatting = Formatting.Indented,
+        ReferenceLoopHandling = ReferenceLoopHandling.Error,
         Converters = new List<JsonConverter>()
         {
             new IdentityConverter()
         }
     };
-    
-    /// <summary>
-    /// Get or set serializing options.
-    /// </summary>
-    public static JsonSerializerSettings SerializationOptions
-    {
-        get => _settings;
-        set => Interlocked.Exchange(ref _settings, value);
-    }
 
     private readonly IEventTypeMappingHandler _eventTypeMappingHandler;
 
-    public NewtonsoftJsonPayloadSerializer(IEventTypeMappingHandler eventTypeMappingHandler)
+    public NewtonsoftJsonEventsPayloadSerializer(IEventTypeMappingHandler eventTypeMappingHandler)
     {
         _eventTypeMappingHandler = eventTypeMappingHandler;
     }

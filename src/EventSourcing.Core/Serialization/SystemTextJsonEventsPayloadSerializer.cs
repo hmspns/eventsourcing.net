@@ -6,26 +6,17 @@ using EventSourcing.Abstractions.Contracts;
 namespace EventSourcing.Core.Serialization;
 
 /// <inheritdoc />
-public sealed class SystemTextJsonPayloadSerializer : IPayloadSerializer
+public sealed class SystemTextJsonEventsPayloadSerializer : IPayloadSerializer
 {
     private readonly IEventTypeMappingHandler _eventTypeMappingHandler;
     
-    private static JsonSerializerOptions _options = new JsonSerializerOptions()
+    private static readonly JsonSerializerOptions _options = new JsonSerializerOptions()
     {
         WriteIndented = true,
         Converters = { new IIdentityConverter() }
     };
-
-    /// <summary>
-    /// Get or set serializing options.
-    /// </summary>
-    public static JsonSerializerOptions SerializationOptions
-    {
-        get => _options;
-        set => Interlocked.Exchange(ref _options, value);
-    }
-
-    public SystemTextJsonPayloadSerializer(IEventTypeMappingHandler eventTypeMappingHandler)
+    
+    public SystemTextJsonEventsPayloadSerializer(IEventTypeMappingHandler eventTypeMappingHandler)
     {
         _eventTypeMappingHandler = eventTypeMappingHandler;
     }
