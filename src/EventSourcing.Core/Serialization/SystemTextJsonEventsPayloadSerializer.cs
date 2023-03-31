@@ -34,11 +34,11 @@ public sealed class SystemTextJsonEventsPayloadSerializer : IPayloadSerializer
         return data;
     }
 
-    public object Deserialize(byte[] data, string type)
+    public object Deserialize(Memory<byte> data, string type)
     {
         Type t = _eventTypeMappingHandler.GetEventType(type);
 
-        Span<byte> span = data;
+        Span<byte> span = data.Span;
 
         object result = JsonSerializer.Deserialize(span, t, _options);
         return result;

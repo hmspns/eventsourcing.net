@@ -240,7 +240,7 @@ LIMIT $2 OFFSET $3;";
             await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync();
 
             List<EventPackage> results = new List<EventPackage>((int)Math.Min(8192, (long)(to - from)));
-
+            
             while (await reader.ReadAsync())
             {
                 string payloadType = reader.GetString(7);

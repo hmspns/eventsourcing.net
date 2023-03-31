@@ -25,11 +25,11 @@ public sealed class SystemTextJsonSnapshotPayloadSerializer : IPayloadSerializer
         return data;
     }
 
-    public object Deserialize(byte[] data, string type)
+    public object Deserialize(Memory<byte> data, string type)
     {
         Type t = Type.GetType(type);
 
-        Span<byte> span = data;
+        Span<byte> span = data.Span;
 
         object result = JsonSerializer.Deserialize(span, t, _options);
         return result;

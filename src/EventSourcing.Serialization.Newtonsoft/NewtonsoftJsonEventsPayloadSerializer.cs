@@ -37,11 +37,11 @@ public sealed class NewtonsoftJsonEventsPayloadSerializer : IPayloadSerializer
         return SerializeJson(obj);
     }
 
-    public object Deserialize(byte[] data, string type)
+    public object Deserialize(Memory<byte> data, string type)
     {
-        if (data == null)
+        if (data.IsEmpty)
         {
-            throw new ArgumentNullException(nameof(data));
+            throw new ArgumentException("Data is empty", nameof(data));
         }
 
         if (string.IsNullOrWhiteSpace(type))
@@ -67,9 +67,9 @@ public sealed class NewtonsoftJsonEventsPayloadSerializer : IPayloadSerializer
         return ms.ToArray();
     }
     
-    private object DeserializeJson(Type objectType, byte[] content)
+    private object DeserializeJson(Type objectType, Memory<byte> content)
     {
-        using MemoryStream ms = new MemoryStream(content);
+        using MemoryStream ms = new MemoryStream(content.ToArray());
         using TextReader tr = new StreamReader(ms);
         using JsonTextReader jr = new JsonTextReader(tr)
         {

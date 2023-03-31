@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Abstractions.Contracts
+﻿using System;
+
+namespace EventSourcing.Abstractions.Contracts
 {
     /// <summary>
     /// Contract for payload serialization.
@@ -19,6 +21,6 @@
         /// <param name="data">Binary data.</param>
         /// <param name="type">Type of serialized data.</param>
         /// <returns>Deserialized object.</returns>
-        object Deserialize(byte[] data, string type);
+        object Deserialize(Memory<byte> data, string type);
     }
 }
