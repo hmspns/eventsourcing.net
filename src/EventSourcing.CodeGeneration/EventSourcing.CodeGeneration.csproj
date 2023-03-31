@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="Identities.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>Identities.cs</LastGenOutput>
+      </None>
+      <None Update="StreamId.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>StreamId.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Identities.cs">
+        <DependentUpon>Identities.tt</DependentUpon>
+      </Compile>
+      <Compile Update="StreamId.cs">
+        <AutoGen>True</AutoGen>
+        <DesignTime>True</DesignTime>
+        <DependentUpon>StreamId.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+</Project>
