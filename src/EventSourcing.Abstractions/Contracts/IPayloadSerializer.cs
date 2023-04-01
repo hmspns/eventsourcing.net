@@ -21,6 +21,6 @@ namespace EventSourcing.Abstractions.Contracts
         /// <param name="data">Binary data.</param>
         /// <param name="type">Type of serialized data.</param>
         /// <returns>Deserialized object.</returns>
-        object Deserialize(Memory<byte> data, string type);
+        object? Deserialize(Memory<byte> data, string type);
     }
 }

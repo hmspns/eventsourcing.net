@@ -15,7 +15,7 @@ namespace EventSourcing.Core
             State = null;
         }
 
-        public Snapshot(StreamId streamId, object state, AggregateVersion version)
+        public Snapshot(StreamId streamId, object? state, AggregateVersion version)
         {
             StreamName = streamId;
             State = state;
@@ -32,7 +32,7 @@ namespace EventSourcing.Core
 
         public AggregateVersion Version { get; init; }
 
-        public object State { get; init; }
+        public object? State { get; init; }
 
         public StreamId StreamName { get; init; }
     }

@@ -57,13 +57,13 @@ namespace EventSourcing.Abstractions.Contracts
     /// <inheritdoc />
     public interface ICommandEnvelope<out TId> : ICommandEnvelope
     {
-        TId AggregateId { get; }
+        new TId AggregateId { get; }
     }
 
     /// <inheritdoc />
     public interface ICommandEnvelope<out TId, out TPayload> : ICommandEnvelope<TId> where TPayload : ICommand
     {
-        TPayload Payload { get; }
+        new TPayload Payload { get; }
         
         object ICommandEnvelope.AggregateId => AggregateId;
 

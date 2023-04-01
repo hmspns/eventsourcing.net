@@ -18,7 +18,7 @@ public sealed class NewtonsoftJsonSnapshotPayloadSerializer : IPayloadSerializer
             throw new ArgumentNullException(nameof(obj));
         }
 
-        type = obj.GetType().AssemblyQualifiedName;
+        type = obj.GetType().AssemblyQualifiedName!;
         return SerializeJson(obj);
     }
 
@@ -34,7 +34,11 @@ public sealed class NewtonsoftJsonSnapshotPayloadSerializer : IPayloadSerializer
             throw new ArgumentException("Type must be not an empty string", nameof(type));
         }
 
-        Type t = Type.GetType(type);
+        Type? t = Type.GetType(type);
+        if (t == null)
+        {
+            throw new ArgumentException($"Couldn't find proper Type for {type}");
+        }
         
         return DeserializeJson(t, data);
     }
@@ -52,7 +56,7 @@ public sealed class NewtonsoftJsonSnapshotPayloadSerializer : IPayloadSerializer
         return ms.ToArray();
     }
     
-    private object DeserializeJson(Type objectType, Memory<byte> content)
+    private object? DeserializeJson(Type objectType, Memory<byte> content)
     {
         using MemoryStream ms = new MemoryStream(content.ToArray());
         using TextReader tr = new StreamReader(ms);

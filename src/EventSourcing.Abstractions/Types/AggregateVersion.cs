@@ -49,7 +49,7 @@ namespace EventSourcing.Abstractions.Types
             return _version.ToString();
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             if (ReferenceEquals(null, obj))
             {
@@ -79,7 +79,7 @@ namespace EventSourcing.Abstractions.Types
             return _version == (long)other;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is AggregateVersion other && Equals(other);
         }

@@ -63,7 +63,7 @@ namespace EventSourcing.Abstractions.Types
             return _version == (long)other;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is StreamPosition other && Equals(other);
         }

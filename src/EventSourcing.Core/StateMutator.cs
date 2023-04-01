@@ -8,7 +8,7 @@ namespace EventSourcing.Core
     /// <inheritdoc />
     public abstract class StateMutator<TState> : IStateMutator<TState> where TState : class
     {
-        private readonly Dictionary<Type, Func<IEventEnvelope, TState, TState>> _handlers = new ();
+        private readonly Dictionary<Type, Func<IEventEnvelope, TState, TState>> _handlers = new (7);
         
         /// <summary>
         /// Register event handler.
@@ -18,7 +18,13 @@ namespace EventSourcing.Core
         /// <typeparam name="TPayload">Type of payload.</typeparam>
         protected void Register<TId, TPayload>(Func<IEventEnvelope<TId, TPayload>, TState, TState> handler) where TPayload : IEvent
         {
-            _handlers[typeof(TPayload)] = (@event, state) => handler((IEventEnvelope<TId, TPayload>)@event, state);
+            // use non-generic version of IEventEnvelop<TId, TPayload> to allow call from non generic context.
+            TState GeneralHandler(IEventEnvelope @event, TState state)
+            {
+                return handler((IEventEnvelope<TId, TPayload>)@event, state);
+            }
+
+            _handlers[typeof(TPayload)] = GeneralHandler;
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ public sealed class NewtonsoftJsonEventsPayloadSerializer : IPayloadSerializer
         return ms.ToArray();
     }
     
-    private object DeserializeJson(Type objectType, Memory<byte> content)
+    private object? DeserializeJson(Type objectType, Memory<byte> content)
     {
         using MemoryStream ms = new MemoryStream(content.ToArray());
         using TextReader tr = new StreamReader(ms);

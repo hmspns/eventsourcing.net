@@ -110,7 +110,7 @@ namespace EventSourcing.Abstractions.Types
         /// <summary>
         /// Get prefix pattern.
         /// </summary>
-        public string[] PrefixPattern { get; init; }
+        public string[]? PrefixPattern { get; init; }
 
         /// <summary>
         /// Get filter type.

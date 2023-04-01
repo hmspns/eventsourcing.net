@@ -21,15 +21,15 @@ namespace EventSourcing.Core
         /// <summary>
         /// Initialize new object.
         /// </summary>
-        /// <param name="id">Aggregate id.</param>
+        /// <param name="aggregateId">Aggregate id.</param>
         /// <param name="stateMutator">Instance of state mutator.</param>
         /// <exception cref="ArgumentNullException">Aggregate id or state mutator is null.</exception>
         /// <exception cref="InvalidOperationException">State mutator or Default state is null.</exception>
-        protected Aggregate(TId id, TStateMutator stateMutator)
+        protected Aggregate(TId aggregateId, TStateMutator stateMutator)
         {
-            if (id == null)
+            if (aggregateId == null)
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentNullException(nameof(aggregateId));
             }
 
             if (stateMutator == null)
@@ -42,7 +42,7 @@ namespace EventSourcing.Core
                 throw new InvalidOperationException($"Aggregate StateMutator must have a default State defined, check {typeof(TStateMutator)}.DefaultState");
             }
             
-            AggregateId = id;
+            AggregateId = aggregateId;
             Version = AggregateVersion.NotCreated;
             State = stateMutator;
             State.Transition(State.DefaultState);
