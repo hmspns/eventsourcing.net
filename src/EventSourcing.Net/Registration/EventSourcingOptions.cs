@@ -72,17 +72,18 @@ public sealed class EventSourcingOptions
 
     internal void Build()
     {
-        _services.AddTransient<IResolveEventStore, EventStoreResolver>();
-        _services.AddTransient<IResolveSnapshotStore, NoSnapshotStoreResolver>();
-        _services.AddTransient<IEventSourcingEngine, EventSourcingEngine>();
-        _services.AddSingleton<IResolveAppender, InMemoryResolveAppender>();
-        _services.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>();
-        _services.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>();
+        _services.IfNotRegistered<IResolveEventStore>(x => x.AddTransient<IResolveEventStore, EventStoreResolver>());
+        _services.IfNotRegistered<IResolveSnapshotStore>(x => x.AddTransient<IResolveSnapshotStore, NoSnapshotStoreResolver>());
+        _services.IfNotRegistered<IEventSourcingEngine>(x => x.AddTransient<IEventSourcingEngine, EventSourcingEngine>());
+        _services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
+        _services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
+        _services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
         
          if (_eventTypeMappingHandler == null)
          {
              RegisterEventTypesMapping();
          }
-         _services.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler);
+
+         _services.IfNotRegistered<IEventTypeMappingHandler>(x => x.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler));
     }
 }

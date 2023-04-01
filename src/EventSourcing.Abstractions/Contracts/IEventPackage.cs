@@ -43,7 +43,7 @@ namespace EventSourcing.Abstractions.Contracts
         /// <summary>
         /// Event data.
         /// </summary>
-        public object Payload { get; set; }
+        public object? Payload { get; set; }
         
         /// <summary>
         /// Timestamp of event.

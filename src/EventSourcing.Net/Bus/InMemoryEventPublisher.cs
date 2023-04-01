@@ -40,6 +40,7 @@ public sealed class InMemoryEventPublisher : IEventPublisher
 
     public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
+        await using var scope = _provider.CreateAsyncScope();
         foreach (IEventEnvelope envelope in events)
         {
             Type envelopeType = GetEnvelopeInterfaceType(envelope);
@@ -48,7 +49,7 @@ public sealed class InMemoryEventPublisher : IEventPublisher
             {
                 foreach (EventConsumerActivation activator in activators)
                 {
-                    object instance = ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
+                    object instance = ActivatorUtilities.GetServiceOrCreateInstance(scope.ServiceProvider, activator.Type);
                     Task result = (Task)activator.Method.Invoke(instance, new[] { envelope });
                     await result;
                 }

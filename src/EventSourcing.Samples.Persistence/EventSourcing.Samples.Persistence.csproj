@@ -9,10 +9,21 @@
     <ItemGroup>
       <ProjectReference Include="..\EventSourcing.Abstractions\EventSourcing.Abstractions.csproj" />
       <ProjectReference Include="..\EventSourcing.Core\EventSourcing.Core.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
+      <ProjectReference Include="..\EventSourcing.Storage.Postgres\EventSourcing.Storage.Postgres.csproj" />
+      <ProjectReference Include="..\EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.15" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
+      <PackageReference Include="Npgsql" Version="7.0.2" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pages\Accounts.razor.cs">
+        <DependentUpon>Accounts.razor</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

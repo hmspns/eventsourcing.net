@@ -32,7 +32,7 @@ public static class EventSourcingServicesExtensions
 
         return services;
     }
-
+    
     internal static void Remove(this IServiceCollection services, Type interfaceType)
     {
         ServiceDescriptor? descriptor = services.FirstOrDefault(x => x.ServiceType == interfaceType);
@@ -40,5 +40,27 @@ public static class EventSourcingServicesExtensions
         {
             services.Remove(descriptor);
         }
+    }
+
+    internal static void Remove<TInterface>(this IServiceCollection services) where TInterface : class
+    {
+        Remove(services, typeof(TInterface));
+    }
+    
+    internal static bool IsRegistered<TInterface>(this IServiceCollection services)
+    {
+        return services.Any(x => x.ServiceType == typeof(TInterface));
+    }
+
+    internal static IServiceCollection IfNotRegistered<T>(
+        this IServiceCollection services,
+        Action<IServiceCollection> handler)
+    {
+        if (!services.IsRegistered<T>())
+        {
+            handler(services);
+        }
+
+        return services;
     }
 }

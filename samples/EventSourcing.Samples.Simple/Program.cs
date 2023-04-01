@@ -7,8 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 Assembly assembly = Assembly.GetExecutingAssembly();
 
 IServiceCollection services = new ServiceCollection();
-services
-    .AddEventSourcing(options =>
+services.AddEventSourcing(options =>
     {
         options.Bus.RegisterImplicitCommandHandlers(assembly);
         options.Bus.RegisterEventConsumers(assembly);

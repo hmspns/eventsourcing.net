@@ -53,7 +53,7 @@ public sealed class EventSourcingBusOptions
         RegisterEventConsumers(types);
     }
 
-    private void RegisterEventConsumers(Type[] types)
+    public void RegisterEventConsumers(Type[] types)
     {
         EventConsumers consumers = new EventConsumers();
         foreach (Type type in types)
@@ -74,12 +74,12 @@ public sealed class EventSourcingBusOptions
                 }
 
                 _services.Remove(type);
-                _services.AddTransient(type);
+                _services.AddScoped(type);
             }
         }
 
-        var results = consumers.GetResults();
-        _services.Remove(typeof(IResolveEventPublisher));
+        Dictionary<Type, EventConsumerActivation[]> results = consumers.GetResults();
+        _services.Remove<IResolveEventPublisher>();
         _services.AddSingleton<IResolveEventPublisher>(x =>
         {
             return new InMemoryEventPublisherResolver(x, results);
@@ -122,7 +122,7 @@ public sealed class EventSourcingBusOptions
         }
 
         handlers.TrimExcess();
-        _services.Remove(typeof(IEventSourcingCommandBus));
+        _services.Remove<IEventSourcingCommandBus>();
         _services.AddSingleton<IEventSourcingCommandBus>(x => new InMemoryCommandBus(x, handlers));
     }
 

@@ -12,7 +12,7 @@ namespace EventSourcing.Core
     {
         EventId EventId { set; }
         
-        IIdentity AggregateId { set; }
+        object AggregateId { set; }
         
         object Payload { set; }
         
@@ -50,7 +50,7 @@ namespace EventSourcing.Core
         
         public TenantId TenantId { get; set; }
 
-        IIdentity IInitializablePayloadEvent.AggregateId
+        object IInitializablePayloadEvent.AggregateId
         {
             set => AggregateId = (TId)value;
         }

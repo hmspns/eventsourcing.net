@@ -1,15 +1,25 @@
+using EventSourcing.Samples.Persistence;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using EventSourcing.Samples.Persistence.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.json");
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
+// register db context
+builder.Services.RegisterDbContext(builder.Configuration);
+// register event sourcing
+builder.Services.RegisterEventSourcing(builder.Configuration);
+
 var app = builder.Build();
+
+// create databases for example
+await app.CreateDatabases();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

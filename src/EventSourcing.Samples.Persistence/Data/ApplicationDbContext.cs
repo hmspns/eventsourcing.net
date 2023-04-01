@@ -2,33 +2,25 @@
 
 namespace EventSourcing.Samples.Persistence.Data;
 
-public sealed class AccountDb
-{
-    public Guid Id { get; set; }
-    
-    public string OwnerName { get; set; }
-    
-    public DateTime CreationDate { get; set; }
-    
-    public DateTime? ClosingDate { get; set; }
-}
-
-public sealed class AccountOperationDb
-{
-    public Guid Id { get; set; }
-    
-    public Guid AccountId { get; set; }
-    
-    public bool IsWithdrawn { get; set; }
-    
-    public decimal Amount { get; set; }
-    
-    public DateTime OperationDate { get; set; }
-}
-
 public sealed class ApplicationDbContext : DbContext
 {
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+        
+    }
+    
     public DbSet<AccountDb> Accounts { get; set; }
     
     public DbSet<AccountOperationDb> AccountOperations { get; set; }
+}
+
+/// <summary>
+/// It's using to create events db only.
+/// </summary>
+public sealed class EventsDbContext : DbContext
+{
+    public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
+    {
+        
+    }
 }
