@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Contracts;
@@ -39,10 +40,14 @@ namespace EventSourcing.Core.Implementations
             IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to);
 
             List<IEventEnvelope> events = new List<IEventEnvelope>();
-            foreach (IEventPackage eventPackage in dbEvents.Events)
+            if (dbEvents.Events.Length > 0)
             {
-                IEventEnvelope eventEnvelope = eventPackage.ToEventEnvelope<TId>();
-                events.Add(eventEnvelope);
+                Func<string, object> parser = AggregateIdParsingProvider.Instance.GetParser<TId>();
+                foreach (IEventPackage eventPackage in dbEvents.Events)
+                {
+                    IEventEnvelope eventEnvelope = eventPackage.ToEventEnvelope<TId>(parser);
+                    events.Add(eventEnvelope);
+                }
             }
 
             AggregateVersion version = AggregateVersion.NotCreated;

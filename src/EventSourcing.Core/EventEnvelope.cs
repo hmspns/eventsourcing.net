@@ -8,11 +8,11 @@ namespace EventSourcing.Core
     /// <summary>
     /// Interface to encapsulate set methods.
     /// </summary>
-    internal interface IInitializablePayloadEvent
+    internal interface IInitializablePayloadEvent<TId>
     {
         EventId EventId { set; }
         
-        object AggregateId { set; }
+        TId AggregateId { set; }
         
         object Payload { set; }
         
@@ -30,12 +30,12 @@ namespace EventSourcing.Core
     }
 
     /// <inheritdoc />
-    public class EventEnvelope<TId, TPayload> : IEventEnvelope<TId, TPayload>, IInitializablePayloadEvent where TPayload : IEvent
+    public class EventEnvelope<TId, TPayload> : IEventEnvelope<TId, TPayload>, IInitializablePayloadEvent<TId> where TPayload : IEvent
     {
         public EventId EventId { get; set; } = EventId.New();
         
         public TId AggregateId { get; set; }
-        
+
         public TPayload Payload { get; set; }
 
         public DateTime Timestamp { get; set; }
@@ -50,12 +50,7 @@ namespace EventSourcing.Core
         
         public TenantId TenantId { get; set; }
 
-        object IInitializablePayloadEvent.AggregateId
-        {
-            set => AggregateId = (TId)value;
-        }
-
-        object IInitializablePayloadEvent.Payload
+        object IInitializablePayloadEvent<TId>.Payload
         {
             set => Payload = (TPayload)value;
         }

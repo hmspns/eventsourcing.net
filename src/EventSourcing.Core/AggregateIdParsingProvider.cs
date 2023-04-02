@@ -21,7 +21,7 @@ internal sealed class AggregateIdParsingProvider
 
     #endregion
 
-    private ConcurrentDictionary<Type, Func<string, object?>> _handlers = new ConcurrentDictionary<Type, Func<string, object>>();
+    private readonly ConcurrentDictionary<Type, Func<string, object?>> _handlers = new ConcurrentDictionary<Type, Func<string, object>>();
 
     internal TId Parse<TId>(string value)
     {
@@ -34,6 +34,17 @@ internal sealed class AggregateIdParsingProvider
         return (TId)handler(value);
     }
 
+    internal Func<string, object> GetParser<TId>()
+    {
+        Type idType = typeof(TId);
+        if (!_handlers.TryGetValue(idType, out Func<string, object?>? parser))
+        {
+            parser = RegisterHandler<TId>();
+        }
+
+        return parser!;
+    }
+    
     private Func<string, object?> RegisterHandler<TId>()
     {
         Type idType = typeof(TId);
