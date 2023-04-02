@@ -4,5 +4,25 @@
 
 <h1>Accounts</h1>
 
-<button class="btn btn-primary"  @onclick="CreateAccount">Create test account</button>
+<button class="btn btn-primary" @onclick="CreateAccount">Create test account</button>
 
+@if (Results.Any())
+{
+    <table>
+        <tr>
+            <th>Command type</th>
+            <th>Command id</th>
+            <th>Is accepted</th>
+            <th>Has changes</th>
+        </tr>
+        @foreach (var result in Results)
+        {
+            <tr>
+                <td>@result.CommandType.Name</td>
+                <td>@result.CommandId</td>
+                <td>@result.IsAccepted</td>
+                <td>@result.HasChanges</td>
+            </tr>
+        }
+    </table>
+}

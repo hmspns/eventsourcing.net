@@ -1,4 +1,5 @@
-﻿using EventSourcing.Abstractions.Identities;
+﻿using System;
+using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Abstractions.Contracts
 {
@@ -37,5 +38,10 @@ namespace EventSourcing.Abstractions.Contracts
         /// Error code.
         /// </summary>
         string? ErrorCode { get; }
+        
+        /// <summary>
+        /// Command type.
+        /// </summary>
+        Type CommandType { get; }
     }
 }

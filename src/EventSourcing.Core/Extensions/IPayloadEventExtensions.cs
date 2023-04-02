@@ -7,7 +7,7 @@ internal static class IEventPackageExtensions
 {
     internal static IEventEnvelope ToEventEnvelope(this IEventPackage eventPackage)
     {
-        IIdentity aggregateId = IIdentity.FromStreamId(eventPackage.StreamName);
+        object aggregateId = eventPackage.StreamName.ToString();
         Type aggregateIdType = aggregateId.GetType();
         Type payloadType = eventPackage.Payload.GetType();
         Type baseType = typeof(EventEnvelope<,>);

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using EventSourcing.Abstractions.Contracts;
@@ -84,6 +85,7 @@ namespace EventSourcing.Core
             IsAccepted = isAccepted;
             HasChanges = hasChanges;
             ErrorCode = errorCode;
+            CommandType = commandEnvelope.Payload.GetType();
         }
         
         /// <summary>
@@ -106,7 +108,6 @@ namespace EventSourcing.Core
         /// </summary>
         public bool IsAccepted { get; }
 
-
         /// <summary>
         /// Whether there are any changes (means events were generated).
         /// </summary>
@@ -116,5 +117,10 @@ namespace EventSourcing.Core
         /// Error code.
         /// </summary>
         public string? ErrorCode { get; }
+
+        /// <summary>
+        /// Command type.
+        /// </summary>
+        public Type CommandType { get; }
     }
 }

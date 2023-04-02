@@ -30,8 +30,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             RedisValue value = await database.HashGetAsync(_tenantId.ToString(), streamName.ToString());
-            SnapshotEnvelope envelope = SnapshotEnvelope.Empty;
-            FromRedisValue(ref value, ref envelope);
+            FromRedisValue(ref value, out SnapshotEnvelope envelope);
             if (envelope.IsEmpty)
             {
                 return NoSnapshot(streamName);
@@ -70,8 +69,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
                 AggregateVersion = snapshot.Version,
                 Type = type
             };
-            RedisValue value = RedisValue.Null;
-            ToRedisValue(ref envelope, ref value);
+            ToRedisValue(ref envelope, out RedisValue value);
 
             await database.HashSetAsync(_tenantId.ToString(), streamName.ToString(), value);
         }
@@ -89,7 +87,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         Version = AggregateVersion.NotCreated
     };
 
-    private void ToRedisValue(ref SnapshotEnvelope envelope, ref RedisValue result)
+    private void ToRedisValue(ref SnapshotEnvelope envelope, out RedisValue result)
     {
         int capacity = envelope.State.Length + envelope.Type.Length * 2 + 24;
         using MemoryStream ms = new MemoryStream(capacity);
@@ -107,7 +105,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         result = data;
     }
 
-    private void FromRedisValue(ref RedisValue value, ref SnapshotEnvelope result)
+    private void FromRedisValue(ref RedisValue value, out SnapshotEnvelope result)
     {
         if (!value.HasValue)
         {

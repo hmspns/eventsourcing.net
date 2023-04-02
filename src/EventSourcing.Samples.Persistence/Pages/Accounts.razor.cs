@@ -9,7 +9,9 @@ public partial class Accounts
 {
     [Inject]
     private IEventSourcingCommandBus Bus { get; set; }
-    
+
+    private List<ICommandExecutionResult<Guid>> Results { get; set; } = new List<ICommandExecutionResult<Guid>>();
+
     private async Task CreateAccount()
     {
         AccountDataGenerationService service = new AccountDataGenerationService(Bus);

@@ -22,6 +22,7 @@ public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStat
     public ICommandExecutionResult<Guid> ReplenishAccount(ICommandEnvelope<Guid, ReplenishAccountCommand> cmd)
     {
         if (State.Current is { IsCreated: true, IsClosed: false } &&
+            cmd.Payload.Amount > 0 &&
             State.Current.LastOperationTimestamp < cmd.Timestamp)
         {
             // if we don't process this operation yet
@@ -39,10 +40,10 @@ public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStat
             {
                 return CommandExecutionResult<Guid>.Error(cmd, "Not enough money to provide withdrawn");
             }
-
-            // if we don't process this operation yet
-            if (State.Current.LastOperationTimestamp < cmd.Timestamp)
+            
+            if (cmd.Payload.Amount > 0 && State.Current.LastOperationTimestamp < cmd.Timestamp)
             {
+                // if we don't process this operation yet
                 Apply(cmd, new AccountWithdrawnEvent(cmd.Payload.OperationId, cmd.Payload.Amount));
             }
         }

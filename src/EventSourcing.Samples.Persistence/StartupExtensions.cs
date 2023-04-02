@@ -33,7 +33,7 @@ public static class StartupExtensions
             options.Bus.RegisterImplicitCommandHandlers(assembly);
             options.Bus.RegisterEventConsumers(assembly);
             options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"));
-            options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"));
+            //options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"));
         });
 
         return services;
