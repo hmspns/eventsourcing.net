@@ -34,14 +34,14 @@ namespace EventSourcing.Core.Implementations
             _appender = appender;
         }
         
-        public async Task<EventsStream> LoadEventsStream(StreamId streamName, StreamPosition from, StreamPosition to)
+        public async Task<EventsStream> LoadEventsStream<TId>(StreamId streamName, StreamPosition from, StreamPosition to)
         {
             IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to);
 
             List<IEventEnvelope> events = new List<IEventEnvelope>();
             foreach (IEventPackage eventPackage in dbEvents.Events)
             {
-                IEventEnvelope eventEnvelope = eventPackage.ToEventEnvelope();
+                IEventEnvelope eventEnvelope = eventPackage.ToEventEnvelope<TId>();
                 events.Add(eventEnvelope);
             }
 

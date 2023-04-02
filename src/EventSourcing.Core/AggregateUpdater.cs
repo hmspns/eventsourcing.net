@@ -36,7 +36,7 @@ namespace EventSourcing.Core
             
             StreamId streamId = StreamId.Parse(commandEnvelope.AggregateId.ToString());
             ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
-            EventsStream events = await eventStore.LoadEventsStream(streamId, (StreamPosition)snapshot.Version, StreamPosition.End);
+            EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, (StreamPosition)snapshot.Version, StreamPosition.End);
             
             TAggregate aggregate = _activator(commandEnvelope.AggregateId);
 

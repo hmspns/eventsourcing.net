@@ -30,7 +30,7 @@ namespace EventSourcing.Abstractions.Contracts
         /// <param name="from">Start position.</param>
         /// <param name="to">End position.</param>
         /// <returns>Events stream.</returns>
-        Task<EventsStream> LoadEventsStream(StreamId streamName, StreamPosition from, StreamPosition to);
+        Task<EventsStream> LoadEventsStream<TId>(StreamId streamName, StreamPosition from, StreamPosition to);
 
         /// <summary>
         /// Add events to the stream.

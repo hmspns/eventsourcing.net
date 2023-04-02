@@ -65,7 +65,7 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
         ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
 
         IEventStore eventStore = _engine.EventStoreResolver.Get(tenantId);
-        EventsStream events = await eventStore.LoadEventsStream(streamId, snapshot.Version, StreamPosition.End);
+        EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, snapshot.Version, StreamPosition.End);
 
         IStateMutator<TState> stateMutator = _activator();
         object state = snapshot.HasSnapshot ? snapshot.State : stateMutator.DefaultState;

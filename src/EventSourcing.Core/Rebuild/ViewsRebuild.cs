@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
@@ -94,8 +95,9 @@ public sealed class ViewsRebuilder
     {
         foreach (IEventPackage eventPackage in events.Events)
         {
-            IEventEnvelope e = eventPackage.ToEventEnvelope();
-            await _eventBus.Send(e);
+            throw new NotImplementedException();
+            //IEventEnvelope e = eventPackage.ToEventEnvelope();
+            //await _eventBus.Send(e);
         }
     }
 }
