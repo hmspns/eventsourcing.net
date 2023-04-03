@@ -18,16 +18,17 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
     where TStateMutator : IStateMutator<TState>
 {
     private readonly List<IEventEnvelope> _events = new();
+    private readonly TStateMutator _mutator;
     private AggregateVersion _snapshotVersion = AggregateVersion.NotCreated;
-        
+
     /// <summary>
     /// Initialize new object.
     /// </summary>
     /// <param name="aggregateId">Aggregate id.</param>
-    /// <param name="stateMutator">Instance of state mutator.</param>
+    /// <param name="mutator">Instance of state mutator.</param>
     /// <exception cref="ArgumentNullException">Aggregate id or state mutator is null.</exception>
     /// <exception cref="InvalidOperationException">State mutator or Default state is null.</exception>
-    protected Aggregate(TId aggregateId, TStateMutator stateMutator)
+    protected Aggregate(TId aggregateId, TStateMutator mutator)
     {
         if (aggregateId == null)
         {
@@ -35,27 +36,27 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
         }
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (stateMutator == null)
+        if (mutator == null)
         {
-            Thrown.ArgumentNullException(nameof(stateMutator));
+            Thrown.ArgumentNullException(nameof(mutator));
         }
             
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (stateMutator.DefaultState == null)
+        if (mutator.DefaultState == null)
         {
             Thrown.InvalidOperationException($"Aggregate StateMutator must have a default State defined, check {typeof(TStateMutator).ToString()}.DefaultState");
         }
             
         AggregateId = aggregateId;
         Version = AggregateVersion.NotCreated;
-        State = stateMutator;
-        State.Transition(State.DefaultState);
+        _mutator = mutator;
+        _mutator.Transition(_mutator.DefaultState);
     }
-        
+
     /// <summary>
     /// Get the current state.
     /// </summary>
-    protected TStateMutator State { get; }
+    protected TState State => _mutator.Current;
         
     /// <summary>
     /// Get aggregate id.
@@ -91,7 +92,7 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
 
         if (snapshot.HasSnapshot)
         {
-            State.Transition(snapshot.State);
+            _mutator.Transition(snapshot.State);
             Version = snapshot.Version;
             _snapshotVersion = snapshot.Version;
         }
@@ -124,10 +125,17 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
     /// </summary>
     /// <param name="appendResult">Result of save events process.</param>
     /// <returns>Snapshot of the aggregate.</returns>
-    ISnapshot IAggregate.Commit(IAppendEventsResult appendResult)
+    ISnapshot IAggregate.GetSnapshot(IAppendEventsResult appendResult)
+    {
+        return new Snapshot(StreamName, State, appendResult.Version);
+    }
+
+    /// <summary>
+    /// Clear uncommitted events.
+    /// </summary>
+    protected void ClearUncommittedEvents()
     {
         _events.Clear();
-        return new Snapshot(StreamName, State.Current, appendResult.Version);
     }
 
     /// <summary>
@@ -159,7 +167,7 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
     /// <param name="shouldCommitted">Should event be committed.</param>
     private void Apply(IEventEnvelope eventEnvelope, bool shouldCommitted)
     {
-        State.Transition(eventEnvelope);
+        _mutator.Transition(eventEnvelope);
         if (shouldCommitted)
         {
             _events.Add(eventEnvelope);

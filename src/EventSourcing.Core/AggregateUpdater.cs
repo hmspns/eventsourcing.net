@@ -57,7 +57,7 @@ internal sealed class AggregateUpdater<TId, TAggregate> where TAggregate : IAggr
                 IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
                 IAppendEventsResult result = await eventStore.AppendToStream(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted);
                 await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted);
-                await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.Commit(result));
+                await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.GetSnapshot(result));
             }
             catch (AppendOnlyStoreConcurrencyException e)
             {

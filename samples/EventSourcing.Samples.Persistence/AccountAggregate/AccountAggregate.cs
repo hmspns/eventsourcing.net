@@ -11,7 +11,7 @@ public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStat
 
     public ICommandExecutionResult<Guid> CreateAccount(ICommandEnvelope<Guid, CreateAccountCommand> cmd)
     {
-        if (!State.Current.IsCreated)
+        if (!State.IsCreated)
         {
             Apply(cmd, new AccountCreatedEvent(cmd.Payload.OwnerName));
         }
@@ -21,9 +21,9 @@ public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStat
 
     public ICommandExecutionResult<Guid> ReplenishAccount(ICommandEnvelope<Guid, ReplenishAccountCommand> cmd)
     {
-        if (State.Current is { IsCreated: true, IsClosed: false } &&
+        if (State is { IsCreated: true, IsClosed: false } &&
             cmd.Payload.Amount > 0 &&
-            State.Current.LastOperationTimestamp < cmd.Timestamp)
+            State.LastOperationTimestamp < cmd.Timestamp)
         {
             // if we don't process this operation yet
             Apply(cmd, new AccountReplenishedEvent(cmd.Payload.OperationId, cmd.Payload.Amount));
@@ -34,14 +34,14 @@ public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStat
 
     public ICommandExecutionResult<Guid> WithdrawAccount(ICommandEnvelope<Guid, WithdrawAccountCommand> cmd)
     {
-        if (State.Current is { IsCreated: true, IsClosed: false })
+        if (State is { IsCreated: true, IsClosed: false })
         {
-            if (State.Current.Amount < cmd.Payload.Amount)
+            if (State.Amount < cmd.Payload.Amount)
             {
                 return CommandExecutionResult<Guid>.Error(cmd, "Not enough money to provide withdrawn");
             }
             
-            if (cmd.Payload.Amount > 0 && State.Current.LastOperationTimestamp < cmd.Timestamp)
+            if (cmd.Payload.Amount > 0 && State.LastOperationTimestamp < cmd.Timestamp)
             {
                 // if we don't process this operation yet
                 Apply(cmd, new AccountWithdrawnEvent(cmd.Payload.OperationId, cmd.Payload.Amount));
@@ -53,9 +53,9 @@ public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStat
 
     public ICommandExecutionResult<Guid> CloseAccount(ICommandEnvelope<Guid, CloseAccountCommand> cmd)
     {
-        if (State.Current is { IsCreated: true, IsClosed: false })
+        if (State is { IsCreated: true, IsClosed: false })
         {
-            if (State.Current.Amount > 0)
+            if (State.Amount > 0)
             {
                 return CommandExecutionResult<Guid>.Error(cmd, "Non-zero account can't be closed");
             }

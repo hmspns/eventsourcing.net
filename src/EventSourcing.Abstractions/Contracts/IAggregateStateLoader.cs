@@ -11,10 +11,12 @@ namespace EventSourcing.Abstractions.Contracts;
 public interface IAggregateStateLoader<in TId, TState>
 {
     /// <summary>
-    /// Return state for a specific aggregate.
+    /// Return state for specific aggregate.
     /// </summary>
     /// <param name="tenantId">Tenant id.</param>
     /// <param name="aggregateId">Aggregate id.</param>
-    /// <returns>Aggregate state.</returns>
-    Task<TState> GetState(TenantId tenantId, TId aggregateId);
+    /// <param name="useSnapshot">Should snapshot be used to create state.</param>
+    /// <typeparam name="TState">State type.</typeparam>
+    /// <returns>Current state of the aggregate.</returns>
+    Task<TState> GetState(TenantId tenantId, TId aggregateId, bool useSnapshot = true);
 }

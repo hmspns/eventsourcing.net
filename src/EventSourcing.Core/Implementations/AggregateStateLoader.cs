@@ -55,14 +55,20 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
     /// </summary>
     /// <param name="tenantId">Tenant id.</param>
     /// <param name="aggregateId">Aggregate id.</param>
+    /// <param name="useSnapshot">Should snapshot be used to create state.</param>
     /// <typeparam name="TState">State type.</typeparam>
     /// <returns>Current state of the aggregate.</returns>
-    public async Task<TState> GetState(TenantId tenantId, TId aggregateId)
+    public async Task<TState> GetState(TenantId tenantId, TId aggregateId, bool useSnapshot = true)
     {
         StreamId streamId = StreamId.Parse(aggregateId?.ToString());
-        
-        ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(tenantId);
-        ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
+
+        ISnapshot snapshot = Snapshot.Empty(streamId);
+
+        if (useSnapshot)
+        {
+            ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(tenantId);
+            snapshot = await snapshotStore.LoadSnapshot(streamId);
+        }
 
         IEventStore eventStore = _engine.EventStoreResolver.Get(tenantId);
         EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, snapshot.Version, StreamPosition.End);

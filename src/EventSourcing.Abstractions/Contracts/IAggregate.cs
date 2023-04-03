@@ -42,11 +42,11 @@ public interface IAggregate
     internal void LoadEvents(EventsStream eventsStream);
 
     /// <summary>
-    /// Marked the aggregate as committed.
+    /// Get snapshot of aggregate.
     /// </summary>
     /// <param name="appendResult">Result of save events process.</param>
     /// <returns>Snapshot of the aggregate.</returns>
-    internal ISnapshot Commit(IAppendEventsResult appendResult);
+    internal ISnapshot GetSnapshot(IAppendEventsResult appendResult);
 }
 
 /// <summary>
