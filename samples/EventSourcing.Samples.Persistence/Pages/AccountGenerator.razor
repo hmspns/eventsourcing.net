@@ -8,28 +8,26 @@
 
 <button class="btn btn-primary" @onclick="CreateAccount">Create test account</button>
 
-<div>
-    @if (Results.Any())
-    {
-        <p>These commands were produced</p>
-        <table class="table">
-            <thead>
+@if (Results.Any())
+{
+    <p>These commands were produced</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Command type</th>
+            <th>Command id</th>
+            <th>Is accepted</th>
+            <th>Has changes</th>
+        </tr>
+        </thead>
+        @foreach (var result in Results)
+        {
             <tr>
-                <th>Command type</th>
-                <th>Command id</th>
-                <th>Is accepted</th>
-                <th>Has changes</th>
+                <td>@result.CommandType.Name</td>
+                <td>@result.CommandId</td>
+                <td>@result.IsAccepted</td>
+                <td>@result.HasChanges</td>
             </tr>
-            </thead>
-            @foreach (var result in Results)
-            {
-                <tr>
-                    <td>@result.CommandType.Name</td>
-                    <td>@result.CommandId</td>
-                    <td>@result.IsAccepted</td>
-                    <td>@result.HasChanges</td>
-                </tr>
-            }
-        </table>
-    }
-</div>
+        }
+    </table>
+}
