@@ -7,11 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Abstractions\EventSourcing.Abstractions.csproj" />
-      <ProjectReference Include="..\EventSourcing.Core\EventSourcing.Core.csproj" />
-      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
-      <ProjectReference Include="..\EventSourcing.Storage.Postgres\EventSourcing.Storage.Postgres.csproj" />
-      <ProjectReference Include="..\EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Core\EventSourcing.Core.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net\EventSourcing.Net.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Storage.Postgres\EventSourcing.Storage.Postgres.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj" />
     </ItemGroup>
 
     <ItemGroup>

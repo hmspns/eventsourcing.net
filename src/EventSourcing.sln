@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Simpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Storage.Redis", "EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj", "{7175C6E2-D981-41EB-B08B-00DDD0097FA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Persistence", "EventSourcing.Samples.Persistence\EventSourcing.Samples.Persistence.csproj", "{C7195CD6-6571-415B-9F7A-F6356D15D5E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Persistence", "..\samples\EventSourcing.Samples.Persistence\EventSourcing.Samples.Persistence.csproj", "{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}"
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
@@ -71,10 +71,10 @@ Global
 		{7175C6E2-D981-41EB-B08B-00DDD0097FA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7175C6E2-D981-41EB-B08B-00DDD0097FA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7175C6E2-D981-41EB-B08B-00DDD0097FA3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7195CD6-6571-415B-9F7A-F6356D15D5E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7195CD6-6571-415B-9F7A-F6356D15D5E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7195CD6-6571-415B-9F7A-F6356D15D5E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7195CD6-6571-415B-9F7A-F6356D15D5E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +82,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FC39728A-92EB-4D88-8B5B-70ABF3C0B668} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
-		{C7195CD6-6571-415B-9F7A-F6356D15D5E7} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
+		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 	EndGlobalSection
 EndGlobal

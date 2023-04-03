@@ -21,7 +21,7 @@ internal sealed class AggregateIdParsingProvider
 
     #endregion
 
-    private readonly ConcurrentDictionary<Type, Func<string, object?>> _handlers = new ConcurrentDictionary<Type, Func<string, object>>();
+    private readonly ConcurrentDictionary<Type, Func<string, object?>> _handlers = new ConcurrentDictionary<Type, Func<string, object?>>();
 
     internal TId Parse<TId>(string value)
     {
