@@ -13,21 +13,31 @@ public static class EventSourcingOptionsExtensions
     /// <param name="options">Configuration options.</param>
     /// <param name="connectionString">Connection string to Postgres DB.</param>
     /// <returns>Configuration options.</returns>
-    public static EventSourcingOptions UsePostgresEventsStore(this EventSourcingOptions options, string connectionString)
+    public static PostgresOptions UsePostgresEventsStore(this EventSourcingOptions options, string connectionString)
     {
         if (connectionString == null)
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
+        
         options._services.Remove<IResolveAppender>();
         options._services.Remove<IAppendOnly>();
         options._services.AddSingleton<IResolveAppender>(x =>
         {
             IEventsPayloadSerializerFactory serializerFactory = x.GetRequiredService<IEventsPayloadSerializerFactory>();
             IPayloadSerializer payloadSerializer = serializerFactory.GetSerializer();
-            return new PgAppenderResolver(connectionString, payloadSerializer);
+            IPgCommandTextProvider commandTextProvider = x.GetRequiredService<IPgCommandTextProvider>();
+            IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
+            PgStorageOptions storageOptions = x.GetRequiredService<PgStorageOptions>();
+            
+            return new PgAppenderResolver(
+                connectionString,
+                payloadSerializer,
+                commandTextProvider,
+                commandsBuilder,
+                storageOptions);
         });
-        return options;
+        return new PostgresOptions(options._services);
     }
 
     // /// <summary>

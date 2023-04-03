@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Storage.Redis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Persistence", "..\samples\EventSourcing.Samples.Persistence\EventSourcing.Samples.Persistence.csproj", "{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
