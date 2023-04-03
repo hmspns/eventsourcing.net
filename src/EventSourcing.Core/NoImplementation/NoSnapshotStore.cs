@@ -27,10 +27,7 @@ namespace EventSourcing.Core.NoImplementation
         /// <returns>Snapshot data.</returns>
         public Task<ISnapshot> LoadSnapshot(StreamId streamName)
         {
-            return Task.FromResult<ISnapshot>(new Snapshot(streamName, null, AggregateVersion.NotCreated)
-            {
-                HasSnapshot = false,
-            });
+            return Task.FromResult<ISnapshot>(new Snapshot(streamName, null, AggregateVersion.NotCreated));
         }
 
         /// <summary>

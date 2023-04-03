@@ -10,6 +10,11 @@ namespace EventSourcing.Abstractions.Contracts
     public interface IAggregate
     {
         /// <summary>
+        /// Events that were generated but not committed yet.
+        /// </summary>
+        internal IReadOnlyList<IEventEnvelope> Uncommitted { get; }
+        
+        /// <summary>
         /// Aggregate id.
         /// </summary>
         object AggregateId { get; }
@@ -18,17 +23,12 @@ namespace EventSourcing.Abstractions.Contracts
         /// Aggregate version.
         /// </summary>
         AggregateVersion Version { get; }
-        
-        /// <summary>
-        /// Events that were generated but not committed yet.
-        /// </summary>
-        internal IReadOnlyList<IEventEnvelope> Uncommitted { get; }
-        
+
         /// <summary>
         /// Name of the stream.
         /// </summary>
         StreamId StreamName { get; }
-
+        
         /// <summary>
         /// Load snapshot into the aggregate.
         /// </summary>

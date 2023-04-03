@@ -35,10 +35,13 @@ public static class EventSourcingServicesExtensions
     
     internal static void Remove(this IServiceCollection services, Type interfaceType)
     {
-        ServiceDescriptor? descriptor = services.FirstOrDefault(x => x.ServiceType == interfaceType);
-        if (descriptor != null)
+        IEnumerable<ServiceDescriptor> descriptors = services.Where(x => x.ServiceType == interfaceType);
+        foreach (ServiceDescriptor? descriptor in descriptors)
         {
-            services.Remove(descriptor);
+            if (descriptor != null)
+            {
+                services.Remove(descriptor);
+            }
         }
     }
 
@@ -61,6 +64,16 @@ public static class EventSourcingServicesExtensions
             handler(services);
         }
 
+        return services;
+    }
+
+    internal static IServiceCollection Replace<TInterface>(
+        this IServiceCollection services,
+        Action<IServiceCollection> handler)
+        where TInterface : class
+    {
+        Remove<TInterface>(services);
+        handler(services);
         return services;
     }
 }

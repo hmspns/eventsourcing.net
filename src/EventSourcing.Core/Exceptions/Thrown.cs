@@ -10,4 +10,16 @@ internal static class Thrown
     {
         throw new InvalidOperationException(message, ex);
     }
+
+    [DoesNotReturn]
+    internal static void ArgumentNullException(string paramName, string? message = null)
+    {
+        throw new ArgumentNullException(paramName, message);
+    }
+    
+    [DoesNotReturn]
+    internal static void ArgumentException(string message, string? paramName = null, Exception? innerException = null)
+    {
+        throw new ArgumentException(message, paramName, innerException);
+    }
 }

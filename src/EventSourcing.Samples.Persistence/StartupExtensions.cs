@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 using EventSourcing.Net;
 using EventSourcing.Samples.Persistence.Data;
 using EventSourcing.Storage.Postgres;
@@ -33,7 +34,12 @@ public static class StartupExtensions
             options.Bus.RegisterImplicitCommandHandlers(assembly);
             options.Bus.RegisterEventConsumers(assembly);
             options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"));
-            //options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"));
+            options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"), new RedisSnapshotCreationPolicy()
+            {
+                Behaviour = RedisSnapshotCreationBehaviour.ThresholdCommit,
+                CommitThreshold = 10,
+                ExpireAfter = TimeSpan.FromMinutes(5)
+            });
         });
 
         return services;

@@ -10,7 +10,6 @@ namespace EventSourcing.Core
     {
         public Snapshot()
         {
-            HasSnapshot = false;
             Version = AggregateVersion.NotCreated;
             State = null;
         }
@@ -19,7 +18,6 @@ namespace EventSourcing.Core
         {
             StreamName = streamId;
             State = state;
-            HasSnapshot = state != null;
             Version = version;
         }
 
@@ -28,7 +26,7 @@ namespace EventSourcing.Core
             return new Snapshot(streamId, null, AggregateVersion.NotCreated);
         }
 
-        public bool HasSnapshot { get; init; }
+        public bool HasSnapshot => State != null;
 
         public AggregateVersion Version { get; init; }
 

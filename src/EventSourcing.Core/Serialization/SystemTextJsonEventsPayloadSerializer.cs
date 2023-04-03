@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Threading;
 using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core.Serialization;
 
@@ -25,7 +26,7 @@ public sealed class SystemTextJsonEventsPayloadSerializer : IPayloadSerializer
     {
         if (obj == null)
         {
-            throw new ArgumentNullException(nameof(obj));
+            Thrown.ArgumentNullException(nameof(obj));
         }
         
         type = _eventTypeMappingHandler.GetStringRepresentation(obj.GetType());

@@ -84,17 +84,17 @@ namespace EventSourcing.Core
         {
             if (cmd == null)
             {
-                throw new ArgumentNullException(nameof(cmd));
+                Thrown.ArgumentNullException(nameof(cmd));
             }
 
             if (cmd.AggregateId == null)
             {
-                throw new ArgumentException("Command.AggregateId mustn't be null");
+                Thrown.ArgumentException("Command.AggregateId shouldn't be null");
             }
 
             if (cmd.Payload == null)
             {
-                throw new ArgumentException("Command.Payload mustn't be null");
+                Thrown.ArgumentException("Command.Payload mustn't be null");
             }
 
             // if (string.IsNullOrEmpty(cmd.Source))

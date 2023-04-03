@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Core.Exceptions;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -110,7 +111,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
 
         if(!_handlers.TryGetValue(typeof(ICommandEnvelope<TId, TPayload>), out CommandHandlerActivation activator))
         {
-            throw new InvalidOperationException($"Handler for type {command.GetType()} not registered");
+            Thrown.InvalidOperationException($"Handler for type {command.GetType().ToString()} not registered");
         }
 
         return (command, activator);
@@ -139,7 +140,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
 
         if(!_handlers.TryGetValue(handlerType, out CommandHandlerActivation activator))
         {
-            throw new InvalidOperationException($"Handler for type {command.GetType()} not registered");
+            Thrown.InvalidOperationException($"Handler for type {command.GetType().ToString()} not registered");
         }
 
         return ((ICommandEnvelope<TId>)command, activator);

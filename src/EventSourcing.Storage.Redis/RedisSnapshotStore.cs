@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using CommunityToolkit.HighPerformance;
@@ -6,6 +7,7 @@ using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
 using EventSourcing.Core;
+using EventSourcing.Core.Exceptions;
 using StackExchange.Redis;
 
 namespace EventSourcing.Storage.Redis;
@@ -15,11 +17,19 @@ public sealed class RedisSnapshotStore : ISnapshotStore
     private readonly IRedisConnection _redisConnection;
     private readonly TenantId _tenantId;
     private readonly ISnapshotsSerializerFactory _serializerFactory;
+    private readonly RedisSnapshotCreationPolicy _redisSnapshotCreationPolicy;
+    private readonly IRedisKeyGenerator _keyGenerator;
 
-    internal RedisSnapshotStore(IRedisConnection redisConnection, ISnapshotsSerializerFactory _serializerFactory,
+    internal RedisSnapshotStore(
+        IRedisConnection redisConnection,
+        ISnapshotsSerializerFactory serializerFactory,
+        RedisSnapshotCreationPolicy redisSnapshotCreationPolicy,
+        IRedisKeyGenerator keyGenerator,
         TenantId tenantId)
     {
-        this._serializerFactory = _serializerFactory;
+        _keyGenerator = keyGenerator;
+        _redisSnapshotCreationPolicy = redisSnapshotCreationPolicy;
+        _serializerFactory = serializerFactory;
         _tenantId = tenantId;
         _redisConnection = redisConnection;
     }
@@ -29,14 +39,15 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
-            RedisValue value = await database.HashGetAsync(_tenantId.ToString(), streamName.ToString());
+            RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
+            RedisValue value = await database.StringGetAsync(key);
             FromRedisValue(ref value, out SnapshotEnvelope envelope);
             if (envelope.IsEmpty)
             {
                 return NoSnapshot(streamName);
             }
 
-            object state = _serializerFactory.Get().Deserialize(envelope.State, envelope.Type);
+            object? state = _serializerFactory.Get().Deserialize(envelope.State, envelope.Type);
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
@@ -46,13 +57,32 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         }
     }
 
-    public async Task SaveSnapshot(StreamId streamName, ISnapshot snapshot)
+    public Task SaveSnapshot(StreamId streamName, ISnapshot? snapshot)
     {
         if (snapshot == null)
         {
-            throw new ArgumentNullException(nameof(snapshot));
+            Thrown.ArgumentNullException(nameof(snapshot));
+        }
+        if (!snapshot.HasSnapshot)
+        {
+            return Task.CompletedTask;
         }
 
+        if (_redisSnapshotCreationPolicy.Behaviour == RedisSnapshotCreationBehaviour.EveryCommit)
+        {
+            return SaveSnapshotInternal(streamName, snapshot);
+        }
+
+        if (snapshot.Version % _redisSnapshotCreationPolicy.CommitThreshold == 0)
+        {
+            return SaveSnapshotInternal(streamName, snapshot);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveSnapshotInternal(StreamId streamName, ISnapshot snapshot)
+    {
         if (snapshot.State == null)
         {
             Trace.WriteLine($"Snapshot.State for {streamName.ToString()} is null");
@@ -71,7 +101,11 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             };
             ToRedisValue(ref envelope, out RedisValue value);
 
-            await database.HashSetAsync(_tenantId.ToString(), streamName.ToString(), value);
+            RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
+            TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
+                ? _redisSnapshotCreationPolicy.ExpireAfter
+                : null;
+            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget);
         }
         catch (ObjectDisposedException e)
         {
@@ -82,7 +116,6 @@ public sealed class RedisSnapshotStore : ISnapshotStore
     private ISnapshot NoSnapshot(StreamId streamName) => new Snapshot()
     {
         State = null,
-        HasSnapshot = false,
         StreamName = streamName,
         Version = AggregateVersion.NotCreated
     };

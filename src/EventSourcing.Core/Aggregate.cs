@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
+using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core
 {
@@ -17,6 +18,7 @@ namespace EventSourcing.Core
         where TStateMutator : IStateMutator<TState>
     {
         private readonly List<IEventEnvelope> _events = new();
+        private AggregateVersion _snapshotVersion = AggregateVersion.NotCreated;
         
         /// <summary>
         /// Initialize new object.
@@ -29,17 +31,19 @@ namespace EventSourcing.Core
         {
             if (aggregateId == null)
             {
-                throw new ArgumentNullException(nameof(aggregateId));
+                Thrown.ArgumentNullException(nameof(aggregateId));
             }
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (stateMutator == null)
             {
-                throw new ArgumentNullException(nameof(stateMutator));
+                Thrown.ArgumentNullException(nameof(stateMutator));
             }
             
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (stateMutator.DefaultState == null)
             {
-                throw new InvalidOperationException($"Aggregate StateMutator must have a default State defined, check {typeof(TStateMutator)}.DefaultState");
+                Thrown.InvalidOperationException($"Aggregate StateMutator must have a default State defined, check {typeof(TStateMutator).ToString()}.DefaultState");
             }
             
             AggregateId = aggregateId;
@@ -69,25 +73,27 @@ namespace EventSourcing.Core
         public IReadOnlyList<IEventEnvelope> Uncommitted => _events.AsReadOnly();
 
         /// <summary>
-        /// This property must be overriden if AggregateId doesn't return correct string representation by ToString method.
+        /// Get stream name.
         /// </summary>
+        /// <remarks>This property must be overriden if AggregateId doesn't return correct string representation by ToString method.</remarks>
         public virtual StreamId StreamName => StreamId.Parse(AggregateId!.ToString());
 
         /// <summary>
         /// Load snapshot into the aggregate.
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void LoadSnapshot(ISnapshot snapshot)
+        void IAggregate.LoadSnapshot(ISnapshot snapshot)
         {
             if (snapshot == null)
             {
-                throw new ArgumentNullException(nameof(snapshot));
+                Thrown.ArgumentNullException(nameof(snapshot));
             }
 
             if (snapshot.HasSnapshot)
             {
                 State.Transition(snapshot.State);
                 Version = snapshot.Version;
+                _snapshotVersion = snapshot.Version;
             }
         }
 
@@ -95,11 +101,11 @@ namespace EventSourcing.Core
         /// Load events into the aggregate.
         /// </summary>
         /// <param name="eventsStream"></param>
-        public void LoadEvents(EventsStream eventsStream)
+        void IAggregate.LoadEvents(EventsStream eventsStream)
         {
             if (eventsStream.From != Version)
             {
-                throw new InvalidOperationException("Cannot load stream, version is incorrect");
+                Thrown.InvalidOperationException("Cannot load stream, version is incorrect");
             }
 
             foreach (IEventEnvelope @event in eventsStream.Events)
@@ -107,7 +113,10 @@ namespace EventSourcing.Core
                 Apply(@event, false);
             }
 
-            Version = eventsStream.Version;
+            if (eventsStream.Version > _snapshotVersion)
+            {
+                Version = eventsStream.Version;
+            }
         }
 
         /// <summary>
@@ -115,7 +124,7 @@ namespace EventSourcing.Core
         /// </summary>
         /// <param name="appendResult">Result of save events process.</param>
         /// <returns>Snapshot of the aggregate.</returns>
-        public ISnapshot Commit(IAppendEventsResult appendResult)
+        ISnapshot IAggregate.Commit(IAppendEventsResult appendResult)
         {
             _events.Clear();
             return new Snapshot(StreamName, State.Current, appendResult.Version);

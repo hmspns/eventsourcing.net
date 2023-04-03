@@ -1,25 +1,76 @@
 ﻿using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Abstractions.Types;
+using EventSourcing.Core.Exceptions;
 using EventSourcing.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventSourcing.Storage.Redis;
 
 public static class EventSourcingOptionsExtensions
 {
-    public static EventSourcingOptions UseRedisSnapshotStore(this EventSourcingOptions options, string connectionString)
+    public static RedisOptions UseRedisSnapshotStore(
+        this EventSourcingOptions options,
+        string connectionString,
+        RedisSnapshotCreationPolicy? policy = null)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (connectionString == null)
         {
-            throw new ArgumentNullException(nameof(connectionString));
+            Thrown.ArgumentNullException(nameof(connectionString));
         }
-        options._services.Remove<IResolveSnapshotStore>();
-        options._services.AddSingleton<IResolveSnapshotStore>(x =>
+
+        if (policy == null)
         {
-            RedisConnection connection = new RedisConnection(connectionString);
-            ISnapshotsSerializerFactory serializerFactory = x.GetRequiredService<ISnapshotsSerializerFactory>();
-            return new RedisSnapshotStoreResolver(connection, serializerFactory);
+            policy = new RedisSnapshotCreationPolicy();
+        }
+
+        options._services.Replace<IRedisKeyGenerator>(x =>
+        {
+            x.AddSingleton<IRedisKeyGenerator>(x => new DefaultRedisKeyGenerator(policy));
+        });
+        options._services.Replace<IResolveSnapshotStore>(x =>
+        {
+            x.AddSingleton<IResolveSnapshotStore>(x =>
+            {
+                RedisConnection connection = new RedisConnection(connectionString);
+                ISnapshotsSerializerFactory serializerFactory = x.GetRequiredService<ISnapshotsSerializerFactory>();
+                IRedisKeyGenerator keyGenerator = x.GetRequiredService<IRedisKeyGenerator>();
+                return new RedisSnapshotStoreResolver(
+                    connection,
+                    serializerFactory,
+                    keyGenerator,
+                    policy
+                );
+            });
         });
 
-        return options;
+        return new RedisOptions(options._services);
+    }
+}
+
+public sealed class RedisOptions
+{
+    private readonly IServiceCollection _services;
+
+    internal RedisOptions(IServiceCollection services)
+    {
+        _services = services;
+    }
+
+    /// <summary>
+    /// Use custom IRedisKeyGenerator.
+    /// </summary>
+    /// <param name="keyGenerator">Implementation of IRedisKeyGenerator.</param>
+    /// <returns>Options.</returns>
+    /// <remarks>
+    /// Service will be registered as singleton.
+    /// Implementation of IRedisKeyGenerator should be thread-safe.
+    /// </remarks>
+    public RedisOptions UseRedisKeyGenerator(IRedisKeyGenerator keyGenerator)
+    {
+        _services.Remove<IRedisKeyGenerator>();
+        _services.AddSingleton<IRedisKeyGenerator>(keyGenerator);
+        return this;
     }
 }

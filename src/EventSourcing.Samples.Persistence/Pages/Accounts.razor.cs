@@ -15,6 +15,6 @@ public partial class Accounts
     private async Task CreateAccount()
     {
         AccountDataGenerationService service = new AccountDataGenerationService(Bus);
-        await service.CreateTestAccount();
+        Results.AddRange(await service.CreateTestAccount());
     }
 }
