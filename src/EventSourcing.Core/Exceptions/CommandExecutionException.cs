@@ -1,26 +1,25 @@
 ﻿using System;
 using EventSourcing.Abstractions.Contracts;
 
-namespace EventSourcing.Core.Exceptions
+namespace EventSourcing.Core.Exceptions;
+
+/// <summary>
+/// Exception during command execution.
+/// </summary>
+public sealed class CommandExecutionException : Exception
 {
     /// <summary>
-    /// Exception during command execution.
+    /// Initialize new object.
     /// </summary>
-    public sealed class CommandExecutionException : Exception
+    /// <param name="message">Message.</param>
+    /// <param name="commandEnvelope">Command data.</param>
+    internal CommandExecutionException(string message, ICommandEnvelope commandEnvelope) : base(message)
     {
-        /// <summary>
-        /// Initialize new object.
-        /// </summary>
-        /// <param name="message">Message.</param>
-        /// <param name="commandEnvelope">Command data.</param>
-        internal CommandExecutionException(string message, ICommandEnvelope commandEnvelope) : base(message)
-        {
-            CommandEnvelope = commandEnvelope;
-        }
-        
-        /// <summary>
-        /// Get command data.
-        /// </summary>
-        public ICommandEnvelope CommandEnvelope { get; }
+        CommandEnvelope = commandEnvelope;
     }
+        
+    /// <summary>
+    /// Get command data.
+    /// </summary>
+    public ICommandEnvelope CommandEnvelope { get; }
 }

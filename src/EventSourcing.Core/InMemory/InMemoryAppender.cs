@@ -7,98 +7,97 @@ using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
 
-namespace EventSourcing.Core.InMemory
+namespace EventSourcing.Core.InMemory;
+
+/// <inheritdoc />
+public sealed class InMemoryAppender : IAppendOnly
 {
-    /// <inheritdoc />
-    public sealed class InMemoryAppender : IAppendOnly
+    private readonly Dictionary<StreamId, List<EventPackage>> _data = new();
+    private readonly object _locker = new();
+
+    public Task<IAppendEventsResult> Append(StreamId streamName, IAppendDataPackage data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default)
     {
-        private readonly Dictionary<StreamId, List<EventPackage>> _data = new();
-        private readonly object _locker = new();
-
-        public Task<IAppendEventsResult> Append(StreamId streamName, IAppendDataPackage data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default)
+        lock (_locker)
         {
-            lock (_locker)
+            if (!_data.TryGetValue(streamName, out List<EventPackage>? items))
             {
-                if (!_data.TryGetValue(streamName, out List<EventPackage>? items))
+                items = new List<EventPackage>();
+                _data[streamName] = items;
+            }
+
+            int position = items.Count;
+            foreach (IAppendEventPackage package in data.EventPackages)
+            {
+                position++;
+                items.Add(new EventPackage()
                 {
-                    items = new List<EventPackage>();
-                    _data[streamName] = items;
-                }
-
-                int position = items.Count;
-                foreach (IAppendEventPackage package in data.EventPackages)
-                {
-                    position++;
-                    items.Add(new EventPackage()
-                    {
-                        PrincipalId = data.CommandPackage.PrincipalId,
-                        Payload = package.Payload,
-                        Timestamp = package.Timestamp,
-                        CommandId = data.CommandPackage.CommandId,
-                        EventId = package.EventId,
-                        SequenceId = data.CommandPackage.SequenceId,
-                        StreamName = package.StreamName,
-                        StreamPosition = position,
-                        TenantId = data.CommandPackage.TenantId
-                    });
-                }
-                AppendEventsResult result = new AppendEventsResult(true, position);
-
-                return Task.FromResult((IAppendEventsResult)result);
+                    PrincipalId = data.CommandPackage.PrincipalId,
+                    Payload = package.Payload,
+                    Timestamp = package.Timestamp,
+                    CommandId = data.CommandPackage.CommandId,
+                    EventId = package.EventId,
+                    SequenceId = data.CommandPackage.SequenceId,
+                    StreamName = package.StreamName,
+                    StreamPosition = position,
+                    TenantId = data.CommandPackage.TenantId
+                });
             }
-        }
+            AppendEventsResult result = new AppendEventsResult(true, position);
 
-        public Task<IEventsData> ReadSpecificStream(StreamId streamName, StreamPosition from, StreamPosition to)
+            return Task.FromResult((IAppendEventsResult)result);
+        }
+    }
+
+    public Task<IEventsData> ReadSpecificStream(StreamId streamName, StreamPosition from, StreamPosition to)
+    {
+        lock (_locker)
         {
-            lock (_locker)
+            if (!_data.TryGetValue(streamName, out List<EventPackage>? data))
             {
-                if (!_data.TryGetValue(streamName, out List<EventPackage>? data))
-                {
-                    return Task.FromResult<IEventsData>(new EventsData(Array.Empty<IEventPackage>(), StreamPosition.Begin));
-                }
-
-                return Task.FromResult<IEventsData>(new EventsData(data.Where(x => x.StreamPosition > from && x.StreamPosition <= to).Select(x => (IEventPackage)x).ToArray(), data.Count));
+                return Task.FromResult<IEventsData>(new EventsData(Array.Empty<IEventPackage>(), StreamPosition.Begin));
             }
-        }
 
-        public Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
-        {
-            lock (_locker)
-            {
-                throw new NotSupportedException();
-            }
+            return Task.FromResult<IEventsData>(new EventsData(data.Where(x => x.StreamPosition > from && x.StreamPosition <= to).Select(x => (IEventPackage)x).ToArray(), data.Count));
         }
+    }
 
-        public Task<StreamId[]> FindStreamIds(string startsWithPrefix)
+    public Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
+    {
+        lock (_locker)
         {
-            lock (_locker)
-            {
-                return Task.FromResult(_data.Keys
-                    .Select(x => x.ToString())
-                    .Where(x => x.StartsWith(startsWithPrefix, StringComparison.OrdinalIgnoreCase))
-                    .Select(x => new StreamId(x))
-                    .ToArray());
-            }
+            throw new NotSupportedException();
         }
+    }
 
-        public Task<bool> IsExist()
+    public Task<StreamId[]> FindStreamIds(string startsWithPrefix)
+    {
+        lock (_locker)
         {
-            return Task.FromResult(true);
+            return Task.FromResult(_data.Keys
+                .Select(x => x.ToString())
+                .Where(x => x.StartsWith(startsWithPrefix, StringComparison.OrdinalIgnoreCase))
+                .Select(x => new StreamId(x))
+                .ToArray());
         }
+    }
 
-        public Task Initialize()
-        {
-            return Task.CompletedTask;
-        }
+    public Task<bool> IsExist()
+    {
+        return Task.FromResult(true);
+    }
+
+    public Task Initialize()
+    {
+        return Task.CompletedTask;
+    }
         
-        public void Dispose()
-        {
-            // here is nothing to dispose
-        }
+    public void Dispose()
+    {
+        // here is nothing to dispose
+    }
 
-        public async ValueTask DisposeAsync()
-        {
-            // here is nothing to dispose
-        }
+    public async ValueTask DisposeAsync()
+    {
+        // here is nothing to dispose
     }
 }

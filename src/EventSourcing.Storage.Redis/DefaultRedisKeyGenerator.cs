@@ -35,7 +35,7 @@ internal sealed class DefaultRedisKeyGenerator : IRedisKeyGenerator
         RedisKey key;
         if (tenantId != TenantId.Empty)
         {
-            key = prefix + "|" + tenantId.Id + "|" + streamName;
+            key = prefix + "|" + tenantId.Id.ToString() + "|" + streamName;
         }
         else
         {
