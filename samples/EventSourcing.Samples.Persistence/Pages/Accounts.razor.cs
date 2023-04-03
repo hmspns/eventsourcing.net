@@ -1,20 +1,23 @@
-﻿using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Samples.Persistence.Services;
+﻿using EventSourcing.Samples.Persistence.Data;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventSourcing.Samples.Persistence.Pages;
 
 public partial class Accounts
 {
     [Inject]
-    private IEventSourcingCommandBus Bus { get; set; }
+    private ApplicationDbContext DbContext { get; set; }
+    
+    private AccountDb[] Data { get; set; }
 
-    private List<ICommandExecutionResult<Guid>> Results { get; set; } = new List<ICommandExecutionResult<Guid>>();
-
-    private async Task CreateAccount()
+    protected override async Task OnInitializedAsync()
     {
-        AccountDataGenerationService service = new AccountDataGenerationService(Bus);
-        Results.AddRange(await service.CreateTestAccount());
+        Data = await DbContext.Accounts.OrderBy(x => x.CreationDate).ToArrayAsync();
+    }
+
+    private async Task LoadAccount()
+    {
+        throw new NotImplementedException();
     }
 }

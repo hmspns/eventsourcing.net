@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Pages\Accounts.razor.cs">
+      <Compile Update="Pages\AccountGenerator.razor.cs">
         <DependentUpon>Accounts.razor</DependentUpon>
       </Compile>
     </ItemGroup>

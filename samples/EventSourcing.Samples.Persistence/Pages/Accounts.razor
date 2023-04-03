@@ -4,25 +4,35 @@
 
 <h1>Accounts</h1>
 
-<button class="btn btn-primary" @onclick="CreateAccount">Create test account</button>
-
-@if (Results.Any())
+@if (Data != null)
 {
-    <table>
+    <p>Accounts data</p>
+    <table class="table">
+        <thead>
         <tr>
-            <th>Command type</th>
-            <th>Command id</th>
-            <th>Is accepted</th>
-            <th>Has changes</th>
+            <th>Account id</th>
+            <th>Owner</th>
+            <th>Creation date</th>
+            <th>Closing date</th>
+            <th></th>
         </tr>
-        @foreach (var result in Results)
+        </thead>
+        @foreach (var result in Data)
         {
             <tr>
-                <td>@result.CommandType.Name</td>
-                <td>@result.CommandId</td>
-                <td>@result.IsAccepted</td>
-                <td>@result.HasChanges</td>
+                <td>@result.Id</td>
+                <td>@result.OwnerName</td>
+                <td>@result.CreationDate</td>
+                <td>@result.ClosingDate</td>
+                <td>
+                    <button @onclick="LoadAccount">Load account</button>
+                </td>
             </tr>
         }
     </table>
+}
+
+
+@code {
+    
 }
