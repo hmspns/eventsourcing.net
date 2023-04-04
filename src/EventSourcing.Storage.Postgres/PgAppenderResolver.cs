@@ -10,20 +10,17 @@ public sealed class PgAppenderResolver : IResolveAppender
 {
     private readonly NpgsqlDataSource _dataSource;
     private readonly IPayloadSerializer _serializer;
-    private readonly IPgCommandTextProvider _commandTextProvider;
     private readonly IPgCommandsBuilder _commandsBuilder;
     private readonly PgStorageOptions _storageOptions;
 
     public PgAppenderResolver(
         string connectionString,
         IPayloadSerializer serializer,
-        IPgCommandTextProvider commandTextProvider,
         IPgCommandsBuilder commandsBuilder,
         PgStorageOptions storageOptions)
     {
         _commandsBuilder = commandsBuilder;
         _storageOptions = storageOptions;
-        _commandTextProvider = commandTextProvider;
         _serializer = serializer;
 
         NpgsqlDataSourceBuilder builder = new NpgsqlDataSourceBuilder(connectionString);
@@ -33,6 +30,6 @@ public sealed class PgAppenderResolver : IResolveAppender
         
     public IAppendOnly Get(TenantId tenantId)
     {
-        return new PgSqlAppender(_serializer, _dataSource,  _commandTextProvider, _commandsBuilder, _storageOptions, tenantId);
+        return new PgSqlAppender(_serializer, _dataSource, _commandsBuilder, _storageOptions, tenantId);
     }
 }

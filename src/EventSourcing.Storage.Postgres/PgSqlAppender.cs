@@ -12,8 +12,6 @@ namespace EventSourcing.Storage.Postgres;
 
 public sealed class PgSqlAppender : IAppendOnly
 {
-
-
     protected const string INITIAL_COMMAND =
         @"
 CREATE SCHEMA IF NOT EXISTS ""{0}"";
@@ -65,19 +63,8 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
         @"SELECT stream_name FROM ""{0}"".""{1}"" 
               WHERE stream_name LIKE $1";
 
-    private const string GET_STREAM_DATA =
-        @"
-SELECT id, tenant_id, stream_position, ""timestamp"", command_id, sequence_id, principal_id, payload_type, payload
-FROM ""{0}"".""{1}""
-WHERE stream_name = $1
-ORDER BY stream_position ASC
-LIMIT $2 OFFSET $3;";
-
-    protected const string GET_STREAM_COUNT = @"SELECT COUNT(*) FROM ""{0}"".""{1}""";
-
     private readonly IPayloadSerializer _serializer;
     private readonly NpgsqlDataSource _dataSource;
-    private readonly IPgCommandTextProvider _commandTextProvider;
     private readonly IPgCommandsBuilder _commandsBuilder;
     private readonly PgStorageOptions _storageOptions;
     private readonly TenantId _tenantId;
@@ -98,7 +85,6 @@ LIMIT $2 OFFSET $3;";
     internal PgSqlAppender(
         IPayloadSerializer serializer,
         NpgsqlDataSource dataSource,
-        IPgCommandTextProvider commandTextProvider,
         IPgCommandsBuilder commandsBuilder,
         PgStorageOptions storageOptions,
         TenantId tenantId)
@@ -108,7 +94,6 @@ LIMIT $2 OFFSET $3;";
         _dataSource = dataSource;
         _serializer = serializer;
         _storageOptions = storageOptions;
-        _commandTextProvider = commandTextProvider;
         _eventsTableName = storageOptions.EventsTableName;
         _commandsTableName = storageOptions.CommandsTableName;
     }
@@ -220,14 +205,16 @@ LIMIT $2 OFFSET $3;";
 
         await using NpgsqlBatch batch = new NpgsqlBatch(conn);
 
-        NpgsqlBatchCommand getEventsStreamCommand = new NpgsqlBatchCommand(string.Format(GET_STREAM_DATA, SchemaName, _eventsTableName));
+        string schemaName = SchemaName;
+        NpgsqlBatchCommand getEventsCommand = _commandsBuilder.GetSelectEventsDataCommand(
+            streamName,
+            from,
+            to,
+            schemaName,
+            _eventsTableName);
 
-        getEventsStreamCommand.AddParameter(streamName.ToString());
-        getEventsStreamCommand.AddParameter(to - from);
-        getEventsStreamCommand.AddParameter(from);
-
-        batch.BatchCommands.Add(getEventsStreamCommand);
-        batch.BatchCommands.Add(GetEventsStreamCountCommand());
+        batch.BatchCommands.Add(getEventsCommand);
+        batch.BatchCommands.Add(_commandsBuilder.GetEventsStreamCountCommand(schemaName, _eventsTableName));
             
         await batch.PrepareAsync();
 
@@ -237,22 +224,7 @@ LIMIT $2 OFFSET $3;";
 
         while (await reader.ReadAsync())
         {
-            string payloadType = reader.GetString(7);
-            byte[] serialized = reader.GetFieldValue<byte[]>(8);
-
-            object? payload = _serializer.Deserialize(serialized, payloadType);
-
-            EventPackage package = new EventPackage();
-            package.EventId = reader.GetGuid(0);
-            package.TenantId = reader.GetGuid(1);
-            package.StreamName = streamName;
-            package.StreamPosition = reader.GetInt64(2);
-            package.Timestamp = reader.GetFieldValue<DateTime>(3);
-            package.CommandId = reader.GetGuid(4);
-            package.SequenceId = reader.GetGuid(5);
-            package.PrincipalId = PrincipalId.Parse(reader.GetString(6));
-            package.Payload = payload;
-
+            EventPackage package = ReadEventPackage(reader, streamName);
             results.Add(package);
         }
 
@@ -265,6 +237,8 @@ LIMIT $2 OFFSET $3;";
 
         return new EventsData(results.ToArray(), max);
     }
+
+
 
     /// <summary>
     /// Read event by given conditions.
@@ -389,15 +363,46 @@ LIMIT $2 OFFSET $3;";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte[] Serialize(object payload, out string type)
+    private byte[] Serialize(object payload, out string type)
     {
         return _serializer.Serialize(payload, out type);
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private NpgsqlBatchCommand GetEventsStreamCountCommand()
+
+    private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamId streamName)
     {
-        return new NpgsqlBatchCommand(string.Format(GET_STREAM_COUNT, SchemaName, _eventsTableName));
+        EventPackage package = new EventPackage();
+        package.StreamName = streamName;
+        package.EventId = reader.GetGuid(0);
+        package.StreamPosition = reader.GetInt64(1);
+        package.Timestamp = reader.GetFieldValue<DateTime>(2);
+        package.CommandId = reader.GetGuid(3);
+        package.SequenceId = reader.GetGuid(4);
+        string payloadType = reader.GetString(5);
+        byte[] serialized = reader.GetFieldValue<byte[]>(6);
+
+        object? payload = _serializer.Deserialize(serialized, payloadType);
+        package.Payload = payload;
+
+        PgStorageOptions options = _storageOptions;
+        if (options.UseMultitenancy && options.StorePrincipal)
+        {
+            package.TenantId = reader.GetGuid(7);
+            package.PrincipalId = PrincipalId.Parse(reader.GetString(8));
+        }
+        else
+        {
+            if (options.UseMultitenancy)
+            {
+                package.TenantId = reader.GetGuid(7);
+            }
+
+            if (options.StorePrincipal)
+            {
+                package.PrincipalId = PrincipalId.Parse(reader.GetString(7));
+            }
+        }
+
+        return package;
     }
 
     private string BuildReadAllStreamsCommandText(StreamReadOptions readOptions)

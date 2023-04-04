@@ -1,17 +1,19 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Runtime.CompilerServices;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 using Npgsql;
 
 namespace EventSourcing.Storage.Postgres;
 
-public class PgCommandsBuilder : IPgCommandsBuilder
+public sealed class PgCommandsBuilder : IPgCommandsBuilder
 {
-    protected readonly PgStorageOptions _storageOptions;
-    protected readonly PgCommandTextProvider CommandTextProvider;
+    private readonly PgStorageOptions _storageOptions;
+    private readonly IPgCommandTextProvider _commandTextProvider;
 
-    public PgCommandsBuilder(PgStorageOptions storageOptions, PgCommandTextProvider commandTextProvider)
+    public PgCommandsBuilder(PgStorageOptions storageOptions, IPgCommandTextProvider commandTextProvider)
     {
-        CommandTextProvider = commandTextProvider;
+        _commandTextProvider = commandTextProvider;
         _storageOptions = storageOptions;
     }
 
@@ -24,7 +26,7 @@ public class PgCommandsBuilder : IPgCommandsBuilder
         string schemaName,
         string tableName)
     {
-        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(CommandTextProvider.InsertEvent, schemaName, tableName));
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertEvent, schemaName, tableName));
         cmd.AddParameter(appendPackage.EventId.Id);
         cmd.AddParameter(appendPackage.StreamName.ToString());
         cmd.AddParameter(position);
@@ -54,7 +56,7 @@ public class PgCommandsBuilder : IPgCommandsBuilder
         string schemaName,
         string tableName)
     {
-        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(CommandTextProvider.InsertCommand, schemaName, tableName));
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertCommand, schemaName, tableName));
         cmd.AddParameter(data.CommandPackage.CommandId.Id);
         cmd.AddParameter(data.CommandPackage.ParentCommandId.Id);
         cmd.AddParameter(data.CommandPackage.SequenceId.Id);
@@ -77,15 +79,38 @@ public class PgCommandsBuilder : IPgCommandsBuilder
         return cmd;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NpgsqlCommand GetVersionCommand(
         StreamId streamName,
         string schemaName,
         string tableName)
     {
         NpgsqlCommand selectVersionCommand = new NpgsqlCommand(
-            string.Format(CommandTextProvider.SelectStreamVersion, schemaName, tableName));
+            string.Format(_commandTextProvider.SelectStreamVersion, schemaName, tableName));
         selectVersionCommand.AddParameter(streamName.ToString());
                 
         return selectVersionCommand;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public NpgsqlBatchCommand GetEventsStreamCountCommand(string schemaName, string tableName)
+    {
+        return new NpgsqlBatchCommand(string.Format(_commandTextProvider.SelectEventCounts, schemaName, tableName));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public NpgsqlBatchCommand GetSelectEventsDataCommand(
+        StreamId streamName,
+        StreamPosition from,
+        StreamPosition to,
+        string schemaName,
+        string tableName)
+    {
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.SelectStreamData, schemaName, tableName));
+
+        cmd.AddParameter(streamName.ToString());
+        cmd.AddParameter(to - from);
+        cmd.AddParameter(from);
+        return cmd;
     }
 }

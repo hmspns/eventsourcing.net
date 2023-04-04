@@ -26,14 +26,12 @@ public static class EventSourcingOptionsExtensions
         {
             IEventsPayloadSerializerFactory serializerFactory = x.GetRequiredService<IEventsPayloadSerializerFactory>();
             IPayloadSerializer payloadSerializer = serializerFactory.GetSerializer();
-            IPgCommandTextProvider commandTextProvider = x.GetRequiredService<IPgCommandTextProvider>();
             IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
             PgStorageOptions storageOptions = x.GetRequiredService<PgStorageOptions>();
             
             return new PgAppenderResolver(
                 connectionString,
                 payloadSerializer,
-                commandTextProvider,
                 commandsBuilder,
                 storageOptions);
         });

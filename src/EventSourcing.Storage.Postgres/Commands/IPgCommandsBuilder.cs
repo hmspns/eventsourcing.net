@@ -1,5 +1,6 @@
 ﻿using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Abstractions.Types;
 using Npgsql;
 
 namespace EventSourcing.Storage.Postgres;
@@ -24,6 +25,17 @@ public interface IPgCommandsBuilder
 
     NpgsqlCommand GetVersionCommand(
         StreamId streamName,
+        string schemaName,
+        string tableName);
+
+    NpgsqlBatchCommand GetEventsStreamCountCommand(
+        string schemaName,
+        string tableName);
+
+    NpgsqlBatchCommand GetSelectEventsDataCommand(
+        StreamId streamName,
+        StreamPosition from,
+        StreamPosition to,
         string schemaName,
         string tableName);
 }

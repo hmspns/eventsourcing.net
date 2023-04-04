@@ -1,28 +1,33 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace EventSourcing.Storage.Postgres;
 
 public class PgCommandTextProvider : IPgCommandTextProvider
 {
-    private PgStorageOptions _options;
+    private readonly PgStorageOptions _options;
+    
     public string InsertEvent { get; private set; }
     
     public string InsertCommand { get; private set; }
     
-    public string GetStreamDataText { get; private set; }
+    public string SelectStreamData { get; private set; }
     
     public string SelectStreamVersion { get; private set; }
+    
+    public string SelectEventCounts { get; private set; }
 
-    public virtual void Initialize(PgStorageOptions options)
+    public PgCommandTextProvider(PgStorageOptions options)
     {
         _options = options;
         BuildInsertEvent();
         BuildInsertCommand();
         BuildSelectStreamVersion();
         BuildSelectStreamData();
+        BuildSelectEventsCount();
     }
     
-    protected virtual void BuildInsertEvent()
+    private void BuildInsertEvent()
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine(@"INSERT INTO ""{0}"".""{1}""");
@@ -58,7 +63,7 @@ public class PgCommandTextProvider : IPgCommandTextProvider
         InsertEvent = sb.ToString();
     }
 
-    protected virtual void BuildInsertCommand()
+    private void BuildInsertCommand()
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine(@"INSERT INTO ""{0}"".""{1}""");
@@ -105,24 +110,37 @@ public class PgCommandTextProvider : IPgCommandTextProvider
         InsertCommand = sb.ToString();
     }
 
-    protected virtual void BuildSelectStreamVersion()
+    private void BuildSelectStreamVersion()
     {
         SelectStreamVersion = @"SELECT COALESCE(MAX(stream_position), 0) FROM ""{0}"".""{1}"" WHERE stream_name = $1";
     }
 
-    protected virtual void BuildSelectStreamData()
+    private void BuildSelectStreamData()
     {
-        
-
-        const string GET_STREAM_DATA =
-            @"
-SELECT id, tenant_id, stream_position, ""timestamp"", command_id, sequence_id, principal_id, payload_type, payload
-FROM ""{0}"".""{1}""
-WHERE stream_name = $1
-ORDER BY stream_position ASC
-LIMIT $2 OFFSET $3;";
-
         StringBuilder sb = new StringBuilder();
-        
+        sb.AppendLine("SELECT id, stream_position, \"timestamp\", command_id, sequence_id, payload_type, payload");
+        if (_options.UseMultitenancy)
+        {
+            sb.Append(", tenant_id");
+        }
+
+        if (_options.StorePrincipal)
+        {
+            sb.Append(", principal_id");
+        }
+
+        sb.AppendLine(")");
+        sb.Append(
+            @"FROM ""{0}"".""{1}""
+            WHERE stream_name = $1
+            ORDER BY stream_position ASC
+            LIMIT $2 OFFSET $3;");
+
+        SelectStreamData = sb.ToString();
+    }
+
+    private void BuildSelectEventsCount()
+    {
+        SelectEventCounts = @"SELECT COUNT(*) FROM ""{0}"".""{1}""";
     }
 }
