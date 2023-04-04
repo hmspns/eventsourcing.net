@@ -6,6 +6,7 @@ using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Core.Exceptions;
 using EventSourcing.Core.Extensions;
+using EventSourcing.Core.Implementations;
 
 namespace EventSourcing.Core;
 
@@ -23,11 +24,15 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
 {
     private readonly Func<TId, TAggregate> _aggregateActivator;
     private readonly IEventSourcingEngine _engine;
-
-    protected CommandHandler(Func<TId, TAggregate> activator, IEventSourcingEngine engine)
+    
+    /// <summary>
+    /// Initialize new object.
+    /// </summary>
+    /// <param name="activator">Function to create new aggregate.</param>
+    protected CommandHandler(Func<TId, TAggregate> activator)
     {
-        _engine = engine;
         _aggregateActivator = activator;
+        _engine = EventSourcingEngine.Instance;
     }
 
     /// <summary>

@@ -3,15 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Storage.Postgres;
 
-public class PostgresOptions
+public sealed class PostgresOptions
 {
-    private readonly PgStorageOptions _storageOptions = new PgStorageOptions();
+    private readonly PgStorageOptions _storageOptions;
 
-    public PostgresOptions(IServiceCollection services)
+    internal PostgresOptions(PgStorageOptions storageOptions)
     {
-        services.AddSingleton<IPgCommandTextProvider, PgCommandTextProvider>();
-        services.AddSingleton<IPgCommandsBuilder, PgCommandsBuilder>();
-        services.AddSingleton<PgStorageOptions>(_storageOptions);
+        _storageOptions = storageOptions;
     }
 
     public PostgresOptions Configure(Action<PgStorageOptions> handler)

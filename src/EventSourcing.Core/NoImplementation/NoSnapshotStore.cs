@@ -9,9 +9,11 @@ namespace EventSourcing.Core.NoImplementation;
 /// <inheritdoc />
 public sealed class NoSnapshotStoreResolver : IResolveSnapshotStore
 {
+    private readonly NoSnapshotStore _store = new NoSnapshotStore();
+    
     public ISnapshotStore Get(TenantId tenantId)
     {
-        return new NoSnapshotStore();
+        return _store;
     }
 }
     

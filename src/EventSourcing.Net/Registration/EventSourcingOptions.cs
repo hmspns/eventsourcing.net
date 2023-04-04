@@ -11,23 +11,23 @@ namespace EventSourcing.Net;
 
 public sealed class EventSourcingOptions
 {
-    internal readonly IServiceCollection _services;
-
+    internal IServiceCollection Services { get; private set; }
+    
     private readonly EventSourcingBusOptions _busOptions;
 
     private IEventTypeMappingHandler _eventTypeMappingHandler;
 
     internal EventSourcingOptions(IServiceCollection services)
     {
-        _services = services;
-        _busOptions = new EventSourcingBusOptions(services);
+        Services = services;
+        _busOptions = new EventSourcingBusOptions(this);
     }
 
     /// <summary>
     /// Get object to configure bus.
     /// </summary>
     public EventSourcingBusOptions Bus => _busOptions;
-
+    
     /// <summary>
     /// Register classes that implement IEvent for serialization mapping from given assemblies.
     /// </summary>
@@ -72,18 +72,38 @@ public sealed class EventSourcingOptions
 
     internal void Build()
     {
-        _services.IfNotRegistered<IResolveEventStore>(x => x.AddTransient<IResolveEventStore, EventStoreResolver>());
-        _services.IfNotRegistered<IResolveSnapshotStore>(x => x.AddTransient<IResolveSnapshotStore, NoSnapshotStoreResolver>());
-        _services.IfNotRegistered<IEventSourcingEngine>(x => x.AddTransient<IEventSourcingEngine, EventSourcingEngine>());
-        _services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
-        _services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
-        _services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
+        Services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
+        Services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
         
          if (_eventTypeMappingHandler == null)
          {
              RegisterEventTypesMapping();
          }
 
-         _services.IfNotRegistered<IEventTypeMappingHandler>(x => x.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler));
+         Services.IfNotRegistered<IEventTypeMappingHandler>(x => x.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler));
+         
+         RegisterEventSourcingEngine();
+         Services = null; // do not handle reference to service collection
+    }
+
+    private void RegisterEventSourcingEngine()
+    {
+        Services.IfNotRegistered<IResolveEventStore>(x => x.AddSingleton<IResolveEventStore, EventStoreResolver>());
+        Services.IfNotRegistered<IResolveSnapshotStore>(x => x.AddSingleton<IResolveSnapshotStore, NoSnapshotStoreResolver>());
+        Services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
+        Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
+
+        IServiceCollection local = Services;
+        Lazy<IEventSourcingEngine> lazy = new Lazy<IEventSourcingEngine>(() =>
+        {
+            ServiceProvider provider = local.BuildServiceProvider();
+            EventSourcingEngine engine = new EventSourcingEngine(
+                provider.GetRequiredService<IResolveEventStore>(),
+                provider.GetRequiredService<IResolveSnapshotStore>(),
+                provider.GetRequiredService<IResolveEventPublisher>());
+            return engine;
+        }, LazyThreadSafetyMode.ExecutionAndPublication);
+        
+        EventSourcingEngineFactory.Initialize(lazy);
     }
 }

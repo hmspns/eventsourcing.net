@@ -1,27 +1,42 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Threading;
+using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Implementations;
 
 /// <inheritdoc />
 public sealed class EventSourcingEngine : IEventSourcingEngine
 {
-    private readonly IResolveEventStore _eventStoreResolver;
-    private readonly IResolveSnapshotStore _snapshotStoreResolver;
-    private readonly IResolveEventPublisher _publisherResolver;
-
-    public EventSourcingEngine(
+    private static IEventSourcingEngine _instance;
+    
+    internal EventSourcingEngine(
         IResolveEventStore eventStoreResolver,
         IResolveSnapshotStore snapshotStoreResolver,
         IResolveEventPublisher publisherResolver)
     {
-        _eventStoreResolver = eventStoreResolver;
-        _snapshotStoreResolver = snapshotStoreResolver;
-        _publisherResolver = publisherResolver;
+        EventStoreResolver = eventStoreResolver;
+        SnapshotStoreResolver = snapshotStoreResolver;
+        PublisherResolver = publisherResolver;
     }
 
-    public IResolveEventStore EventStoreResolver => _eventStoreResolver;
+    internal static IEventSourcingEngine Instance
+    {
+        get
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (_instance == null)
+            {
+                IEventSourcingEngine local = EventSourcingEngineFactory.Get();
+                Interlocked.CompareExchange(ref _instance, local, null);
+            }
 
-    public IResolveSnapshotStore SnapshotStoreResolver => _snapshotStoreResolver;
+            return _instance;
+        }
+        set => Interlocked.Exchange(ref _instance, value);
+    }
 
-    public IResolveEventPublisher PublisherResolver => _publisherResolver;
+    public IResolveEventStore EventStoreResolver { get; }
+
+    public IResolveSnapshotStore SnapshotStoreResolver { get; }
+
+    public IResolveEventPublisher PublisherResolver { get; }
 }

@@ -5,8 +5,8 @@ namespace EventSourcing.Samples.Persistence.AccountAggregate;
 
 public class AccountCommandHandler : CommandHandler<Guid, AccountAggregate>
 {
-    public AccountCommandHandler(IEventSourcingEngine engine) 
-        : base(id => new AccountAggregate(id), engine)
+    public AccountCommandHandler() 
+        : base(id => new AccountAggregate(id))
     {
     }
 

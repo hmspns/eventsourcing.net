@@ -9,11 +9,11 @@ namespace EventSourcing.Net;
 
 public sealed class EventSourcingBusOptions
 {
-    private readonly IServiceCollection _services;
+    private readonly EventSourcingOptions _options;
 
-    internal EventSourcingBusOptions(IServiceCollection services)
+    internal EventSourcingBusOptions(EventSourcingOptions options)
     {
-        _services = services;
+        _options = options;
     }
 
     /// <summary>
@@ -73,14 +73,14 @@ public sealed class EventSourcingBusOptions
                     consumers.Add(argumentType, activation);
                 }
 
-                _services.Remove(type);
-                _services.AddScoped(type);
+                _options.Services.Remove(type);
+                _options.Services.AddScoped(type);
             }
         }
 
         Dictionary<Type, EventConsumerActivation[]> results = consumers.GetResults();
-        _services.Remove<IResolveEventPublisher>();
-        _services.AddSingleton<IResolveEventPublisher>(x =>
+        _options.Services.Remove<IResolveEventPublisher>();
+        _options.Services.AddSingleton<IResolveEventPublisher>(x =>
         {
             return new InMemoryEventPublisherResolver(x, results);
         });
@@ -117,13 +117,13 @@ public sealed class EventSourcingBusOptions
 
             if (hasHandlers)
             {
-                _services.AddTransient(commandHandlerType);
+                _options.Services.AddTransient(commandHandlerType);
             }
         }
 
         handlers.TrimExcess();
-        _services.Remove<IEventSourcingCommandBus>();
-        _services.AddSingleton<IEventSourcingCommandBus>(x => new InMemoryCommandBus(x, handlers));
+        _options.Services.Remove<IEventSourcingCommandBus>();
+        _options.Services.AddSingleton<IEventSourcingCommandBus>(x => new InMemoryCommandBus(x, handlers));
     }
 
     private static bool IsValidCommandHandlerMethod(MethodInfo methodInfo, Type envelopeType, out bool useCancellation,

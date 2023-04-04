@@ -7,7 +7,7 @@ namespace EventSourcing.Core.NoImplementation;
 
 public sealed class NoEventPublisherResolver : IResolveEventPublisher
 {
-    private static IEventPublisher _publisher = new NoEventPublisher();
+    private static readonly IEventPublisher _publisher = new NoEventPublisher();
     
     public IEventPublisher Get(TenantId tenantId)
     {

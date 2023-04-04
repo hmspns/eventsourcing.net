@@ -13,21 +13,30 @@ public static class EventSourcingOptionsExtensions
     /// <param name="options">Configuration options.</param>
     /// <param name="connectionString">Connection string to Postgres DB.</param>
     /// <returns>Configuration options.</returns>
-    public static PostgresOptions UsePostgresEventsStore(this EventSourcingOptions options, string connectionString)
+    public static PostgresOptions UsePostgresEventsStore(
+        this EventSourcingOptions options,
+        string connectionString, 
+        Action<PgStorageOptions>? configure = null)
     {
         if (connectionString == null)
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
+
+        PgStorageOptions storageOptions = new PgStorageOptions();
+        configure?.Invoke(storageOptions);
         
-        options._services.Remove<IResolveAppender>();
-        options._services.Remove<IAppendOnly>();
-        options._services.AddSingleton<IResolveAppender>(x =>
+        options.Services.AddSingleton<IPgCommandTextProvider, PgCommandTextProvider>();
+        options.Services.AddSingleton<IPgCommandsBuilder, PgCommandsBuilder>();
+        options.Services.AddSingleton<PgStorageOptions>(storageOptions);
+        
+        options.Services.Remove<IResolveAppender>();
+        options.Services.Remove<IAppendOnly>();
+        options.Services.AddSingleton<IResolveAppender>(x =>
         {
             IEventsPayloadSerializerFactory serializerFactory = x.GetRequiredService<IEventsPayloadSerializerFactory>();
             IPayloadSerializer payloadSerializer = serializerFactory.GetSerializer();
             IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
-            PgStorageOptions storageOptions = x.GetRequiredService<PgStorageOptions>();
             
             return new PgAppenderResolver(
                 connectionString,
@@ -35,7 +44,7 @@ public static class EventSourcingOptionsExtensions
                 commandsBuilder,
                 storageOptions);
         });
-        return new PostgresOptions(options._services);
+        return new PostgresOptions(storageOptions);
     }
 
     // /// <summary>
@@ -52,10 +61,10 @@ public static class EventSourcingOptionsExtensions
     //     {
     //         throw new ArgumentNullException(nameof(connectionString));
     //     }
-    //     options._services.Remove<IResolveEventStore>();
-    //     options._services.Remove<ISnapshotStore>();
+    //     options.Services.Remove<IResolveEventStore>();
+    //     options.Services.Remove<ISnapshotStore>();
     //
-    //     options._services.AddTransient<IResolveSnapshotStore>(x =>
+    //     options.Services.AddTransient<IResolveSnapshotStore>(x =>
     //     {
     //         IPayloadSerializer payloadSerializer = x.GetRequiredService<IPayloadSerializer>();
     //         return new PgSnapshotStoreResolver(connectionString, payloadSerializer);

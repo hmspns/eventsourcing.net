@@ -25,11 +25,11 @@ public static class EventSourcingOptionsExtensions
             policy = new RedisSnapshotCreationPolicy();
         }
 
-        options._services.Replace<IRedisKeyGenerator>(x =>
+        options.Services.Replace<IRedisKeyGenerator>(x =>
         {
             x.AddSingleton<IRedisKeyGenerator>(x => new DefaultRedisKeyGenerator(policy));
         });
-        options._services.Replace<IResolveSnapshotStore>(x =>
+        options.Services.Replace<IResolveSnapshotStore>(x =>
         {
             x.AddSingleton<IResolveSnapshotStore>(x =>
             {
@@ -45,6 +45,6 @@ public static class EventSourcingOptionsExtensions
             });
         });
 
-        return new RedisOptions(options._services);
+        return new RedisOptions(options);
     }
 }
