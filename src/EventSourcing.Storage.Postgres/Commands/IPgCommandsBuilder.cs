@@ -14,19 +14,19 @@ public interface IPgCommandsBuilder
         byte[] payload,
         string payloadType,
         string schemaName,
-        string tableName);
+        string eventsTableName);
 
     NpgsqlBatchCommand GetInsertCommandCommand(
         IAppendDataPackage data,
         byte[] payload,
         string payloadType,
         string schemaName,
-        string tableName);
+        string commandsTableName);
 
-    NpgsqlCommand GetVersionCommand(
+    NpgsqlCommand GetStreamVersionCommand(
         StreamId streamName,
         string schemaName,
-        string tableName);
+        string eventsTableName);
 
     NpgsqlBatchCommand GetEventsStreamCountCommand(
         string schemaName,
@@ -37,5 +37,24 @@ public interface IPgCommandsBuilder
         StreamPosition from,
         StreamPosition to,
         string schemaName,
-        string tableName);
+        string eventsTableName);
+
+    NpgsqlCommand GetFindStreamIdsByPatternCommand(
+        string startsWithPrefix,
+        string schemaName,
+        string eventsTableName);
+
+    NpgsqlCommand GetCreateStorageCommand(
+        string schemaName,
+        string eventsTableName,
+        string commandsTableName);
+
+    NpgsqlCommand GetCheckStorageExistsCommand(
+        string schemaName,
+        string eventsTableName);
+
+    NpgsqlCommand GetReadAllStreamsCommand(
+        StreamReadOptions readOptions,
+        string schemaName,
+        string eventsTableName);
 }

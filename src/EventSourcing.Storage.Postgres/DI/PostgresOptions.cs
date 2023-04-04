@@ -5,32 +5,18 @@ namespace EventSourcing.Storage.Postgres;
 
 public class PostgresOptions
 {
-    private readonly IServiceCollection _services;
+    private readonly PgStorageOptions _storageOptions = new PgStorageOptions();
 
     public PostgresOptions(IServiceCollection services)
     {
-        _services = services;
-
-        _services.AddSingleton<IPgCommandTextProvider, PgCommandTextProvider>();
-        _services.AddSingleton<IPgCommandsBuilder, PgCommandsBuilder>();
-        _services.AddSingleton<PgStorageOptions>();
+        services.AddSingleton<IPgCommandTextProvider, PgCommandTextProvider>();
+        services.AddSingleton<IPgCommandsBuilder, PgCommandsBuilder>();
+        services.AddSingleton<PgStorageOptions>(_storageOptions);
     }
 
-    public PostgresOptions UseCommandTextProvider(IPgCommandTextProvider provider)
+    public PostgresOptions Configure(Action<PgStorageOptions> handler)
     {
-        _services.Replace<IPgCommandTextProvider>(x => x.AddSingleton(provider));
-        return this;
-    }
-
-    public PostgresOptions UseCommandsBuilder(IPgCommandsBuilder builder)
-    {
-        _services.Replace<IPgCommandsBuilder>(x => x.AddSingleton(builder));
-        return this;
-    }
-
-    public PostgresOptions UseStorageOptions(PgStorageOptions options)
-    {
-        _services.Replace<PgStorageOptions>(x => x.AddSingleton(options));
+        handler?.Invoke(_storageOptions);
         return this;
     }
 }

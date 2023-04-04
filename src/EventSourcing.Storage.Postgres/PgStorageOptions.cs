@@ -47,4 +47,15 @@ public sealed class PgStorageOptions
     /// Handler to get schema name. This name will be using when multitenancy switched on.
     /// </summary>
     public Func<TenantId, string> MultitenancySchemaName { get; set; } = (x) => x.ToString();
+
+    /// <summary>
+    /// Postgres type to store binary data.
+    /// </summary>
+    public BinaryDataPostgresType BinaryDataPostgresType { get; set; } = BinaryDataPostgresType.JsonB;
+}
+
+public enum BinaryDataPostgresType
+{
+    JsonB,
+    ByteA
 }

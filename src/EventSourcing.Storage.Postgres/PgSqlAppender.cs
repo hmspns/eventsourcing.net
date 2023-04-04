@@ -12,57 +12,6 @@ namespace EventSourcing.Storage.Postgres;
 
 public sealed class PgSqlAppender : IAppendOnly
 {
-    protected const string INITIAL_COMMAND =
-        @"
-CREATE SCHEMA IF NOT EXISTS ""{0}"";
-
-CREATE TABLE IF NOT EXISTS ""{0}"".""{1}""
-(
-    id              uuid
-        constraint ""{1}_pk""
-            primary key,
-    tenant_id       uuid         not null,
-    stream_name     varchar(255) not null,
-    stream_position bigint       not null,
-    global_position bigint GENERATED ALWAYS AS identity,
-    timestamp       timestamptz  not null,
-    command_id      uuid         not null,
-    sequence_id     uuid         not null,
-    principal_id    varchar(255) not null,
-    payload_type    varchar(255) not null,
-    payload         jsonb        not null
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS ""{1}__version""
-    ON ""{0}"".""{1}"" (stream_name, stream_position);
-
-CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
-(
-    id                uuid         not null
-        constraint ""{2}_pk""
-            primary key,
-    parent_command_id uuid         not null,
-    sequence_id       uuid         not null,
-    tenant_id         uuid         not null,
-    timestamp         timestamptz  not null,
-    aggregate_id      varchar(255) not null,
-    principal_id      varchar(255) not null,
-    command_source    varchar(255) not null,
-    payload_type      varchar(255) not null,
-    payload           jsonb        not null
-);
-";
-
-    private const string EXIST_COMMAND =
-        @"SELECT EXISTS (
-    SELECT FROM information_schema.tables 
-    WHERE table_schema = '{0}' AND table_name = '{1}'
-);";
-
-    protected const string SEARCH_FOR_STREAM_ID =
-        @"SELECT stream_name FROM ""{0}"".""{1}"" 
-              WHERE stream_name LIKE $1";
-
     private readonly IPayloadSerializer _serializer;
     private readonly NpgsqlDataSource _dataSource;
     private readonly IPgCommandsBuilder _commandsBuilder;
@@ -131,7 +80,7 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
         {
             await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync(cancellationToken);
             await using NpgsqlTransaction transaction = await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-            await using NpgsqlCommand selectVersionCommand = _commandsBuilder.GetVersionCommand(streamName, SchemaName, _eventsTableName);
+            await using NpgsqlCommand selectVersionCommand = _commandsBuilder.GetStreamVersionCommand(streamName, SchemaName, _eventsTableName);
             selectVersionCommand.Connection = conn;
             await selectVersionCommand.PrepareAsync(cancellationToken);
 
@@ -159,14 +108,17 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
                 batch.BatchCommands.Add(cmd);
             }
 
-            byte[] commandPayload = Serialize(data.CommandPackage.Payload, out string commandPayloadType);
-            NpgsqlBatchCommand createCommandCmd = _commandsBuilder.GetInsertCommandCommand(
-                data,
-                commandPayload,
-                commandPayloadType,
-                SchemaName,
-                _commandsTableName);
-            batch.BatchCommands.Add(createCommandCmd);
+            if (_storageOptions.StoreCommands)
+            {
+                byte[] commandPayload = Serialize(data.CommandPackage.Payload, out string commandPayloadType);
+                NpgsqlBatchCommand createCommandCmd = _commandsBuilder.GetInsertCommandCommand(
+                    data,
+                    commandPayload,
+                    commandPayloadType,
+                    SchemaName,
+                    _commandsTableName);
+                batch.BatchCommands.Add(createCommandCmd);
+            }
 
             await batch.PrepareAsync(cancellationToken);
 
@@ -237,9 +189,7 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
 
         return new EventsData(results.ToArray(), max);
     }
-
-
-
+    
     /// <summary>
     /// Read event by given conditions.
     /// </summary>
@@ -247,13 +197,9 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
     /// <returns>Events data.</returns>
     public async Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
     {
-        string commandText = BuildReadAllStreamsCommandText(readOptions);
-
         await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
-        await using NpgsqlCommand cmd = new NpgsqlCommand(string.Format(commandText, SchemaName, _eventsTableName), conn);
-
-        cmd.AddParameter(readOptions.To - readOptions.From);
-        cmd.AddParameter(readOptions.From);
+        await using NpgsqlCommand cmd = _commandsBuilder.GetReadAllStreamsCommand(readOptions, SchemaName, _eventsTableName);
+        cmd.Connection = conn;
 
         await cmd.PrepareAsync();
 
@@ -263,43 +209,7 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
 
         while (await reader.ReadAsync())
         {
-            string payloadType;
-            byte[] serialized;
-            object? payload;
-
-            EventPackage package = new EventPackage();
-            package.EventId = reader.GetGuid(0);
-            package.TenantId = reader.GetGuid(1);
-            package.StreamName = new StreamId(reader.GetString(2));
-            package.StreamPosition = reader.GetInt64(3);
-            package.Timestamp = reader.GetFieldValue<DateTime>(4);
-            switch (readOptions.ReadingVolume)
-            {
-                case StreamReadVolume.Data:
-                    payloadType = reader.GetString(5);
-                    serialized = reader.GetFieldValue<byte[]>(6);
-                    payload = _serializer.Deserialize(serialized, payloadType);
-
-                    package.Payload = payload;
-                    break;
-
-                case StreamReadVolume.Meta:
-                    package.CommandId = reader.GetGuid(5);
-                    package.SequenceId = reader.GetGuid(6);
-                    package.PrincipalId = PrincipalId.Parse(reader.GetString(7));
-                    break;
-
-                case StreamReadVolume.MetaAndData:
-                    payloadType = reader.GetString(8);
-                    serialized = reader.GetFieldValue<byte[]>(9);
-                    payload = _serializer.Deserialize(serialized, payloadType);
-
-                    package.CommandId = reader.GetGuid(5);
-                    package.SequenceId = reader.GetGuid(6);
-                    package.PrincipalId = PrincipalId.Parse(reader.GetString(7));
-                    package.Payload = payload;
-                    break;
-            }
+            EventPackage package = ReadEventPackage(reader, readOptions);
 
             results.Add(package);
         }
@@ -318,9 +228,8 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
     public async Task<StreamId[]> FindStreamIds(string startsWithPrefix)
     {
         await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
-        await using NpgsqlCommand cmd = new NpgsqlCommand(string.Format(SEARCH_FOR_STREAM_ID, SchemaName, _eventsTableName), conn);
-
-        cmd.AddParameter(startsWithPrefix + "%");
+        await using NpgsqlCommand cmd = _commandsBuilder.GetFindStreamIdsByPatternCommand(startsWithPrefix, SchemaName, _eventsTableName);
+        cmd.Connection = conn;
 
         await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
 
@@ -342,7 +251,9 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
     public async Task<bool> IsExist()
     {
         await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
-        await using NpgsqlCommand cmd = new NpgsqlCommand(string.Format(EXIST_COMMAND, SchemaName, _eventsTableName));
+
+        await using NpgsqlCommand cmd = _commandsBuilder.GetCheckStorageExistsCommand(SchemaName, _eventsTableName);
+        cmd.Connection = conn;
 
         object? result = await cmd.ExecuteScalarAsync();
         await conn.CloseAsync();
@@ -356,8 +267,10 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
     public async Task Initialize()
     {
         await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
-        await using NpgsqlCommand cmd = new NpgsqlCommand(string.Format(INITIAL_COMMAND, SchemaName, _eventsTableName, _commandsTableName), conn);
 
+        await using NpgsqlCommand cmd = _commandsBuilder.GetCreateStorageCommand(SchemaName, _eventsTableName, _commandsTableName);
+        cmd.Connection = conn;
+        
         await cmd.ExecuteNonQueryAsync();
         await conn.CloseAsync();
     }
@@ -405,44 +318,57 @@ CREATE TABLE IF NOT EXISTS ""{0}"".""{2}""
         return package;
     }
 
-    private string BuildReadAllStreamsCommandText(StreamReadOptions readOptions)
+    private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamReadOptions readOptions)
     {
-        StringBuilder sb = new StringBuilder(2048);
+        string payloadType;
+        byte[] serialized;
+        object? payload;
+
+        EventPackage package = new EventPackage();
+        package.EventId = reader.GetGuid(PgCommandTextProvider.ID);
+        package.StreamName = new StreamId(reader.GetString(PgCommandTextProvider.STREAM_NAME));
+        package.StreamPosition = reader.GetInt64(PgCommandTextProvider.STREAM_POSITION);
+        package.Timestamp = reader.GetFieldValue<DateTime>(PgCommandTextProvider.TIMESTAMP);
         switch (readOptions.ReadingVolume)
         {
             case StreamReadVolume.Data:
-                sb.AppendLine(
-                    "SELECT id, tenant_id, stream_name, stream_position, \"timestamp\", payload_type, payload");
-                break;
-            case StreamReadVolume.Meta:
-                sb.AppendLine(
-                    "SELECT id, tenant_id, stream_name, stream_position, \"timestamp\", command_id, sequence_id, principal_id, payload_type");
+                payloadType = reader.GetString(PgCommandTextProvider.PAYLOAD_TYPE);
+                serialized = reader.GetFieldValue<byte[]>(PgCommandTextProvider.PAYLOAD);
+                payload = _serializer.Deserialize(serialized, payloadType);
+
+                package.Payload = payload;
                 break;
 
-            default:
-                sb.AppendLine(
-                    "SELECT id, tenant_id, stream_name, stream_position, \"timestamp\", command_id, sequence_id, principal_id, payload_type, payload");
+            case StreamReadVolume.Meta:
+                package.CommandId = reader.GetGuid(PgCommandTextProvider.COMMAND_ID);
+                package.SequenceId = reader.GetGuid(PgCommandTextProvider.SEQUENCE_ID);
+                if (_storageOptions.StorePrincipal)
+                {
+                    package.PrincipalId = PrincipalId.Parse(reader.GetString(PgCommandTextProvider.PRINCIPAL_ID));
+                }
+
+                break;
+
+            case StreamReadVolume.MetaAndData:
+                payloadType = reader.GetString(PgCommandTextProvider.PAYLOAD_TYPE);
+                serialized = reader.GetFieldValue<byte[]>(PgCommandTextProvider.PAYLOAD);
+                payload = _serializer.Deserialize(serialized, payloadType);
+
+                package.CommandId = reader.GetGuid(PgCommandTextProvider.COMMAND_ID);
+                package.SequenceId = reader.GetGuid(PgCommandTextProvider.SEQUENCE_ID);
+                package.Payload = payload;
+                if (_storageOptions.StorePrincipal)
+                {
+                    package.PrincipalId = PrincipalId.Parse(reader.GetString(PgCommandTextProvider.PRINCIPAL_ID));
+                }
                 break;
         }
 
-        sb.AppendLine($"FROM \"{SchemaName}\".\"{_eventsTableName}\"");
-
-        string like = readOptions.FilterType == AggregateStreamFilterType.Include ? "LIKE" : "NOT LIKE";
-        string condition = readOptions.FilterType == AggregateStreamFilterType.Include ? "OR" : "AND";
-        string where = readOptions.PrefixPattern switch
+        if (_storageOptions.UseMultitenancy)
         {
-            var p when p == null => string.Empty,
-            var p when p.Length == 1 => $"WHERE stream_name {like} '{p[0]}%'",
-            var p when p.Length > 1 => "WHERE " +
-                                       string.Join($" {condition} ", p.Select(x => $"stream_name {like} '{x}%'"))
-        };
-        sb.AppendLine(where);
-        sb.AppendLine("ORDER BY stream_position " +
-                      (readOptions.ReadDirection == StreamReadDirection.Forward ? "ASC" : "DESC"));
-        sb.AppendLine("LIMIT $1 OFFSET $2");
+            package.TenantId = reader.GetGuid(PgCommandTextProvider.TENANT_ID);
+        }
 
-        return sb.ToString();
+        return package;
     }
-    
-
 }

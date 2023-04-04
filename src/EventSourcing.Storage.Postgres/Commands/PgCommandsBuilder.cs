@@ -24,9 +24,9 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         byte[] payload,
         string payloadType,
         string schemaName,
-        string tableName)
+        string eventsTableName)
     {
-        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertEvent, schemaName, tableName));
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertEvent, schemaName, eventsTableName));
         cmd.AddParameter(appendPackage.EventId.Id);
         cmd.AddParameter(appendPackage.StreamName.ToString());
         cmd.AddParameter(position);
@@ -54,9 +54,9 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         byte[] payload,
         string payloadType,
         string schemaName,
-        string tableName)
+        string commandsTableName)
     {
-        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertCommand, schemaName, tableName));
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertCommand, schemaName, commandsTableName));
         cmd.AddParameter(data.CommandPackage.CommandId.Id);
         cmd.AddParameter(data.CommandPackage.ParentCommandId.Id);
         cmd.AddParameter(data.CommandPackage.SequenceId.Id);
@@ -79,38 +79,80 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         return cmd;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public NpgsqlCommand GetVersionCommand(
+    public NpgsqlCommand GetStreamVersionCommand(
         StreamId streamName,
         string schemaName,
-        string tableName)
+        string eventsTableName)
     {
         NpgsqlCommand selectVersionCommand = new NpgsqlCommand(
-            string.Format(_commandTextProvider.SelectStreamVersion, schemaName, tableName));
+            string.Format(_commandTextProvider.SelectStreamVersion, schemaName, eventsTableName));
         selectVersionCommand.AddParameter(streamName.ToString());
                 
         return selectVersionCommand;
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NpgsqlBatchCommand GetEventsStreamCountCommand(string schemaName, string tableName)
     {
         return new NpgsqlBatchCommand(string.Format(_commandTextProvider.SelectEventCounts, schemaName, tableName));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NpgsqlBatchCommand GetSelectEventsDataCommand(
         StreamId streamName,
         StreamPosition from,
         StreamPosition to,
         string schemaName,
-        string tableName)
+        string eventsTableName)
     {
-        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.SelectStreamData, schemaName, tableName));
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.SelectStreamData, schemaName, eventsTableName));
 
         cmd.AddParameter(streamName.ToString());
         cmd.AddParameter(to - from);
         cmd.AddParameter(from);
+        return cmd;
+    }
+
+    public NpgsqlCommand GetFindStreamIdsByPatternCommand(
+        string startsWithPrefix,
+        string schemaName,
+        string eventsTableName)
+    {
+        NpgsqlCommand cmd = new NpgsqlCommand(string.Format(_commandTextProvider.SelectStreamIdsByPattern, schemaName, eventsTableName));
+
+        cmd.AddParameter(startsWithPrefix + "%");
+        return cmd;
+    }
+
+    public NpgsqlCommand GetCreateStorageCommand(
+        string schemaName,
+        string eventsTableName,
+        string commandsTableName)
+    {
+        NpgsqlCommand cmd = new NpgsqlCommand(string.Format(
+            _commandTextProvider.CreateStorage,
+            schemaName,
+            eventsTableName,
+            commandsTableName));
+        return cmd;
+    }
+
+    public NpgsqlCommand GetCheckStorageExistsCommand(
+        string schemaName,
+        string eventsTableName)
+    {
+        return new NpgsqlCommand(string.Format(_commandTextProvider.SelectStorageExists, schemaName, eventsTableName));
+    }
+
+    public NpgsqlCommand GetReadAllStreamsCommand(
+        StreamReadOptions readOptions,
+        string schemaName,
+        string eventsTableName)
+    {
+        string commandText = _commandTextProvider.BuildReadAllStreamsCommandText(readOptions);
+        NpgsqlCommand cmd = new NpgsqlCommand(string.Format(commandText, schemaName, eventsTableName));
+
+        cmd.AddParameter(readOptions.To - readOptions.From);
+        cmd.AddParameter(readOptions.From);
+
         return cmd;
     }
 }

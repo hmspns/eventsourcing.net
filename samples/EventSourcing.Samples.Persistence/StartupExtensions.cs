@@ -33,7 +33,13 @@ public static class StartupExtensions
             Assembly assembly = Assembly.GetExecutingAssembly();
             options.Bus.RegisterImplicitCommandHandlers(assembly);
             options.Bus.RegisterEventConsumers(assembly);
-            options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"));
+            options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"))
+                .Configure(x =>
+                {
+                    x.UseMultitenancy = false;
+                    x.StoreCommands = false;
+                    x.StorePrincipal = false;
+                });
             options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"), new RedisSnapshotCreationPolicy()
             {
                 Behaviour = RedisSnapshotCreationBehaviour.ThresholdCommit,
