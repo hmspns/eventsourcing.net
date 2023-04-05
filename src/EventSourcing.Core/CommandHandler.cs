@@ -29,10 +29,11 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
     /// Initialize new object.
     /// </summary>
     /// <param name="activator">Function to create new aggregate.</param>
-    protected CommandHandler(Func<TId, TAggregate> activator)
+    /// <param name="engine">Optional instance of event sourcing engine.</param>
+    protected CommandHandler(Func<TId, TAggregate> activator, IEventSourcingEngine? engine = null)
     {
         _aggregateActivator = activator;
-        _engine = EventSourcingEngine.Instance;
+        _engine = engine ?? EventSourcingEngine.Instance;
     }
 
     /// <summary>

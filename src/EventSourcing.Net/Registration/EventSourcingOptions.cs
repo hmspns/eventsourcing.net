@@ -92,6 +92,7 @@ public sealed class EventSourcingOptions
         Services.IfNotRegistered<IResolveSnapshotStore>(x => x.AddSingleton<IResolveSnapshotStore, NoSnapshotStoreResolver>());
         Services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
         Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
+        
 
         IServiceCollection local = Services;
         Lazy<IEventSourcingEngine> lazy = new Lazy<IEventSourcingEngine>(() =>
@@ -105,5 +106,7 @@ public sealed class EventSourcingOptions
         }, LazyThreadSafetyMode.ExecutionAndPublication);
         
         EventSourcingEngineFactory.Initialize(lazy);
+
+        Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine>(lazy.Value));
     }
 }

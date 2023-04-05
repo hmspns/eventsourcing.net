@@ -51,6 +51,23 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
     }
 
     /// <summary>
+    /// Initialize new object with default engine.
+    /// </summary>
+    public AggregateStateLoader() : this(EventSourcingEngine.Instance)
+    {
+        
+    }
+
+    /// <summary>
+    /// Initialize new object with default engine.
+    /// </summary>
+    /// <param name="activator">Factory method to create state mutator.</param>
+    public AggregateStateLoader(Func<IStateMutator<TState>> activator) : this(EventSourcingEngine.Instance, activator)
+    {
+        
+    }
+
+    /// <summary>
     /// Return state for specific aggregate.
     /// </summary>
     /// <param name="tenantId">Tenant id.</param>
