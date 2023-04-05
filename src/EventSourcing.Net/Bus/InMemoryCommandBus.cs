@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Core;
 using EventSourcing.Core.Exceptions;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,7 +72,8 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
 
         (ICommandEnvelope<TId> command, CommandHandlerActivation activator) = data;
 
-        object instance = ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
+        ICommandHandler instance = (ICommandHandler)ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
+        instance.Engine = _provider.GetRequiredService<IEventSourcingEngine>();
         
         object? result;
         if (activator.UseCancellation)

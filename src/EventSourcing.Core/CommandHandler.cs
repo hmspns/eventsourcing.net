@@ -12,7 +12,7 @@ namespace EventSourcing.Core;
 
 internal interface ICommandHandler
 {
-        
+    internal IEventSourcingEngine Engine { get; set; }
 }
     
 /// <summary>
@@ -23,8 +23,14 @@ internal interface ICommandHandler
 public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TAggregate : IAggregate
 {
     private readonly Func<TId, TAggregate> _aggregateActivator;
-    private readonly IEventSourcingEngine _engine;
-    
+    private IEventSourcingEngine? _engine;
+
+    IEventSourcingEngine ICommandHandler.Engine
+    {
+        get => _engine;
+        set => Interlocked.CompareExchange(ref _engine, value, null);
+    }
+
     /// <summary>
     /// Initialize new object.
     /// </summary>
@@ -33,7 +39,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
     protected CommandHandler(Func<TId, TAggregate> activator, IEventSourcingEngine? engine = null)
     {
         _aggregateActivator = activator;
-        _engine = engine ?? EventSourcingEngine.Instance;
+        _engine = engine; // ?? EventSourcingEngine.Instance;
     }
 
     /// <summary>
@@ -54,7 +60,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
         CommandMessageValidator validator = new CommandMessageValidator();
         validator.Validate(commandEnvelope);
             
-        int retryLimit = 5;
+        int retryLimit = 15;
         for (int i = 1; i <= retryLimit; i++)
         {
             try
@@ -66,7 +72,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
                     
                 Trace.WriteLine($"Processing command {commandEnvelope.Payload.GetType().Name} on iteration {i.ToString()}");
                     
-                AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine, _aggregateActivator);
+                AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine ?? EventSourcingEngine.Instance, _aggregateActivator);
                 ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler, cancellationToken);
                 return result;
             }

@@ -135,7 +135,8 @@ public sealed class PgSqlAppender : IAppendOnly
         }
         catch (PostgresException e)
         {
-            if (e.SqlState == PostgresErrorCodes.UniqueViolation)
+            if (e.SqlState == PostgresErrorCodes.UniqueViolation ||
+                e.SqlState == PostgresErrorCodes.SerializationFailure)
             {
                 throw new AppendOnlyStoreConcurrencyException(e, expectedStreamVersion, -1, streamName.ToString());
             }

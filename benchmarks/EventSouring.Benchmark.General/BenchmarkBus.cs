@@ -21,6 +21,7 @@ public static class BenchmarkBus
     {
         Behaviour = RedisSnapshotCreationBehaviour.ThresholdCommit,
         CommitThreshold = 10,
+        MinAggregateVersion = 100,
         ExpireAfter = TimeSpan.FromMinutes(5)
     };
 

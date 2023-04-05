@@ -65,12 +65,14 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             return Task.CompletedTask;
         }
 
-        if (_redisSnapshotCreationPolicy.Behaviour == RedisSnapshotCreationBehaviour.EveryCommit)
+        if (_redisSnapshotCreationPolicy.Behaviour == RedisSnapshotCreationBehaviour.EveryCommit &&
+            snapshot.Version > _redisSnapshotCreationPolicy.MinAggregateVersion)
         {
             return SaveSnapshotInternal(streamName, snapshot);
         }
 
-        if (snapshot.Version % _redisSnapshotCreationPolicy.CommitThreshold == 0)
+        if (snapshot.Version % _redisSnapshotCreationPolicy.CommitThreshold == 0 &&
+            snapshot.Version > _redisSnapshotCreationPolicy.MinAggregateVersion)
         {
             return SaveSnapshotInternal(streamName, snapshot);
         }
