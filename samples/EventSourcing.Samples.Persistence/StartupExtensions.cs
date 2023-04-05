@@ -36,9 +36,11 @@ public static class StartupExtensions
             options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
                 {
-                    x.UseMultitenancy = false;
-                    x.StoreCommands = false;
+                    x.UseMultitenancy = true;
+                    x.StoreTenantId = false;
+                    x.StoreCommands = true;
                     x.StorePrincipal = false;
+                    x.StoreCommandSource = false;
                 });
             options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"), new RedisSnapshotCreationPolicy()
             {

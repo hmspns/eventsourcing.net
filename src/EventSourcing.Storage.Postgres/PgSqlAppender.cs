@@ -297,16 +297,20 @@ public sealed class PgSqlAppender : IAppendOnly
         package.Payload = payload;
 
         PgStorageOptions options = _storageOptions;
-        if (options.UseMultitenancy && options.StorePrincipal)
+        if (options.StoreTenantId && options.StorePrincipal)
         {
             package.TenantId = reader.GetGuid(7);
             package.PrincipalId = PrincipalId.Parse(reader.GetString(8));
         }
         else
         {
-            if (options.UseMultitenancy)
+            if (options.StoreTenantId)
             {
                 package.TenantId = reader.GetGuid(7);
+            }
+            else
+            {
+                package.TenantId = _tenantId;
             }
 
             if (options.StorePrincipal)
@@ -364,9 +368,13 @@ public sealed class PgSqlAppender : IAppendOnly
                 break;
         }
 
-        if (_storageOptions.UseMultitenancy)
+        if (_storageOptions.StoreTenantId)
         {
             package.TenantId = reader.GetGuid(PgCommandTextProvider.TENANT_ID);
+        }
+        else
+        {
+            package.TenantId = _tenantId;
         }
 
         return package;

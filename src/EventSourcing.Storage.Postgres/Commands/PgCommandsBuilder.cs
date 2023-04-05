@@ -3,6 +3,7 @@ using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace EventSourcing.Storage.Postgres;
 
@@ -34,9 +35,9 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         cmd.AddParameter(data.CommandPackage.CommandId.Id);
         cmd.AddParameter(data.CommandPackage.SequenceId.Id);
         cmd.AddParameter(payloadType);
-        cmd.AddJsonParameter(payload);
+        cmd.AddBinaryParameter(payload, _storageOptions);
         
-        if (_storageOptions.UseMultitenancy)
+        if (_storageOptions.StoreTenantId)
         {
             cmd.AddParameter(data.CommandPackage.TenantId.Id);
         }
@@ -58,13 +59,20 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
     {
         NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertCommand, schemaName, commandsTableName));
         cmd.AddParameter(data.CommandPackage.CommandId.Id);
-        cmd.AddParameter(data.CommandPackage.ParentCommandId.Id);
+        if (data.CommandPackage.ParentCommandId != CommandId.Empty)
+        {
+            cmd.AddParameter(data.CommandPackage.ParentCommandId.Id);
+        }
+        else
+        {
+            cmd.Parameters.Add(new NpgsqlParameter(null, DBNull.Value));
+        }
         cmd.AddParameter(data.CommandPackage.SequenceId.Id);
         cmd.AddParameter(data.CommandPackage.Timestamp);
         cmd.AddParameter(data.CommandPackage.AggregateId.ToString());
         cmd.AddParameter(payloadType);
-        cmd.AddJsonParameter(payload);
-        if (_storageOptions.UseMultitenancy)
+        cmd.AddBinaryParameter(payload, _storageOptions);
+        if (_storageOptions.StoreTenantId)
         {
             cmd.AddParameter(data.CommandPackage.TenantId.Id);
         }

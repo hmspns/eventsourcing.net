@@ -59,7 +59,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         StringBuilder sb = new StringBuilder();
         sb.AppendLine(@"INSERT INTO ""{0}"".""{1}""");
         sb.Append($"({ID}, {STREAM_NAME}, {STREAM_POSITION}, {TIMESTAMP}, {COMMAND_ID}, {SEQUENCE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
-        if (_options.UseMultitenancy)
+        if (_options.StoreTenantId)
         {
             sb.Append($", {TENANT_ID}");
         }
@@ -74,7 +74,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         sb.Append("($1, $2, $3, $4, $5, $6, $7, $8");
 
         bool nineAdded = false;
-        if (_options.UseMultitenancy)
+        if (_options.StoreTenantId)
         {
             sb.Append(", $9");
             nineAdded = true;
@@ -96,7 +96,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         sb.AppendLine(@"INSERT INTO ""{0}"".""{1}""");
         sb.Append($"({ID}, {PARENT_COMMAND_ID}, {SEQUENCE_ID}, {TIMESTAMP}, {AGGREGATE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
 
-        if (_options.UseMultitenancy)
+        if (_options.StoreTenantId)
         {
             sb.Append($", {TENANT_ID}");
         }
@@ -116,7 +116,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         sb.Append("($1, $2, $3, $4, $5, $6, $7");
 
         bool eightAdded = false;
-        if (_options.UseMultitenancy)
+        if (_options.StoreTenantId)
         {
             sb.Append(", $8");
             eightAdded = true;
@@ -148,7 +148,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
     {
         StringBuilder sb = new StringBuilder();
         sb.Append($"SELECT {ID}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
-        if (_options.UseMultitenancy)
+        if (_options.StoreTenantId)
         {
             sb.Append($", {TENANT_ID}");
         }
@@ -192,7 +192,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
             (
                 {ID}              uuid constraint ""{{1}}_pk"" primary key,"
         );
-        if (_options.UseMultitenancy)
+        if (_options.StoreTenantId)
         {
             sb.AppendLine($"{TENANT_ID}       uuid         not null,");
         }
@@ -226,11 +226,11 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
                 {ID}                uuid         not null
                     constraint ""{{2}}_pk""
                         primary key,
-                {PARENT_COMMAND_ID} uuid         not null,
+                {PARENT_COMMAND_ID} uuid         null,
                 {SEQUENCE_ID}       uuid         not null,"
             );
 
-            if (_options.UseMultitenancy)
+            if (_options.StoreTenantId)
             {
                 sb.AppendLine($"{TENANT_ID}         uuid         not null,");
             }
@@ -272,7 +272,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
     public string BuildReadAllStreamsCommandText(StreamReadOptions readOptions)
     {
         StringBuilder sb = new StringBuilder(2048);
-        string tenantString = _options.UseMultitenancy ? $"{TENANT_ID}," : string.Empty;
+        string tenantString = _options.StoreTenantId ? $"{TENANT_ID}," : string.Empty;
         string principalString = _options.StorePrincipal ? $"{PRINCIPAL_ID}," : string.Empty;
         switch (readOptions.ReadingVolume)
         {

@@ -8,12 +8,20 @@ namespace EventSourcing.Storage.Postgres;
 public sealed class PgStorageOptions
 {
     /// <summary>
-    /// Store information about tenants.
+    /// Does storage support multitenancy.
+    /// If true every tenant will have own schema that can be configured by MultitenancySchemaName property.
+    /// Otherwise all data will be stored in the same schema that can be configured by NonMultitenancySchemaName property.
     /// </summary>
-    public bool UseMultitenancy { get; set; } = true;
+    public bool UseMultitenancy { get; set; } = false;
+    
+    /// <summary>
+    /// Store tenant id in tables.
+    /// </summary>
+    public bool StoreTenantId { get; set; } = true;
 
     /// <summary>
     /// Store information about source of command.
+    /// This configuration applying to the commands table, so if property StoreCommands == false, command source won't be stored.
     /// </summary>
     public bool StoreCommandSource { get; set; } = true;
 
