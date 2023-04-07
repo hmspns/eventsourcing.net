@@ -7,7 +7,7 @@
 @if (Data != null)
 {
     <p>Accounts data</p>
-    <table class="table">
+    <table class="table table-striped">
         <thead>
         <tr>
             <th>Account id</th>
@@ -17,22 +17,22 @@
             <th></th>
         </tr>
         </thead>
+        <tbody>
         @foreach (var result in Data)
         {
+            string url = "accounts/" + result.Id.ToString();
             <tr>
                 <td>@result.Id</td>
                 <td>@result.OwnerName</td>
                 <td>@result.CreationDate</td>
                 <td>@result.ClosingDate</td>
                 <td>
-                    <button @onclick="LoadAccount">Load account</button>
+                   <NavLink class="nav-link" href="@url">
+                        <button class="btn btn-link">Show account</button>
+                    </NavLink>
                 </td>
             </tr>
         }
+        </tbody>
     </table>
-}
-
-
-@code {
-    
 }

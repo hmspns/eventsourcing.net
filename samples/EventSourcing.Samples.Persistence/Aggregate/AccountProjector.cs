@@ -3,7 +3,7 @@ using EventSourcing.Abstractions.ServiceRegistration;
 using EventSourcing.Samples.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventSourcing.Samples.Persistence.AccountAggregate;
+namespace EventSourcing.Samples.Persistence.Aggregate;
 
 public sealed class AccountProjector : 
     IEventConsumer<Guid, AccountCreatedEvent>,

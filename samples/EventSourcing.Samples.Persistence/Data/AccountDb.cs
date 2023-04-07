@@ -9,4 +9,6 @@ public sealed class AccountDb
     public DateTime CreationDate { get; set; }
     
     public DateTime? ClosingDate { get; set; }
+    
+    public List<AccountOperationDb> Operations { get; set; }
 }

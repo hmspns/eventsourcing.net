@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Abstractions.Contracts;
 
-namespace EventSourcing.Samples.Persistence.AccountAggregate;
+namespace EventSourcing.Samples.Persistence.Aggregate;
 
 public record AccountCreatedEvent(string OwnerName) : IEvent;
 

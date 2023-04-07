@@ -1,4 +1,4 @@
-﻿namespace EventSourcing.Samples.Persistence.AccountAggregate;
+﻿namespace EventSourcing.Samples.Persistence.Aggregate;
 
 public record AccountState
 {

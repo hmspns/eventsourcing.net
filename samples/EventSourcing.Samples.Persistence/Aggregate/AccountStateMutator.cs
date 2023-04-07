@@ -1,8 +1,7 @@
-﻿using System.Reflection.Metadata;
-using EventSourcing.Abstractions.Contracts;
+﻿using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core;
 
-namespace EventSourcing.Samples.Persistence.AccountAggregate;
+namespace EventSourcing.Samples.Persistence.Aggregate;
 
 public class AccountStateMutator : StateMutator<AccountState>
 {

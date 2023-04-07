@@ -11,4 +11,6 @@ public sealed class AccountOperationDb
     public decimal Amount { get; set; }
     
     public DateTime OperationDate { get; set; }
+    
+    public AccountDb Account { get; set; }
 }

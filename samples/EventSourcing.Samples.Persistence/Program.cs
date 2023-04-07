@@ -9,7 +9,6 @@ builder.Configuration.AddJsonFile("appsettings.json");
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
 // register db context
 builder.Services.RegisterDbContext(builder.Configuration);

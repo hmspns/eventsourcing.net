@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core;
 
-namespace EventSourcing.Samples.Persistence.AccountAggregate;
+namespace EventSourcing.Samples.Persistence.Aggregate;
 
 public class AccountCommandHandler : CommandHandler<Guid, AccountAggregate>
 {

@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Core;
 
-namespace EventSourcing.Samples.Persistence.AccountAggregate;
+namespace EventSourcing.Samples.Persistence.Aggregate;
 
 public sealed class AccountAggregate : Aggregate<Guid, AccountState, AccountStateMutator>
 {

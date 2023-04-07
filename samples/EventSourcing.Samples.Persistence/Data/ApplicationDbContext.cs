@@ -23,4 +23,13 @@ public sealed class EventsDbContext : DbContext
     {
         
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .Entity<AccountDb>()
+            .HasMany<AccountOperationDb>(x => x.Operations)
+            .WithOne(x => x.Account)
+            .HasForeignKey(x => x.AccountId);
+    }
 }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace EventSourcing.Samples.Persistence.Pages;
 
-public partial class AccountGenerator
+public partial class AccountGeneratorComponent
 {
     [Inject]
     private IEventSourcingCommandBus Bus { get; set; }
