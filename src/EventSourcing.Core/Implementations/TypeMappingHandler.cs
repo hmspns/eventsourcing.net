@@ -10,11 +10,11 @@ using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core.Implementations;
 
-public class TypeMappingHandler : ITypeMappingHandler
+public class TypeMappingHandler : ITypeMappingHandler, IDisposable
 {
     private readonly ITypeMappingStorageProvider _storageProvider;
 
-    private readonly ConcurrentDictionary<TypeMappingId, Type> _mappings = new();
+    private readonly BidirectionalMapping<TypeMappingId, Type> _mappings = new();
 
     private bool _storageTypesLoaded = false;
 
@@ -25,7 +25,7 @@ public class TypeMappingHandler : ITypeMappingHandler
 
     public Type GetType(TypeMappingId id)
     {
-        if (!_mappings.TryGetValue(id, out var type))
+        if (!_mappings.TryGetValue(id, out Type? type))
         {
             Thrown.InvalidOperationException($"Couldn't find type for mapping id '{id.ToString()}'");
         }
@@ -35,7 +35,22 @@ public class TypeMappingHandler : ITypeMappingHandler
 
     public TypeMappingId GetId(Type type)
     {
-        throw new NotImplementedException();
+        if (!_mappings.TryGetValue(type, out TypeMappingId id))
+        {
+            id = TypeMappingId.New();
+            AddTypeInternal(id, type);
+        }
+
+        return id;
+    }
+
+    private void AddTypeInternal(TypeMappingId id, Type type)
+    {
+        if (_mappings.TryAdd(id, type))
+        {
+            TypeMapping mapping = new TypeMapping(id, GetStringRepresentation(type));
+            _storageProvider.AddMappings(new []{ mapping}).GetAwaiter().GetResult();
+        }
     }
 
     internal async Task LoadFromStorage()
@@ -63,19 +78,21 @@ If type was removed on purpose remove it's mapping from storage", e);
         _storageTypesLoaded = true;
     }
 
-    internal async Task LoadAppTypes(IEnumerable<Type> types)
+    /// <summary>
+    /// Load 
+    /// </summary>
+    /// <param name="types"></param>
+    internal async Task SynchronizeAppTypesWithStorageTypes(IEnumerable<Type> types)
     {
         if (!_storageTypesLoaded)
         {
             await LoadFromStorage();
         }
 
-        HashSet<Type> hash = _mappings.Select(x => x.Value).ToHashSet();
-
         List<TypeMapping> mappings = new List<TypeMapping>();
         foreach (Type type in types)
         {
-            bool hasMapping = hash.Contains(type);
+            bool hasMapping = _mappings.TryGetValue(type, out var id);
             if (!hasMapping)
             {
                 mappings.Add(new TypeMapping(TypeMappingId.New(), GetStringRepresentation(type)));
@@ -102,5 +119,10 @@ If type was removed on purpose remove it's mapping from storage", e);
             Thrown.InvalidOperationException($"Property FullName of type '{type.ToString()}' return null");
         }
         return representation;
+    }
+
+    public void Dispose()
+    {
+        _mappings.Dispose();
     }
 }

@@ -93,7 +93,6 @@ public sealed class EventSourcingOptions
         Services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
         Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
         
-
         IServiceCollection local = Services;
         Lazy<IEventSourcingEngine> lazy = new Lazy<IEventSourcingEngine>(() =>
         {
@@ -108,5 +107,34 @@ public sealed class EventSourcingOptions
         EventSourcingEngineFactory.Initialize(lazy);
 
         Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine>(lazy.Value));
+        
+        
+    }
+    
+    
+    private static Type[] GetTypesForMapping(params Assembly[] assemblies)
+    {
+        Type[] allTypes = assemblies.SelectMany(x => x.GetTypes()).ToArray();
+
+        IEnumerable<Type> events = allTypes.Where(x => x.IsAssignableTo(typeof(IEvent)));
+        IEnumerable<Type> commands = allTypes.Where(x => x.IsAssignableTo(typeof(ICommand)));
+
+        List<Type> aggregateParts = new List<Type>();
+        IEnumerable<Type> aggregates = allTypes.Where(x => x.IsAssignableTo(typeof(IAggregate)));
+        foreach (Type aggregateType in aggregates)
+        {
+            if (aggregateType.BaseType is { ContainsGenericParameters: true, GenericTypeArguments.Length: 3, })
+            {
+                Type genericTypeDefinition = aggregateType.BaseType.GetGenericTypeDefinition();
+                if (genericTypeDefinition == typeof(Aggregate<,,>))
+                {
+                    Type[] args = genericTypeDefinition.GetGenericArguments();
+                    aggregateParts.Add(args[0]); // TId
+                    aggregateParts.Add(args[1]); // TState
+                }
+            }
+        }
+
+        return aggregateParts.Union(events).Union(commands).Distinct().ToArray();
     }
 }
