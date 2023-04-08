@@ -188,7 +188,7 @@ public sealed class PgSqlAppender : IAppendOnly
         await reader.CloseAsync();
         await conn.CloseAsync();
 
-        return new EventsData(results.ToArray(), max);
+        return new EventsData(results, max);
     }
     
     /// <summary>

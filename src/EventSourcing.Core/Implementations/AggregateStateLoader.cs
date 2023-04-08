@@ -84,14 +84,16 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
         if (useSnapshot)
         {
             ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(tenantId);
-            snapshot = await snapshotStore.LoadSnapshot(streamId);
+            snapshot = await snapshotStore.LoadSnapshot(streamId).ConfigureAwait(false);
         }
 
         IEventStore eventStore = _engine.EventStoreResolver.Get(tenantId);
-        EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, snapshot.Version, StreamPosition.End);
+        EventsStream events = await eventStore
+            .LoadEventsStream<TId>(streamId, snapshot.Version, StreamPosition.End)
+            .ConfigureAwait(false);
 
         IStateMutator<TState> stateMutator = _activator();
-        object state = snapshot.HasSnapshot ? snapshot.State : stateMutator.DefaultState;
+        object state = snapshot.HasSnapshot ? snapshot.State! : stateMutator.DefaultState;
         stateMutator.Transition(state);
 
         foreach (IEventEnvelope e in events.Events)

@@ -26,6 +26,7 @@ namespace EventSourcing.Abstractions.Contracts
                 var s when s.StartsWith("event_", StringComparison.Ordinal) => EventId.Parse(raw),
                 var s when s.StartsWith("principal_", StringComparison.Ordinal) => PrincipalId.Parse(raw),
                 var s when s.StartsWith("tenant_", StringComparison.Ordinal) => TenantId.Parse(raw),
+                var s when s.StartsWith("type-mapping_", StringComparison.Ordinal) => TypeMappingId.Parse(raw),
                 _ => throw new ArgumentOutOfRangeException(nameof(raw), raw, "Raw is null")
             };
             return result;
@@ -50,6 +51,7 @@ namespace EventSourcing.Abstractions.Contracts
                     var s when s.StartsWith("event_") => EventId.Parse(raw),
                     var s when s.StartsWith("principal_") => PrincipalId.Parse(raw),
                     var s when s.StartsWith("tenant_") => TenantId.Parse(raw),
+                    var s when s.StartsWith("type-mapping_") => TypeMappingId.Parse(raw),
                     _ => default
                 };
                 if (identity != default)

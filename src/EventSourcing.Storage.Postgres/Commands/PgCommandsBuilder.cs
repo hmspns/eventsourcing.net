@@ -136,7 +136,7 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         string commandsTableName)
     {
         NpgsqlCommand cmd = new NpgsqlCommand(string.Format(
-            _commandTextProvider.CreateStorage,
+            _commandTextProvider.CreateDataStorage,
             schemaName,
             eventsTableName,
             commandsTableName));
@@ -160,6 +160,30 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
 
         cmd.AddParameter(readOptions.To - readOptions.From);
         cmd.AddParameter(readOptions.From);
+
+        return cmd;
+    }
+
+    public NpgsqlCommand GetCreateTypeMappingStorageCommand(string schemaName, string tableName)
+    {
+        return new NpgsqlCommand(string.Format(_commandTextProvider.CreateMappingsStorage, schemaName, tableName));
+    }
+
+    public NpgsqlCommand GetSelectTypeMappingsCommand(string schemaName, string tableName)
+    {
+        return new NpgsqlCommand(string.Format(_commandTextProvider.SelectTypeMappings, schemaName, tableName));
+    }
+
+    public NpgsqlBatchCommand GetInsertTypeMappingCommand(
+        TypeMappingId id,
+        string name,
+        string schemaName,
+        string tableName)
+    {
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertTypeMapping, schemaName, tableName));
+        
+        cmd.AddParameter(id);
+        cmd.AddParameter(name);
 
         return cmd;
     }

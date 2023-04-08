@@ -21,6 +21,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
     internal const string PARENT_COMMAND_ID = "parent_command_id";
     internal const string AGGREGATE_ID = "aggregate_id";
     internal const string COMMAND_SOURCE = "command_source";
+    internal const string TYPE_NAME = "type_name";
     
     private readonly PgStorageOptions _options;
 
@@ -36,9 +37,15 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
 
     public string SelectStorageExists { get; private set; }
 
-    public string CreateStorage { get; private set; }
+    public string CreateDataStorage { get; private set; }
 
     public string SelectStreamIdsByPattern { get; private set; }
+    
+    public string CreateMappingsStorage { get; private set; }
+    
+    public string SelectTypeMappings { get; private set; }
+    
+    public string InsertTypeMapping { get; private set; }
 
     public PgCommandTextProvider(PgStorageOptions options)
     {
@@ -52,6 +59,51 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         BuildSelectStorageExists();
         BuildCreateStorage();
         BuildSelectStreamIdsByPattern();
+        BuildCreateMappingStorage();
+        BuildSelectTypeMappings();
+        BuildInsertTypeMapping();
+    }
+    
+    public string BuildReadAllStreamsCommandText(StreamReadOptions readOptions)
+    {
+        StringBuilder sb = new StringBuilder(2048);
+        string tenantString = _options.StoreTenantId ? $"{TENANT_ID}," : string.Empty;
+        string principalString = _options.StorePrincipal ? $"{PRINCIPAL_ID}," : string.Empty;
+        switch (readOptions.ReadingVolume)
+        {
+            case StreamReadVolume.Data:
+                sb.AppendLine(
+                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {PAYLOAD_TYPE}, {PAYLOAD}");
+                break;
+            
+            case StreamReadVolume.Meta:
+                sb.AppendLine(
+                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}");
+                break;
+
+            default:
+                sb.AppendLine(
+                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}, {PAYLOAD}");
+                break;
+        }
+
+        sb.AppendLine($"FROM \"{0}\".\"{1}\"");
+
+        string like = readOptions.FilterType == AggregateStreamFilterType.Include ? "LIKE" : "NOT LIKE";
+        string condition = readOptions.FilterType == AggregateStreamFilterType.Include ? "OR" : "AND";
+        string where = readOptions.PrefixPattern switch
+        {
+            null => string.Empty,
+            var p when p.Length == 1 => $"WHERE {STREAM_NAME} {like} '{p[0]}%'",
+            var p when p.Length > 1 => "WHERE " +
+                                       string.Join($" {condition} ", p.Select(x => $"{STREAM_NAME} {like} '{x}%'"))
+        };
+        sb.AppendLine(where);
+        sb.AppendLine($"ORDER BY {STREAM_POSITION} " +
+                      (readOptions.ReadDirection == StreamReadDirection.Forward ? "ASC" : "DESC"));
+        sb.AppendLine("LIMIT $1 OFFSET $2");
+
+        return sb.ToString();
     }
 
     private void BuildInsertEvent()
@@ -255,7 +307,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         );");
         }
 
-        CreateStorage = Trim(sb.ToString());
+        CreateDataStorage = Trim(sb.ToString());
     }
 
     private void BuildSelectStreamIdsByPattern()
@@ -268,46 +320,33 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         Regex re = new Regex(@"[ \t]+", RegexOptions.Multiline);
         return re.Replace(input, " ");
     }
-    
-    public string BuildReadAllStreamsCommandText(StreamReadOptions readOptions)
+
+    private void BuildCreateMappingStorage()
     {
-        StringBuilder sb = new StringBuilder(2048);
-        string tenantString = _options.StoreTenantId ? $"{TENANT_ID}," : string.Empty;
-        string principalString = _options.StorePrincipal ? $"{PRINCIPAL_ID}," : string.Empty;
-        switch (readOptions.ReadingVolume)
-        {
-            case StreamReadVolume.Data:
-                sb.AppendLine(
-                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {PAYLOAD_TYPE}, {PAYLOAD}");
-                break;
-            
-            case StreamReadVolume.Meta:
-                sb.AppendLine(
-                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}");
-                break;
+        CreateMappingsStorage = $@"
+create table if not exists ""{{0}}"".""{{1}}""
+(
+	{ID} uuid not null,
+	{TYPE_NAME} text not null,
+	primary key ({ID}),
+	constraint type_mappings_pk
+		unique ({TYPE_NAME})
+);
+";
+    }
 
-            default:
-                sb.AppendLine(
-                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}, {PAYLOAD}");
-                break;
-        }
+    private void BuildSelectTypeMappings()
+    {
+        SelectTypeMappings = $@"SELECT {ID}, {TYPE_NAME} FROM ""{{0}}"".""{{1}}""";
+    }
 
-        sb.AppendLine($"FROM \"{0}\".\"{1}\"");
-
-        string like = readOptions.FilterType == AggregateStreamFilterType.Include ? "LIKE" : "NOT LIKE";
-        string condition = readOptions.FilterType == AggregateStreamFilterType.Include ? "OR" : "AND";
-        string where = readOptions.PrefixPattern switch
-        {
-            null => string.Empty,
-            var p when p.Length == 1 => $"WHERE {STREAM_NAME} {like} '{p[0]}%'",
-            var p when p.Length > 1 => "WHERE " +
-                                       string.Join($" {condition} ", p.Select(x => $"{STREAM_NAME} {like} '{x}%'"))
-        };
-        sb.AppendLine(where);
-        sb.AppendLine($"ORDER BY {STREAM_POSITION} " +
-                      (readOptions.ReadDirection == StreamReadDirection.Forward ? "ASC" : "DESC"));
-        sb.AppendLine("LIMIT $1 OFFSET $2");
-
-        return sb.ToString();
+    private void BuildInsertTypeMapping()
+    {
+        InsertTypeMapping = $@"
+            INSERT INTO ""{{0}}"".""{1}""
+            ({ID}, {TYPE_NAME})
+            VALUES
+            ($1, $2)
+        ";
     }
 }

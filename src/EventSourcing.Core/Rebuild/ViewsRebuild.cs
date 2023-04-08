@@ -45,21 +45,21 @@ public sealed class ViewsRebuilder
             th.Dispose(); // to avoid second message on exception
 
 
-            if (data.Events.Length == 0)
+            if (data.Events.Count == 0)
             {
                 Trace.WriteLine("Rebuild done");
                 break;
             }
 
             th = new TraceHelper(
-                $"Creating views for {data.Events.Length.ToString()} events",
+                $"Creating views for {data.Events.Count.ToString()} events",
                 "Views created");
             await BuildViews(data);
             th.Dispose(); // to avoid second message on exception
 
             position = position + _batchSize;
         } 
-        while (data.Events.Length > 0);
+        while (data.Events.Count > 0);
     }
 
     /// <summary>

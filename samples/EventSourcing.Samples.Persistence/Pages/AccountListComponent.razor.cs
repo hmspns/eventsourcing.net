@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventSourcing.Samples.Persistence.Pages;
 
-public partial class AccountsComponent
+public partial class AccountListComponent
 {
     [Inject]
     private ApplicationDbContext DbContext { get; set; }

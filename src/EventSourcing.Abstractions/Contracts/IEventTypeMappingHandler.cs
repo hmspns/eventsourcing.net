@@ -5,6 +5,7 @@ namespace EventSourcing.Abstractions.Contracts;
 /// <summary>
 /// Provide functionality to resolve type of event by string representation.
 /// </summary>
+[Obsolete]
 public interface IEventTypeMappingHandler
 {
     /// <summary>

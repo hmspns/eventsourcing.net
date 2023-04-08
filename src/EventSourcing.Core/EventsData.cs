@@ -1,4 +1,5 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Collections.Generic;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Types;
 
 namespace EventSourcing.Core;
@@ -8,4 +9,4 @@ namespace EventSourcing.Core;
 /// </summary>
 /// <param name="Events">Events.</param>
 /// <param name="StreamEndPosition">Information about stream end.</param>
-public record EventsData(IEventPackage[] Events, StreamPosition StreamEndPosition) : IEventsData;
+public record EventsData(IReadOnlyCollection<IEventPackage> Events, StreamPosition StreamEndPosition) : IEventsData;

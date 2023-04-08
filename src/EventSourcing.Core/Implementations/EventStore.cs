@@ -40,7 +40,7 @@ public sealed class EventStore : IEventStore
         IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to);
 
         List<IEventEnvelope> events = new List<IEventEnvelope>();
-        if (dbEvents.Events.Length > 0)
+        if (dbEvents.Events.Count > 0)
         {
             Func<string, object> parser = AggregateIdParsingProvider.Instance.GetParser<TId>();
             foreach (IEventPackage eventPackage in dbEvents.Events)

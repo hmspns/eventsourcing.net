@@ -28,9 +28,7 @@ public interface IPgCommandsBuilder
         string schemaName,
         string eventsTableName);
 
-    NpgsqlBatchCommand GetEventsStreamCountCommand(
-        string schemaName,
-        string tableName);
+    NpgsqlBatchCommand GetEventsStreamCountCommand(string schemaName, string tableName);
 
     NpgsqlBatchCommand GetSelectEventsDataCommand(
         StreamId streamName,
@@ -57,4 +55,13 @@ public interface IPgCommandsBuilder
         StreamReadOptions readOptions,
         string schemaName,
         string eventsTableName);
+
+    NpgsqlCommand GetCreateTypeMappingStorageCommand(string schemaName, string tableName);
+    NpgsqlCommand GetSelectTypeMappingsCommand(string schemaName, string tableName);
+
+    NpgsqlBatchCommand GetInsertTypeMappingCommand(
+        TypeMappingId id,
+        string name,
+        string schemaName,
+        string tableName);
 }

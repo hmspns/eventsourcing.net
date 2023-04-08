@@ -49,12 +49,22 @@ public sealed class PgStorageOptions
     /// <summary>
     /// Schema that will be using when multitenancy switched off.
     /// </summary>
-    public string NonMultitenancySchemaName { get; set; } = "public";
+    public string NonMultitenancySchemaName { get; set; } = "es_data";
 
     /// <summary>
     /// Handler to get schema name. This name will be using when multitenancy switched on.
     /// </summary>
     public Func<TenantId, string> MultitenancySchemaName { get; set; } = (x) => x.ToString();
+
+    /// <summary>
+    /// Schema that will be using to store events metadata.
+    /// </summary>
+    public string MetadataSchemaName { get; set; } = "es_data";
+
+    /// <summary>
+    /// Name of table for type mapping.
+    /// </summary>
+    public string TypeMappingsTableName { get; set; } = "type_mappings";
 
     /// <summary>
     /// Postgres type to store binary data.

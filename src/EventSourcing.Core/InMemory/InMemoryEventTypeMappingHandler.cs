@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core.InMemory;
 
@@ -21,7 +22,7 @@ public sealed class InMemoryEventTypeMappingHandler : IEventTypeMappingHandler
     {
         if (stringRepresentation == null)
         {
-            throw new ArgumentNullException(nameof(stringRepresentation));
+            Thrown.ArgumentNullException(nameof(stringRepresentation));
         }
         
         if (!_mappings.TryGetValue(stringRepresentation, out Type type))

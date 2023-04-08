@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
 
@@ -12,7 +13,7 @@ public interface IEventsData
     /// <summary>
     /// Events.
     /// </summary>
-    public IEventPackage[] Events { get; }
+    public IReadOnlyCollection<IEventPackage> Events { get; }
         
     /// <summary>
     /// Stream end position.
