@@ -9,13 +9,15 @@ internal sealed class BidirectionalMapping<TFirst, TSecond> : IDisposable
     where TFirst : notnull
     where TSecond : notnull
 {
-    private readonly Dictionary<TFirst, TSecond> _first = new();
-    private readonly Dictionary<TSecond, TFirst> _second = new();
+    private Dictionary<TFirst, TSecond> _first = new();
+    private Dictionary<TSecond, TFirst> _second = new();
 
-    private readonly ReaderWriterLockSlim _locker = new(LockRecursionPolicy.NoRecursion);
+    private ReaderWriterLockSlim _locker = new(LockRecursionPolicy.NoRecursion);
+    private bool _isDisposed = false;
     
     internal bool TryAdd(TFirst first, TSecond second)
     {
+        CheckDisposed();
         if (first == null)
         {
             Thrown.ArgumentNullException(nameof(first));
@@ -46,6 +48,7 @@ internal sealed class BidirectionalMapping<TFirst, TSecond> : IDisposable
 
     internal bool TryGetValue(TFirst key, out TSecond value)
     {
+        CheckDisposed();
         try
         {
             _locker.EnterReadLock();
@@ -59,6 +62,7 @@ internal sealed class BidirectionalMapping<TFirst, TSecond> : IDisposable
 
     internal bool TryGetValue(TSecond key, out TFirst value)
     {
+        CheckDisposed();
         try
         {
             _locker.EnterReadLock();
@@ -72,6 +76,22 @@ internal sealed class BidirectionalMapping<TFirst, TSecond> : IDisposable
 
     public void Dispose()
     {
+        if (_isDisposed)
+        {
+            return;
+        }
         _locker.Dispose();
+        _first = null;
+        _second = null;
+        _locker = null;
+        _isDisposed = true;
+    }
+
+    private void CheckDisposed()
+    {
+        if (_isDisposed)
+        {
+            Thrown.ObjectDisposedException(nameof(BidirectionalMapping<TFirst,TSecond>));
+        }
     }
 }

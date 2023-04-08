@@ -15,6 +15,7 @@ public sealed class EventSourcingOptions
     
     private readonly EventSourcingBusOptions _busOptions;
 
+    [Obsolete]
     private IEventTypeMappingHandler _eventTypeMappingHandler;
 
     internal EventSourcingOptions(IServiceCollection services)
@@ -45,6 +46,16 @@ public sealed class EventSourcingOptions
         {
             assemblies = AppDomain.CurrentDomain.GetAssemblies();
         }
+
+        Services.AddSingleton<ITypeMappingHandler>(x =>
+        {
+            Type[] types = GetTypesForMapping(assemblies);
+            ITypeMappingStorageProvider typeMappingStorageProvider = x.GetRequiredService<ITypeMappingStorageProvider>();
+            TypeMappingHandler handler = new TypeMappingHandler(typeMappingStorageProvider);
+            ((ITypeMappingHandler)handler).SetStorageTypes(types);
+            return handler;
+        });
+        
         Dictionary<string,Type> mappings = assemblies.SelectMany(x => x.GetTypes())
             .Where(x => x.IsAssignableTo(typeof(IEvent)))
             .ToDictionary(x => x.FullName, x => x, StringComparer.Ordinal);
@@ -72,18 +83,21 @@ public sealed class EventSourcingOptions
 
     internal void Build()
     {
+        Services.AddSingleton<EventSourcingEngineStarter>();
         Services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
         Services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
         
-         if (_eventTypeMappingHandler == null)
-         {
-             RegisterEventTypesMapping();
-         }
+        if (_eventTypeMappingHandler == null)
+        { 
+            RegisterEventTypesMapping();
+        }
 
-         Services.IfNotRegistered<IEventTypeMappingHandler>(x => x.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler));
-         
-         RegisterEventSourcingEngine();
-         Services = null; // do not handle reference to service collection
+        Services.IfNotRegistered<IEventTypeMappingHandler>(x => x.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler));
+
+        Services.IfNotRegistered<ITypeMappingStorageProvider>(x => x.AddSingleton<ITypeMappingStorageProvider, InMemoryTypeMappingStorageProvider>());
+
+        RegisterEventSourcingEngine();
+        Services = null; // do not handle reference to the service collection
     }
 
     private void RegisterEventSourcingEngine()
@@ -107,10 +121,7 @@ public sealed class EventSourcingOptions
         EventSourcingEngineFactory.Initialize(lazy);
 
         Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine>(lazy.Value));
-        
-        
     }
-    
     
     private static Type[] GetTypesForMapping(params Assembly[] assemblies)
     {
@@ -123,18 +134,18 @@ public sealed class EventSourcingOptions
         IEnumerable<Type> aggregates = allTypes.Where(x => x.IsAssignableTo(typeof(IAggregate)));
         foreach (Type aggregateType in aggregates)
         {
-            if (aggregateType.BaseType is { ContainsGenericParameters: true, GenericTypeArguments.Length: 3, })
+            if (aggregateType.BaseType is { IsGenericType: true, GenericTypeArguments.Length: 3, })
             {
                 Type genericTypeDefinition = aggregateType.BaseType.GetGenericTypeDefinition();
                 if (genericTypeDefinition == typeof(Aggregate<,,>))
                 {
-                    Type[] args = genericTypeDefinition.GetGenericArguments();
+                    Type[] args = aggregateType.BaseType.GetGenericArguments();
                     aggregateParts.Add(args[0]); // TId
                     aggregateParts.Add(args[1]); // TState
                 }
             }
         }
 
-        return aggregateParts.Union(events).Union(commands).Distinct().ToArray();
+        return aggregateParts.Union(events).Union(commands).Distinct().Where(x => !x.IsInterface).ToArray();
     }
 }

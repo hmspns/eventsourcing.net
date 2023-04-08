@@ -11,12 +11,12 @@ public class PgTypeMappingStorageProvider : ITypeMappingStorageProvider
     private readonly IPgCommandsBuilder _commandsBuilder;
     private readonly NpgsqlDataSource _dataSource;
 
-    public PgTypeMappingStorageProvider(
-        PgStorageOptions options,
-        IPgCommandsBuilder commandsBuilder,
-        NpgsqlDataSource dataSource)
+    public PgTypeMappingStorageProvider(string connectionString, PgStorageOptions options,
+        IPgCommandsBuilder commandsBuilder)
     {
-        _dataSource = dataSource;
+        NpgsqlDataSourceBuilder builder = new NpgsqlDataSourceBuilder(connectionString);
+        builder.UseNodaTime();
+        _dataSource = builder.Build();
         _commandsBuilder = commandsBuilder;
         _options = options;
     }
@@ -27,7 +27,11 @@ public class PgTypeMappingStorageProvider : ITypeMappingStorageProvider
         await using NpgsqlCommand cmd = _commandsBuilder.GetCreateTypeMappingStorageCommand(_options.MetadataSchemaName, _options.TypeMappingsTableName);
         cmd.Connection = connection;
 
+        await connection.OpenAsync().ConfigureAwait(false);
+        
         await cmd.ExecuteNonQueryAsync();
+
+        await connection.CloseAsync().ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyCollection<TypeMapping>> GetMappings()
@@ -36,15 +40,20 @@ public class PgTypeMappingStorageProvider : ITypeMappingStorageProvider
         await using NpgsqlCommand cmd = _commandsBuilder.GetSelectTypeMappingsCommand(_options.MetadataSchemaName, _options.TypeMappingsTableName);
         cmd.Connection = connection;
 
+        await connection.OpenAsync().ConfigureAwait(false);
+
         List<TypeMapping> mappings = new List<TypeMapping>();
-        await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+        while (await reader.ReadAsync().ConfigureAwait(false))
         {
             Guid id = reader.GetGuid(0);
             string typeName = reader.GetString(1);
             
             mappings.Add(new TypeMapping(id, typeName));
         }
+
+        await reader.CloseAsync().ConfigureAwait(false);
+        await connection.CloseAsync().ConfigureAwait(false);
 
         return mappings;
     }
@@ -62,6 +71,6 @@ public class PgTypeMappingStorageProvider : ITypeMappingStorageProvider
             batch.BatchCommands.Add(cmd);
         }
 
-        await batch.ExecuteNonQueryAsync();
+        await batch.ExecuteNonQueryAsync().ConfigureAwait(false);
     }
 }

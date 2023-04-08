@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Implementations;
@@ -18,6 +19,7 @@ public sealed class EventSourcingEngine : IEventSourcingEngine
         PublisherResolver = publisherResolver;
     }
 
+    [MemberNotNull(nameof(_instance))]
     internal static IEventSourcingEngine Instance
     {
         get

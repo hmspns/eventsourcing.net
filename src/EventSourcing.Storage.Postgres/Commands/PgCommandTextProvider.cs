@@ -324,13 +324,14 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
     private void BuildCreateMappingStorage()
     {
         CreateMappingsStorage = $@"
-create table if not exists ""{{0}}"".""{{1}}""
+CREATE SCHEMA IF NOT EXISTS ""{{0}}"";
+CREATE TABLE IF NOT EXISTS ""{{0}}"".""{{1}}""
 (
-	{ID} uuid not null,
-	{TYPE_NAME} text not null,
-	primary key ({ID}),
-	constraint type_mappings_pk
-		unique ({TYPE_NAME})
+	{ID} uuid NOT NULL,
+	{TYPE_NAME} TEXT NOT NULL,
+	PRIMARY KEY ({ID}),
+	CONSTRAINT type_mappings_pk
+		UNIQUE ({TYPE_NAME})
 );
 ";
     }
@@ -343,7 +344,7 @@ create table if not exists ""{{0}}"".""{{1}}""
     private void BuildInsertTypeMapping()
     {
         InsertTypeMapping = $@"
-            INSERT INTO ""{{0}}"".""{1}""
+            INSERT INTO ""{{0}}"".""{{1}}""
             ({ID}, {TYPE_NAME})
             VALUES
             ($1, $2)

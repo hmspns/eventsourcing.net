@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Abstractions.Contracts;
@@ -6,7 +8,7 @@ namespace EventSourcing.Abstractions.Contracts;
 /// <summary>
 /// Provide functionality to track relation between types and it's id.
 /// </summary>
-public interface ITypeMappingHandler
+public interface ITypeMappingHandler : IDisposable
 {
     /// <summary>
     /// Get type by id.
@@ -21,4 +23,12 @@ public interface ITypeMappingHandler
     /// <param name="type">Type to get id.></param>
     /// <returns></returns>
     TypeMappingId GetId(Type type);
+
+    internal void SetStorageTypes(IEnumerable<Type> types);
+
+    /// <summary>
+    /// Load 
+    /// </summary>
+    /// <param name="types"></param>
+    internal Task SynchronizeAppTypesWithStorageTypes();
 }

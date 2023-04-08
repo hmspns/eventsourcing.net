@@ -10,13 +10,15 @@ using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core.Implementations;
 
-public class TypeMappingHandler : ITypeMappingHandler, IDisposable
+public class TypeMappingHandler : ITypeMappingHandler
 {
-    private readonly ITypeMappingStorageProvider _storageProvider;
+    private ITypeMappingStorageProvider _storageProvider;
 
-    private readonly BidirectionalMapping<TypeMappingId, Type> _mappings = new();
+    private BidirectionalMapping<TypeMappingId, Type> _mappings = new();
 
-    private bool _storageTypesLoaded = false;
+    private bool _isStorageTypesSynchronized = false;
+    private Type[] _storageTypes;
+    private bool _isDisposed = false;
 
     public TypeMappingHandler(ITypeMappingStorageProvider storageProvider)
     {
@@ -25,6 +27,7 @@ public class TypeMappingHandler : ITypeMappingHandler, IDisposable
 
     public Type GetType(TypeMappingId id)
     {
+        CheckDisposed();
         if (!_mappings.TryGetValue(id, out Type? type))
         {
             Thrown.InvalidOperationException($"Couldn't find type for mapping id '{id.ToString()}'");
@@ -35,6 +38,7 @@ public class TypeMappingHandler : ITypeMappingHandler, IDisposable
 
     public TypeMappingId GetId(Type type)
     {
+        CheckDisposed();
         if (!_mappings.TryGetValue(type, out TypeMappingId id))
         {
             id = TypeMappingId.New();
@@ -42,6 +46,44 @@ public class TypeMappingHandler : ITypeMappingHandler, IDisposable
         }
 
         return id;
+    }
+
+    void ITypeMappingHandler.SetStorageTypes(IEnumerable<Type> types)
+    {
+        CheckDisposed();
+        _storageTypes = types.ToArray();
+    }
+    
+    /// <summary>
+    /// Load 
+    /// </summary>
+    /// <param name="types"></param>
+    async Task ITypeMappingHandler.SynchronizeAppTypesWithStorageTypes()
+    {
+        CheckDisposed();
+        if (_isStorageTypesSynchronized)
+        {
+            return;
+        }
+        await LoadFromStorage().ConfigureAwait(false);
+
+        List<TypeMapping> mappings = new List<TypeMapping>();
+        foreach (Type type in _storageTypes)
+        {
+            bool hasMapping = _mappings.TryGetValue(type, out var id);
+            if (!hasMapping)
+            {
+                mappings.Add(new TypeMapping(TypeMappingId.New(), GetStringRepresentation(type)));
+            }
+        }
+
+        if (mappings.Any())
+        {
+            await _storageProvider.AddMappings(mappings).ConfigureAwait(false);
+        }
+        
+        _storageTypes = null; // we don't need it anymore.
+        _isStorageTypesSynchronized = true;
     }
 
     private void AddTypeInternal(TypeMappingId id, Type type)
@@ -53,7 +95,7 @@ public class TypeMappingHandler : ITypeMappingHandler, IDisposable
         }
     }
 
-    internal async Task LoadFromStorage()
+    private async Task LoadFromStorage()
     {
         IReadOnlyCollection<TypeMapping> types = await _storageProvider.GetMappings().ConfigureAwait(false);
         foreach (TypeMapping mapping in types)
@@ -73,35 +115,6 @@ Couldn't find proper type for '{mapping.TypeName}' that present in storage.
 Probably it was removed from source code. It might cause errors during deserializing events.
 If type was removed on purpose remove it's mapping from storage", e);
             }
-        }
-
-        _storageTypesLoaded = true;
-    }
-
-    /// <summary>
-    /// Load 
-    /// </summary>
-    /// <param name="types"></param>
-    internal async Task SynchronizeAppTypesWithStorageTypes(IEnumerable<Type> types)
-    {
-        if (!_storageTypesLoaded)
-        {
-            await LoadFromStorage();
-        }
-
-        List<TypeMapping> mappings = new List<TypeMapping>();
-        foreach (Type type in types)
-        {
-            bool hasMapping = _mappings.TryGetValue(type, out var id);
-            if (!hasMapping)
-            {
-                mappings.Add(new TypeMapping(TypeMappingId.New(), GetStringRepresentation(type)));
-            }
-        }
-
-        if (mappings.Any())
-        {
-            await _storageProvider.AddMappings(mappings);
         }
     }
 
@@ -123,6 +136,34 @@ If type was removed on purpose remove it's mapping from storage", e);
 
     public void Dispose()
     {
-        _mappings.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            _mappings.Dispose();
+        }
+
+        _mappings = null;
+        _storageProvider = null;
+        _storageTypes = null;
+
+        _isDisposed = true;
+    }
+
+    private void CheckDisposed()
+    {
+        if (_isDisposed)
+        {
+            Thrown.ObjectDisposedException(nameof(TypeMappingHandler));
+        }
     }
 }

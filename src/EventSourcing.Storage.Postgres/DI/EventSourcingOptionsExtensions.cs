@@ -44,6 +44,11 @@ public static class EventSourcingOptionsExtensions
                 commandsBuilder,
                 storageOptions);
         });
+        options.Services.AddTransient<ITypeMappingStorageProvider>(x =>
+        {
+            IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
+            return new PgTypeMappingStorageProvider(connectionString, storageOptions, commandsBuilder);
+        });
         return new PostgresOptions(storageOptions);
     }
 

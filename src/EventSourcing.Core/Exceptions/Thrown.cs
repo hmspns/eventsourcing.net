@@ -22,4 +22,10 @@ internal static class Thrown
     {
         throw new ArgumentException(message, paramName, innerException);
     }
+
+    [DoesNotReturn]
+    internal static void ObjectDisposedException(string objectName)
+    {
+        throw new ObjectDisposedException(objectName);
+    }
 }
