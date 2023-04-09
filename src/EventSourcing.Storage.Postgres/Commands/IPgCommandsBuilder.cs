@@ -7,19 +7,17 @@ namespace EventSourcing.Storage.Postgres;
 
 public interface IPgCommandsBuilder
 {
-    NpgsqlBatchCommand GetInsertEventCommand(
-        IAppendDataPackage data,
+    NpgsqlBatchCommand GetInsertEventCommand(IAppendDataPackage data,
         IAppendEventPackage appendPackage,
         long position,
         byte[] payload,
-        string payloadType,
+        TypeMappingId payloadType,
         string schemaName,
         string eventsTableName);
 
-    NpgsqlBatchCommand GetInsertCommandCommand(
-        IAppendDataPackage data,
+    NpgsqlBatchCommand GetInsertCommandCommand(IAppendDataPackage data,
         byte[] payload,
-        string payloadType,
+        TypeMappingId payloadType,
         string schemaName,
         string commandsTableName);
 

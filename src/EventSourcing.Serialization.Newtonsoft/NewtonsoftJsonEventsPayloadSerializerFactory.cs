@@ -4,15 +4,8 @@ namespace EventSourcing.Serialization.Newtonsoft;
 
 public sealed class NewtonsoftJsonEventsPayloadSerializerFactory : IEventsPayloadSerializerFactory
 {
-    private readonly IPayloadSerializer _serializer;
-    
-    public NewtonsoftJsonEventsPayloadSerializerFactory(IEventTypeMappingHandler mappingHandler)
-    {
-        _serializer = new NewtonsoftJsonEventsPayloadSerializer(mappingHandler);
-    }
-    
     public IPayloadSerializer GetSerializer()
     {
-        return _serializer;
+        return new NewtonsoftJsonPayloadSerializer();
     }
 }

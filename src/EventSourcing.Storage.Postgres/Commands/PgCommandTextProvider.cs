@@ -22,7 +22,8 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
     internal const string AGGREGATE_ID = "aggregate_id";
     internal const string COMMAND_SOURCE = "command_source";
     internal const string TYPE_NAME = "type_name";
-    
+    internal const string AGGREGATE_ID_TYPE = "aggregate_id_type";
+
     private readonly PgStorageOptions _options;
 
     public string InsertEvent { get; private set; }
@@ -57,9 +58,9 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         BuildSelectEventsCount();
         BuildSelectStorageExists();
         BuildSelectStorageExists();
-        BuildCreateStorage();
+        BuildCreateDataStorage();
         BuildSelectStreamIdsByPattern();
-        BuildCreateMappingStorage();
+        BuildCreateMetadataStorage();
         BuildSelectTypeMappings();
         BuildInsertTypeMapping();
     }
@@ -73,17 +74,17 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         {
             case StreamReadVolume.Data:
                 sb.AppendLine(
-                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {PAYLOAD_TYPE}, {PAYLOAD}");
+                    $"SELECT {ID}, {tenantString} {AGGREGATE_ID_TYPE}, {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {PAYLOAD_TYPE}, {PAYLOAD}");
                 break;
             
             case StreamReadVolume.Meta:
                 sb.AppendLine(
-                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}");
+                    $"SELECT {ID}, {tenantString} {AGGREGATE_ID_TYPE}, {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}");
                 break;
 
             default:
                 sb.AppendLine(
-                    $"SELECT {ID}, {tenantString} {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}, {PAYLOAD}");
+                    $"SELECT {ID}, {tenantString} {AGGREGATE_ID_TYPE}, {STREAM_NAME}, {STREAM_POSITION}, \"{TIMESTAMP}\", {COMMAND_ID}, {SEQUENCE_ID}, {principalString} {PAYLOAD_TYPE}, {PAYLOAD}");
                 break;
         }
 
@@ -110,7 +111,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine(@"INSERT INTO ""{0}"".""{1}""");
-        sb.Append($"({ID}, {STREAM_NAME}, {STREAM_POSITION}, {TIMESTAMP}, {COMMAND_ID}, {SEQUENCE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
+        sb.Append($"({ID}, {STREAM_NAME}, {AGGREGATE_ID_TYPE}, {STREAM_POSITION}, {TIMESTAMP}, {COMMAND_ID}, {SEQUENCE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
         if (_options.StoreTenantId)
         {
             sb.Append($", {TENANT_ID}");
@@ -123,18 +124,18 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
 
         sb.AppendLine(")");
         sb.AppendLine("VALUES");
-        sb.Append("($1, $2, $3, $4, $5, $6, $7, $8");
+        sb.Append("($1, $2, $3, $4, $5, $6, $7, $8, $9");
 
-        bool nineAdded = false;
+        bool tenAdded = false;
         if (_options.StoreTenantId)
         {
-            sb.Append(", $9");
-            nineAdded = true;
+            sb.Append(", $10");
+            tenAdded = true;
         }
 
-        if (_options.StorePrincipal && nineAdded)
+        if (_options.StorePrincipal && tenAdded)
         {
-            sb.Append(", $10");
+            sb.Append(", $11");
         }
 
         sb.Append(")");
@@ -234,7 +235,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
             WHERE table_schema = '{0}' AND table_name = '{1}')";
     }
 
-    private void BuildCreateStorage()
+    private void BuildCreateDataStorage()
     {
         string binaryType = _options.BinaryDataPostgresType == BinaryDataPostgresType.JsonB ? "jsonb" : "bytea";
         StringBuilder sb = new StringBuilder();
@@ -250,7 +251,8 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         }
 
         sb.AppendLine(
-            $@"{STREAM_NAME}     varchar(255) not null,
+           $@"{STREAM_NAME}     varchar(255) not null,
+              {AGGREGATE_ID_TYPE}         uuid         not null,
               {STREAM_POSITION} bigint       not null,
               {GLOBAL_POSITION} bigint GENERATED ALWAYS AS identity,
               {TIMESTAMP}       timestamptz  not null,
@@ -262,7 +264,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         }
 
         sb.AppendLine(
-            $@"{PAYLOAD_TYPE}    varchar(255) not null,
+            $@"{PAYLOAD_TYPE}    uuid not null,
                 {PAYLOAD}         {binaryType}        not null
             );
 
@@ -302,7 +304,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
             }
 
             sb.AppendLine(
-                $@"{PAYLOAD_TYPE}      varchar(255) not null,
+                $@"{PAYLOAD_TYPE}      uuid not null,
             {PAYLOAD}           {binaryType}        not null
         );");
         }
@@ -321,7 +323,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
         return re.Replace(input, " ");
     }
 
-    private void BuildCreateMappingStorage()
+    private void BuildCreateMetadataStorage()
     {
         CreateMappingsStorage = $@"
 CREATE SCHEMA IF NOT EXISTS ""{{0}}"";

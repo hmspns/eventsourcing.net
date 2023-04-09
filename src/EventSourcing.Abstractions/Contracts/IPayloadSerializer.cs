@@ -1,4 +1,5 @@
 ﻿using System;
+using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Abstractions.Contracts;
 
@@ -11,15 +12,14 @@ public interface IPayloadSerializer
     /// Serialize data.
     /// </summary>
     /// <param name="obj">Data to be serialized.</param>
-    /// <param name="type">Type of serialized data.</param>
     /// <returns>Serialized data.</returns>
-    byte[] Serialize(object obj, out string type);
+    byte[] Serialize(object obj);
 
     /// <summary>
     /// Deserialize data.
     /// </summary>
-    /// <param name="data">Binary data.</param>
     /// <param name="type">Type of serialized data.</param>
+    /// <param name="data">Binary data.</param>
     /// <returns>Deserialized object.</returns>
-    object? Deserialize(Memory<byte> data, string type);
+    object Deserialize(Type type, Memory<byte> data);
 }

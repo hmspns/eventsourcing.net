@@ -18,12 +18,11 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         _storageOptions = storageOptions;
     }
 
-    public NpgsqlBatchCommand GetInsertEventCommand(
-        IAppendDataPackage data,
+    public NpgsqlBatchCommand GetInsertEventCommand(IAppendDataPackage data,
         IAppendEventPackage appendPackage,
         long position,
         byte[] payload,
-        string payloadType,
+        TypeMappingId payloadType,
         string schemaName,
         string eventsTableName)
     {
@@ -50,10 +49,9 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         return cmd;
     }
 
-    public NpgsqlBatchCommand GetInsertCommandCommand(
-        IAppendDataPackage data,
+    public NpgsqlBatchCommand GetInsertCommandCommand(IAppendDataPackage data,
         byte[] payload,
-        string payloadType,
+        TypeMappingId payloadType,
         string schemaName,
         string commandsTableName)
     {

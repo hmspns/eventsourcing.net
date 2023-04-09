@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
@@ -19,13 +20,14 @@ public class TypeMappingHandler : ITypeMappingHandler
     private bool _isStorageTypesSynchronized = false;
     private Type[] _storageTypes;
     private bool _isDisposed = false;
+    private readonly ManualResetEventSlim _manualResetEvent = new(true);
 
     public TypeMappingHandler(ITypeMappingStorageProvider storageProvider)
     {
         _storageProvider = storageProvider;
     }
 
-    public Type GetType(TypeMappingId id)
+    public Type GetTypeById(TypeMappingId id)
     {
         CheckDisposed();
         if (!_mappings.TryGetValue(id, out Type? type))
@@ -36,13 +38,44 @@ public class TypeMappingHandler : ITypeMappingHandler
         return type;
     }
 
-    public TypeMappingId GetId(Type type)
+    public TypeMappingId GetIdByType(Type type)
     {
         CheckDisposed();
+        if (!_manualResetEvent.Wait(TimeSpan.FromSeconds(10)))
+        {
+            Thrown.InvalidOperationException($"Couldn't get id for type {type.ToString()} because of time out");    
+        }
+        
         if (!_mappings.TryGetValue(type, out TypeMappingId id))
         {
-            id = TypeMappingId.New();
-            AddTypeInternal(id, type);
+            try
+            {
+                _manualResetEvent.Reset();
+                id = TypeMappingId.New();
+                if (!AddTypeInternal(id, type)) // we are in concurrent race and trying to add the same type at the same moment with the different id, but it isn't possible
+                {
+                    bool idFound = false;
+                    int count = 10;
+                    do
+                    {
+                        Thread.Sleep(20);
+                        if (_mappings.TryGetValue(type, out id))
+                        {
+                            idFound = true;
+                            break;
+                        }
+                    } while (count-- > 0);
+
+                    if (!idFound)
+                    {
+                        Thrown.InvalidOperationException($"Couldn't add mapping for type {type.ToString()}");
+                    }
+                }
+            }
+            finally
+            {
+                _manualResetEvent.Set();
+            }
         }
 
         return id;
@@ -86,13 +119,24 @@ public class TypeMappingHandler : ITypeMappingHandler
         _isStorageTypesSynchronized = true;
     }
 
-    private void AddTypeInternal(TypeMappingId id, Type type)
+    private bool AddTypeInternal(TypeMappingId id, Type type)
     {
         if (_mappings.TryAdd(id, type))
         {
-            TypeMapping mapping = new TypeMapping(id, GetStringRepresentation(type));
-            _storageProvider.AddMappings(new []{ mapping}).GetAwaiter().GetResult();
+            try
+            {
+                TypeMapping mapping = new TypeMapping(id, GetStringRepresentation(type));
+                _storageProvider.AddMappings(new []{ mapping}).GetAwaiter().GetResult();
+                return true;
+            }
+            catch
+            {
+                _mappings.TryRemove(id, type); // something went wrong during adding to storage, we should remove unprocessed mappings.
+                throw;
+            }
         }
+
+        return false;
     }
 
     private async Task LoadFromStorage()
@@ -150,6 +194,7 @@ If type was removed on purpose remove it's mapping from storage", e);
         if (disposing)
         {
             _mappings.Dispose();
+            _manualResetEvent.Dispose();
         }
 
         _mappings = null;

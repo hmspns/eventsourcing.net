@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Storage.Redis;
 
@@ -7,7 +8,7 @@ internal readonly struct SnapshotEnvelope
 {
     internal byte[] State { get; init; }
     
-    internal string Type { get; init; }
+    internal TypeMappingId TypeId { get; init; }
     
     internal long AggregateVersion { get; init; }
     

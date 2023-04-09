@@ -20,6 +20,7 @@ public sealed class PgSqlAppender : IAppendOnly
     
     private readonly string _eventsTableName;
     private readonly string _commandsTableName;
+    private readonly ITypeMappingHandler _typeMappingHandler;
 
     private string SchemaName
     {
@@ -36,8 +37,10 @@ public sealed class PgSqlAppender : IAppendOnly
         NpgsqlDataSource dataSource,
         IPgCommandsBuilder commandsBuilder,
         PgStorageOptions storageOptions,
+        ITypeMappingHandler typeMappingHandler,
         TenantId tenantId)
     {
+        _typeMappingHandler = typeMappingHandler;
         _tenantId = tenantId;
         _commandsBuilder = commandsBuilder;
         _dataSource = dataSource;
@@ -78,14 +81,14 @@ public sealed class PgSqlAppender : IAppendOnly
     {
         try
         {
-            await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync(cancellationToken);
-            await using NpgsqlTransaction transaction = await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await using NpgsqlTransaction transaction = await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand selectVersionCommand = _commandsBuilder.GetStreamVersionCommand(streamName, SchemaName, _eventsTableName);
+            
             selectVersionCommand.Connection = conn;
-            await selectVersionCommand.PrepareAsync(cancellationToken);
+            await selectVersionCommand.PrepareAsync(cancellationToken).ConfigureAwait(false);
 
-            // ReSharper disable once PossibleNullReferenceException
-            long version = (long)await selectVersionCommand.ExecuteScalarAsync(cancellationToken);
+            long version = (long)await selectVersionCommand.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false)!;
 
             if (version != expectedStreamVersion)
             {
@@ -97,7 +100,7 @@ public sealed class PgSqlAppender : IAppendOnly
             foreach (IAppendEventPackage appendPackage in data.EventPackages)
             {
                 position += 1;
-                byte[] eventPayload = Serialize(appendPackage.Payload, out string eventPayloadType);
+                byte[] eventPayload = Serialize(appendPackage.Payload, out TypeMappingId eventPayloadType);
                 NpgsqlBatchCommand cmd = _commandsBuilder.GetInsertEventCommand(
                     data,
                     appendPackage,
@@ -110,7 +113,7 @@ public sealed class PgSqlAppender : IAppendOnly
 
             if (_storageOptions.StoreCommands)
             {
-                byte[] commandPayload = Serialize(data.CommandPackage.Payload, out string commandPayloadType);
+                byte[] commandPayload = Serialize(data.CommandPackage.Payload, out TypeMappingId commandPayloadType);
                 NpgsqlBatchCommand createCommandCmd = _commandsBuilder.GetInsertCommandCommand(
                     data,
                     commandPayload,
@@ -120,13 +123,13 @@ public sealed class PgSqlAppender : IAppendOnly
                 batch.BatchCommands.Add(createCommandCmd);
             }
 
-            await batch.PrepareAsync(cancellationToken);
+            await batch.PrepareAsync(cancellationToken).ConfigureAwait(false);
 
-            await batch.ExecuteNonQueryAsync(cancellationToken);
+            await batch.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                await transaction.CommitAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
                 return new AppendEventsResult(true, position);
             }
@@ -277,9 +280,17 @@ public sealed class PgSqlAppender : IAppendOnly
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte[] Serialize(object payload, out string type)
+    private byte[] Serialize(object payload, out TypeMappingId id)
     {
-        return _serializer.Serialize(payload, out type);
+        Type type = payload.GetType();
+        id = _typeMappingHandler.GetIdByType(type);
+        return _serializer.Serialize(payload);
+    }
+
+    private object Deserialize(TypeMappingId id, Memory<byte> data)
+    {
+        Type type = _typeMappingHandler.GetTypeById(id);
+        return _serializer.Deserialize(type, data);
     }
 
     private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamId streamName)
@@ -291,10 +302,10 @@ public sealed class PgSqlAppender : IAppendOnly
         package.Timestamp = reader.GetFieldValue<DateTime>(2);
         package.CommandId = reader.GetGuid(3);
         package.SequenceId = reader.GetGuid(4);
-        string payloadType = reader.GetString(5);
+        Guid payloadType = reader.GetGuid(5);
         byte[] serialized = reader.GetFieldValue<byte[]>(6);
 
-        object? payload = _serializer.Deserialize(serialized, payloadType);
+        object payload = Deserialize(payloadType, serialized);
         package.Payload = payload;
 
         PgStorageOptions options = _storageOptions;
@@ -325,7 +336,7 @@ public sealed class PgSqlAppender : IAppendOnly
 
     private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamReadOptions readOptions)
     {
-        string payloadType;
+        Guid payloadType;
         byte[] serialized;
         object? payload;
 
@@ -337,9 +348,9 @@ public sealed class PgSqlAppender : IAppendOnly
         switch (readOptions.ReadingVolume)
         {
             case StreamReadVolume.Data:
-                payloadType = reader.GetString(PgCommandTextProvider.PAYLOAD_TYPE);
+                payloadType = reader.GetGuid(PgCommandTextProvider.PAYLOAD_TYPE);
                 serialized = reader.GetFieldValue<byte[]>(PgCommandTextProvider.PAYLOAD);
-                payload = _serializer.Deserialize(serialized, payloadType);
+                payload = Deserialize(payloadType, serialized);
 
                 package.Payload = payload;
                 break;
@@ -355,9 +366,9 @@ public sealed class PgSqlAppender : IAppendOnly
                 break;
 
             case StreamReadVolume.MetaAndData:
-                payloadType = reader.GetString(PgCommandTextProvider.PAYLOAD_TYPE);
+                payloadType = reader.GetGuid(PgCommandTextProvider.PAYLOAD_TYPE);
                 serialized = reader.GetFieldValue<byte[]>(PgCommandTextProvider.PAYLOAD);
-                payload = _serializer.Deserialize(serialized, payloadType);
+                payload = Deserialize(payloadType, serialized);
 
                 package.CommandId = reader.GetGuid(PgCommandTextProvider.COMMAND_ID);
                 package.SequenceId = reader.GetGuid(PgCommandTextProvider.SEQUENCE_ID);

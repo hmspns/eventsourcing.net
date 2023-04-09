@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using EventSourcing.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Serialization;
@@ -5,11 +7,21 @@ namespace EventSourcing.Core.Serialization;
 /// <inheritdoc />
 public sealed class SystemTextJsonSnapshotsSerializerFactory : ISnapshotsSerializerFactory
 {
-    private readonly SystemTextJsonSnapshotPayloadSerializer _serializer;
+    private readonly SystemTextJsonPayloadSerializer _serializer;
     
-    public SystemTextJsonSnapshotsSerializerFactory()
+    public SystemTextJsonSnapshotsSerializerFactory(JsonSerializerOptions? options = null)
     {
-        _serializer = new SystemTextJsonSnapshotPayloadSerializer();
+        options ??= new JsonSerializerOptions()
+        {
+            WriteIndented = false,
+            Converters =
+            {
+                new IIdentityConverter(),
+                new JsonStringEnumConverter()
+            }
+        };
+
+        _serializer = new SystemTextJsonPayloadSerializer(options);
     }
     
     public IPayloadSerializer Get()

@@ -2,14 +2,15 @@
 using System.Text;
 using EventSourcing.Abstractions;
 using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Abstractions.Identities;
 using Newtonsoft.Json;
 
 namespace EventSourcing.Serialization.Newtonsoft;
 
 /// <inheritdoc />
-public sealed class NewtonsoftJsonEventsPayloadSerializer : IPayloadSerializer
+public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
 {
-    private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
+    private static readonly JsonSerializerSettings _settings = new()
     {
         Formatting = Formatting.Indented,
         ReferenceLoopHandling = ReferenceLoopHandling.Error,
@@ -19,39 +20,34 @@ public sealed class NewtonsoftJsonEventsPayloadSerializer : IPayloadSerializer
         }
     };
 
-    private readonly IEventTypeMappingHandler _eventTypeMappingHandler;
-
-    public NewtonsoftJsonEventsPayloadSerializer(IEventTypeMappingHandler eventTypeMappingHandler)
-    {
-        _eventTypeMappingHandler = eventTypeMappingHandler;
-    }
-    
-    public byte[] Serialize(object obj, out string type)
+    public byte[] Serialize(object obj)
     {
         if (obj == null)
         {
             throw new ArgumentNullException(nameof(obj));
         }
-
-        type = _eventTypeMappingHandler.GetStringRepresentation(obj.GetType());
         return SerializeJson(obj);
     }
 
-    public object Deserialize(Memory<byte> data, string type)
+    public object Deserialize(Type type, Memory<byte> data)
     {
         if (data.IsEmpty)
         {
             throw new ArgumentException("Data is empty", nameof(data));
         }
 
-        if (string.IsNullOrWhiteSpace(type))
+        if (type == null)
         {
-            throw new ArgumentException("Type must be not an empty string", nameof(type));
+            throw new ArgumentNullException(nameof(type));
+        }
+        
+        var result = DeserializeJson(type, data);
+        if (result == null)
+        {
+            throw new InvalidOperationException($"Couldn't deserialize type {type}");
         }
 
-        Type t = _eventTypeMappingHandler.GetEventType(type);
-        
-        return DeserializeJson(t, data);
+        return result;
     }
 
     private byte[] SerializeJson(object obj)

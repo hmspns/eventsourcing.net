@@ -36,10 +36,12 @@ public static class EventSourcingOptionsExtensions
                 RedisConnection connection = new RedisConnection(connectionString);
                 ISnapshotsSerializerFactory serializerFactory = x.GetRequiredService<ISnapshotsSerializerFactory>();
                 IRedisKeyGenerator keyGenerator = x.GetRequiredService<IRedisKeyGenerator>();
+                ITypeMappingHandler typeMappingHandler = x.GetRequiredService<ITypeMappingHandler>();
                 return new RedisSnapshotStoreResolver(
                     connection,
                     serializerFactory,
                     keyGenerator,
+                    typeMappingHandler,
                     policy
                 );
             });

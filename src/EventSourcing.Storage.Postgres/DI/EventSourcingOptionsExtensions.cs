@@ -37,11 +37,13 @@ public static class EventSourcingOptionsExtensions
             IEventsPayloadSerializerFactory serializerFactory = x.GetRequiredService<IEventsPayloadSerializerFactory>();
             IPayloadSerializer payloadSerializer = serializerFactory.GetSerializer();
             IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
+            ITypeMappingHandler typeMappingHandler = x.GetRequiredService<ITypeMappingHandler>();
             
             return new PgAppenderResolver(
                 connectionString,
                 payloadSerializer,
                 commandsBuilder,
+                typeMappingHandler,
                 storageOptions);
         });
         options.Services.AddTransient<ITypeMappingStorageProvider>(x =>

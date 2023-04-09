@@ -46,6 +46,30 @@ internal sealed class BidirectionalMapping<TFirst, TSecond> : IDisposable
         }
     }
 
+    internal bool TryRemove(TFirst first, TSecond second)
+    {
+        CheckDisposed();
+        if (first == null)
+        {
+            Thrown.ArgumentNullException(nameof(first));
+        }
+
+        if (second == null)
+        {
+            Thrown.ArgumentNullException(nameof(second));
+        }
+
+        try
+        {
+            _locker.EnterWriteLock();
+            return _first.Remove(first) || _second.Remove(second);
+        }
+        finally
+        {
+            _locker.ExitWriteLock();
+        }
+    }
+
     internal bool TryGetValue(TFirst key, out TSecond value)
     {
         CheckDisposed();

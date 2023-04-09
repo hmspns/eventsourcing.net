@@ -15,14 +15,14 @@ public interface ITypeMappingHandler : IDisposable
     /// </summary>
     /// <param name="id">Id of type.</param>
     /// <returns>Type matched to id.</returns>
-    Type GetType(TypeMappingId id);
+    Type GetTypeById(TypeMappingId id);
 
     /// <summary>
     /// Get id for type.
     /// </summary>
     /// <param name="type">Type to get id.></param>
     /// <returns></returns>
-    TypeMappingId GetId(Type type);
+    TypeMappingId GetIdByType(Type type);
 
     internal void SetStorageTypes(IEnumerable<Type> types);
 

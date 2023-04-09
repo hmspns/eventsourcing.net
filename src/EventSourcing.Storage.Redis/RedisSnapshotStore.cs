@@ -16,14 +16,17 @@ public sealed class RedisSnapshotStore : ISnapshotStore
     private readonly ISnapshotsSerializerFactory _serializerFactory;
     private readonly RedisSnapshotCreationPolicy _redisSnapshotCreationPolicy;
     private readonly IRedisKeyGenerator _keyGenerator;
+    private readonly ITypeMappingHandler _typeMappingHandler;
 
     internal RedisSnapshotStore(
         IRedisConnection redisConnection,
         ISnapshotsSerializerFactory serializerFactory,
         RedisSnapshotCreationPolicy redisSnapshotCreationPolicy,
         IRedisKeyGenerator keyGenerator,
+        ITypeMappingHandler typeMappingHandler,
         TenantId tenantId)
     {
+        _typeMappingHandler = typeMappingHandler;
         _keyGenerator = keyGenerator;
         _redisSnapshotCreationPolicy = redisSnapshotCreationPolicy;
         _serializerFactory = serializerFactory;
@@ -37,14 +40,15 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
-            RedisValue value = await database.StringGetAsync(key);
+            RedisValue value = await database.StringGetAsync(key).ConfigureAwait(false);
             RedisSnapshotEnvelopeSerializer.FromRedisValue(ref value, out SnapshotEnvelope envelope);
             if (envelope.IsEmpty)
             {
                 return NoSnapshot(streamName);
             }
 
-            object? state = _serializerFactory.Get().Deserialize(envelope.State, envelope.Type);
+            Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
+            object state = _serializerFactory.Get().Deserialize(type, envelope.State);
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
@@ -91,12 +95,13 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
-            byte[] data = _serializerFactory.Get().Serialize(snapshot.State, out string type);
+            TypeMappingId typeId = _typeMappingHandler.GetIdByType(snapshot.State.GetType());
+            byte[] data = _serializerFactory.Get().Serialize(snapshot.State);
             SnapshotEnvelope envelope = new SnapshotEnvelope()
             {
                 State = data,
                 AggregateVersion = snapshot.Version,
-                Type = type
+                TypeId = typeId
             };
             RedisSnapshotEnvelopeSerializer.ToRedisValue(ref envelope, out RedisValue value);
 
@@ -104,7 +109,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
                 ? _redisSnapshotCreationPolicy.ExpireAfter
                 : null;
-            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget);
+            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget).ConfigureAwait(false);
         }
         catch (ObjectDisposedException e)
         {
