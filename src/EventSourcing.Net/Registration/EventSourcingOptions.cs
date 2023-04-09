@@ -15,8 +15,7 @@ public sealed class EventSourcingOptions
     
     private readonly EventSourcingBusOptions _busOptions;
 
-    [Obsolete]
-    private IEventTypeMappingHandler _eventTypeMappingHandler;
+    private ITypeStringConverter _typeStringConverter;
 
     internal EventSourcingOptions(IServiceCollection services)
     {
@@ -47,20 +46,18 @@ public sealed class EventSourcingOptions
             assemblies = AppDomain.CurrentDomain.GetAssemblies();
         }
 
+        Type[] types = GetTypesForMapping(assemblies);
         Services.AddSingleton<ITypeMappingHandler>(x =>
         {
-            Type[] types = GetTypesForMapping(assemblies);
             ITypeMappingStorageProvider typeMappingStorageProvider = x.GetRequiredService<ITypeMappingStorageProvider>();
-            TypeMappingHandler handler = new TypeMappingHandler(typeMappingStorageProvider);
+            ITypeStringConverter typeStringConverter = x.GetRequiredService<ITypeStringConverter>();
+            TypeMappingHandler handler = new TypeMappingHandler(typeMappingStorageProvider, typeStringConverter);
             ((ITypeMappingHandler)handler).SetStorageTypes(types);
             return handler;
         });
-        
-        Dictionary<string,Type> mappings = assemblies.SelectMany(x => x.GetTypes())
-            .Where(x => x.IsAssignableTo(typeof(IEvent)))
-            .ToDictionary(x => x.FullName, x => x, StringComparer.Ordinal);
-        mappings.TrimExcess();
-        _eventTypeMappingHandler = new InMemoryEventTypeMappingHandler(mappings);
+
+        _typeStringConverter = new DefaultTypeStringConverter();
+        Services.AddSingleton(_typeStringConverter);
         return this;
     }
 
@@ -71,13 +68,13 @@ public sealed class EventSourcingOptions
     /// <returns>EventSourcingOptions for next fluent call.</returns>
     /// <remarks>Handler will be registered as singleton.</remarks>
     /// <exception cref="ArgumentNullException">Handler is null.</exception>
-    public EventSourcingOptions RegisterEventTypesMapping(IEventTypeMappingHandler handler)
+    public EventSourcingOptions RegisterEventTypesMapping(ITypeStringConverter handler)
     {
         if (handler == null)
         {
             throw new ArgumentNullException(nameof(handler));
         }
-        _eventTypeMappingHandler = handler;
+        _typeStringConverter = handler;
         return this;
     }
 
@@ -87,15 +84,16 @@ public sealed class EventSourcingOptions
         Services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
         Services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
         
-        if (_eventTypeMappingHandler == null)
+        if (_typeStringConverter == null)
         { 
             RegisterEventTypesMapping();
         }
 
-        Services.IfNotRegistered<IEventTypeMappingHandler>(x => x.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler));
+        Services.IfNotRegistered<ITypeStringConverter>(x => x.AddSingleton<ITypeStringConverter>(_typeStringConverter));
 
         Services.IfNotRegistered<ITypeMappingStorageProvider>(x => x.AddSingleton<ITypeMappingStorageProvider, InMemoryTypeMappingStorageProvider>());
-
+        Services.IfNotRegistered<IEventSourcingStorage>(x => x.AddTransient<IEventSourcingStorage, InMemoryEventSourcingStorage>());
+        
         RegisterEventSourcingEngine();
         Services = null; // do not handle reference to the service collection
     }
@@ -120,7 +118,7 @@ public sealed class EventSourcingOptions
         
         EventSourcingEngineFactory.Initialize(lazy);
 
-        Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine>(lazy.Value));
+        Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine>(x => lazy.Value));
     }
     
     private static Type[] GetTypesForMapping(params Assembly[] assemblies)

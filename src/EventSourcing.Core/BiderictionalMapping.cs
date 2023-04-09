@@ -62,7 +62,9 @@ internal sealed class BidirectionalMapping<TFirst, TSecond> : IDisposable
         try
         {
             _locker.EnterWriteLock();
-            return _first.Remove(first) || _second.Remove(second);
+            bool firstRemoved = _first.Remove(first);
+            bool secondRemoved = _second.Remove(second);
+            return firstRemoved || secondRemoved;
         }
         finally
         {

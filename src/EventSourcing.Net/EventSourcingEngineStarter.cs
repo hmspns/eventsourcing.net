@@ -7,7 +7,8 @@ namespace EventSourcing.Net;
 public sealed class EventSourcingEngineStarter
 {
     private IServiceProvider _provider;
-    private bool _isStarted = false;
+    
+    internal bool IsStarted { get; private set; }
 
     public EventSourcingEngineStarter(IServiceProvider provider)
     {
@@ -19,7 +20,7 @@ public sealed class EventSourcingEngineStarter
     /// </summary>
     public async Task Start()
     {
-        if (_isStarted)
+        if (IsStarted)
         {
             return;
         }
@@ -34,8 +35,6 @@ public sealed class EventSourcingEngineStarter
         EventSourcingEngine.Instance = engine;
 
         _provider = null;
-        _isStarted = true;
+        IsStarted = true;
     }
-    
-    
 }

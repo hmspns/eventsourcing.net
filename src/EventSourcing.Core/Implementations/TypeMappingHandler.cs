@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Abstractions.Contracts;
@@ -11,7 +12,7 @@ using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core.Implementations;
 
-public class TypeMappingHandler : ITypeMappingHandler
+public sealed class TypeMappingHandler : ITypeMappingHandler
 {
     private ITypeMappingStorageProvider _storageProvider;
 
@@ -21,9 +22,11 @@ public class TypeMappingHandler : ITypeMappingHandler
     private Type[] _storageTypes;
     private bool _isDisposed = false;
     private readonly ManualResetEventSlim _manualResetEvent = new(true);
+    private ITypeStringConverter _typeStringConverter;
 
-    public TypeMappingHandler(ITypeMappingStorageProvider storageProvider)
+    public TypeMappingHandler(ITypeMappingStorageProvider storageProvider, ITypeStringConverter typeStringConverter)
     {
+        _typeStringConverter = typeStringConverter;
         _storageProvider = storageProvider;
     }
 
@@ -106,7 +109,9 @@ public class TypeMappingHandler : ITypeMappingHandler
             bool hasMapping = _mappings.TryGetValue(type, out var id);
             if (!hasMapping)
             {
-                mappings.Add(new TypeMapping(TypeMappingId.New(), GetStringRepresentation(type)));
+                TypeMapping typeMapping = new TypeMapping(TypeMappingId.New(), _typeStringConverter.GetStringRepresentation(type));
+                mappings.Add(typeMapping);
+                _mappings.TryAdd(typeMapping.Id, type);
             }
         }
 
@@ -114,7 +119,7 @@ public class TypeMappingHandler : ITypeMappingHandler
         {
             await _storageProvider.AddMappings(mappings).ConfigureAwait(false);
         }
-        
+
         _storageTypes = null; // we don't need it anymore.
         _isStorageTypesSynchronized = true;
     }
@@ -125,7 +130,7 @@ public class TypeMappingHandler : ITypeMappingHandler
         {
             try
             {
-                TypeMapping mapping = new TypeMapping(id, GetStringRepresentation(type));
+                TypeMapping mapping = new TypeMapping(id, _typeStringConverter.GetStringRepresentation(type));
                 _storageProvider.AddMappings(new []{ mapping}).GetAwaiter().GetResult();
                 return true;
             }
@@ -146,7 +151,7 @@ public class TypeMappingHandler : ITypeMappingHandler
         {
             try
             {
-                Type type = Type.GetType(mapping.TypeName)!;
+                Type type = _typeStringConverter.GetType(mapping.TypeName);
                 if (!_mappings.TryAdd(mapping.Id, type))
                 {
                     Thrown.InvalidOperationException($"Type with id '{mapping.Id.ToString()}' already added. It means that storage contains duplicate type mapping entries");
@@ -161,30 +166,13 @@ If type was removed on purpose remove it's mapping from storage", e);
             }
         }
     }
-
-    /// <summary>
-    /// Get string representation of type to store it in the storage.
-    /// </summary>
-    /// <param name="type">Type to get its string representation.</param>
-    /// <returns>String representation of type.</returns>
-    /// <exception cref="InvalidOperationException">Full name of <paramref name="type"/> returns null.</exception>
-    protected virtual string GetStringRepresentation(Type type)
-    {
-        string? representation = type.FullName;
-        if (representation == null)
-        {
-            Thrown.InvalidOperationException($"Property FullName of type '{type.ToString()}' return null");
-        }
-        return representation;
-    }
-
+    
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (_isDisposed)
         {
@@ -198,6 +186,7 @@ If type was removed on purpose remove it's mapping from storage", e);
         }
 
         _mappings = null;
+        _typeStringConverter = null;
         _storageProvider = null;
         _storageTypes = null;
 

@@ -51,6 +51,7 @@ public static class EventSourcingOptionsExtensions
             IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
             return new PgTypeMappingStorageProvider(connectionString, storageOptions, commandsBuilder);
         });
+        options.Services.AddTransient<IEventSourcingStorage, PgEventSourcingStorage>();
         return new PostgresOptions(storageOptions);
     }
 

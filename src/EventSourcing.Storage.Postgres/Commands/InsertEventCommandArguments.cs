@@ -1,8 +1,10 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Runtime.InteropServices;
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 
 namespace EventSourcing.Storage.Postgres;
 
+[StructLayout(LayoutKind.Auto)]
 public readonly struct InsertEventCommandArguments<TId>
 {
     public IAppendDataPackage<TId> Data { get; init; }

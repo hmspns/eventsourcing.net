@@ -1,3 +1,4 @@
+using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Samples.Persistence;
 using Microsoft.AspNetCore.Components;
@@ -22,6 +23,8 @@ var app = builder.Build();
 await app.CreateDatabases();
 // run event sourcing engine
 await app.Services.StartEventSourcingEngine();
+// create schema for tenant
+await app.Services.GetRequiredService<IEventSourcingStorage>().Initialize();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

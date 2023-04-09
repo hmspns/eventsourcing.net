@@ -58,7 +58,5 @@ public static class StartupExtensions
         await using var scope = serviceProvider.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreatedAsync();
         await scope.ServiceProvider.GetRequiredService<EventsDbContext>().Database.EnsureCreatedAsync();
-        // this will create schema for tenant
-        await scope.ServiceProvider.GetRequiredService<IResolveAppender>().Get(TenantId.Empty).Initialize();
     }
 }
