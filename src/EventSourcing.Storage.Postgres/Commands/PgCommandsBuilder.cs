@@ -18,38 +18,34 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
         _storageOptions = storageOptions;
     }
 
-    public NpgsqlBatchCommand GetInsertEventCommand(IAppendDataPackage data,
-        IAppendEventPackage appendPackage,
-        long position,
-        byte[] payload,
-        TypeMappingId payloadType,
-        string schemaName,
-        string eventsTableName)
+    public NpgsqlBatchCommand GetInsertEventCommand<TId>(
+        ref InsertEventCommandArguments<TId> insertEventCommandArguments)
     {
-        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertEvent, schemaName, eventsTableName));
-        cmd.AddParameter(appendPackage.EventId.Id);
-        cmd.AddParameter(appendPackage.StreamName.ToString());
-        cmd.AddParameter(position);
-        cmd.AddParameter(appendPackage.Timestamp);
-        cmd.AddParameter(data.CommandPackage.CommandId.Id);
-        cmd.AddParameter(data.CommandPackage.SequenceId.Id);
-        cmd.AddParameter(payloadType);
-        cmd.AddBinaryParameter(payload, _storageOptions);
+        NpgsqlBatchCommand cmd = new NpgsqlBatchCommand(string.Format(_commandTextProvider.InsertEvent, insertEventCommandArguments.SchemaName, insertEventCommandArguments.EventsTableName));
+        cmd.AddParameter(insertEventCommandArguments.AppendPackage.EventId.Id);
+        cmd.AddParameter(insertEventCommandArguments.AppendPackage.StreamName.ToString());
+        cmd.AddParameter(insertEventCommandArguments.AggregateIdType);
+        cmd.AddParameter(insertEventCommandArguments.Position);
+        cmd.AddParameter(insertEventCommandArguments.AppendPackage.Timestamp);
+        cmd.AddParameter(insertEventCommandArguments.Data.CommandPackage.CommandId.Id);
+        cmd.AddParameter(insertEventCommandArguments.Data.CommandPackage.SequenceId.Id);
+        cmd.AddParameter(insertEventCommandArguments.PayloadType);
+        cmd.AddBinaryParameter(insertEventCommandArguments.Payload, _storageOptions);
         
         if (_storageOptions.StoreTenantId)
         {
-            cmd.AddParameter(data.CommandPackage.TenantId.Id);
+            cmd.AddParameter(insertEventCommandArguments.Data.CommandPackage.TenantId.Id);
         }
 
         if (_storageOptions.StorePrincipal)
         {
-            cmd.AddParameter(data.CommandPackage.PrincipalId.ToString());
+            cmd.AddParameter(insertEventCommandArguments.Data.CommandPackage.PrincipalId.ToString());
         }
 
         return cmd;
     }
 
-    public NpgsqlBatchCommand GetInsertCommandCommand(IAppendDataPackage data,
+    public NpgsqlBatchCommand GetInsertCommandCommand<TId>(IAppendDataPackage<TId> data,
         byte[] payload,
         TypeMappingId payloadType,
         string schemaName,

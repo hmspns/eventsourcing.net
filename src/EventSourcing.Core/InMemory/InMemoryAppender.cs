@@ -15,7 +15,7 @@ public sealed class InMemoryAppender : IAppendOnly
     private readonly Dictionary<StreamId, List<EventPackage>> _data = new();
     private readonly object _locker = new();
 
-    public Task<IAppendEventsResult> Append(StreamId streamName, IAppendDataPackage data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default)
+    public Task<IAppendEventsResult> Append<TId>(StreamId streamName, IAppendDataPackage<TId> data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default)
     {
         lock (_locker)
         {

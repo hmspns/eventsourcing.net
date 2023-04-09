@@ -73,9 +73,9 @@ public sealed class PgSqlAppender : IAppendOnly
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of append operation.</returns>
     /// <exception cref="AppendOnlyStoreConcurrencyException">Event with the given version already presents in the stream.</exception>
-    public async Task<IAppendEventsResult> Append(
+    public async Task<IAppendEventsResult> Append<TId>(
         StreamId streamName,
-        IAppendDataPackage data,
+        IAppendDataPackage<TId> data,
         AggregateVersion expectedStreamVersion,
         CancellationToken cancellationToken = default)
     {
@@ -97,17 +97,24 @@ public sealed class PgSqlAppender : IAppendOnly
 
             await using NpgsqlBatch batch = new NpgsqlBatch(conn, transaction);
             long position = expectedStreamVersion;
+
+            TypeMappingId aggregateIdType = _typeMappingHandler.GetIdByType(data.CommandPackage.AggregateId.GetType());
             foreach (IAppendEventPackage appendPackage in data.EventPackages)
             {
                 position += 1;
                 byte[] eventPayload = Serialize(appendPackage.Payload, out TypeMappingId eventPayloadType);
-                NpgsqlBatchCommand cmd = _commandsBuilder.GetInsertEventCommand(
-                    data,
-                    appendPackage,
-                    position,
-                    eventPayload,
-                    eventPayloadType,
-                    SchemaName, _eventsTableName);
+                InsertEventCommandArguments<TId> commandArguments = new InsertEventCommandArguments<TId>()
+                {
+                    Data = data,
+                    AppendPackage = appendPackage,
+                    PayloadType = eventPayloadType,
+                    SchemaName = SchemaName,
+                    Payload = eventPayload,
+                    EventsTableName = _eventsTableName,
+                    Position = position,
+                    AggregateIdType = aggregateIdType
+                };
+                NpgsqlBatchCommand cmd = _commandsBuilder.GetInsertEventCommand(ref commandArguments);
                 batch.BatchCommands.Add(cmd);
             }
 

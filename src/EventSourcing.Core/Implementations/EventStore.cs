@@ -68,9 +68,9 @@ public sealed class EventStore : IEventStore
         };
     }
 
-    public async Task<IAppendEventsResult> AppendToStream(ICommandEnvelope commandEnvelope, StreamId streamName, AggregateVersion aggregateVersion, IReadOnlyList<IEventEnvelope> events)
+    public async Task<IAppendEventsResult> AppendToStream<TId>(ICommandEnvelope<TId> commandEnvelope, StreamId streamName, AggregateVersion aggregateVersion, IReadOnlyList<IEventEnvelope> events)
     {
-        AppendCommandPackage commandPackage = new AppendCommandPackage()
+        AppendCommandPackage<TId> commandPackage = new ()
         {
             Payload = commandEnvelope.Payload,
             Source = commandEnvelope.Source,
@@ -90,9 +90,9 @@ public sealed class EventStore : IEventStore
             StreamName = streamName
         }).ToArray();
 
-        AppendDataPackage package = new AppendDataPackage(commandPackage, eventsPackage);
+        AppendDataPackage<TId> package = new AppendDataPackage<TId>(commandPackage, eventsPackage);
 
-        IAppendEventsResult result = await _appender.Append(streamName, package, aggregateVersion);
+        IAppendEventsResult result = await _appender.Append<TId>(streamName, package, aggregateVersion);
         return result;
     }
 }

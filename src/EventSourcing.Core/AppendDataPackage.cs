@@ -7,21 +7,21 @@ using EventSourcing.Abstractions.Identities;
 namespace EventSourcing.Core;
 
 /// <inheritdoc />
-public record AppendDataPackage : IAppendDataPackage
+public record AppendDataPackage<TId> : IAppendDataPackage<TId>
 {
-    public AppendDataPackage(IAppendCommandPackage command, params IAppendEventPackage[] events)
+    public AppendDataPackage(IAppendCommandPackage<TId> command, params IAppendEventPackage[] events)
     {
         CommandPackage = command;
         EventPackages = events;
     }
         
-    public AppendDataPackage(IAppendCommandPackage command, IEnumerable<IAppendEventPackage> events)
+    public AppendDataPackage(IAppendCommandPackage<TId> command, IEnumerable<IAppendEventPackage> events)
     {
         CommandPackage = command;
         EventPackages = events.ToArray();
     }
 
-    public IAppendCommandPackage CommandPackage { get; }
+    public IAppendCommandPackage<TId> CommandPackage { get; }
         
     public IEnumerable<IAppendEventPackage> EventPackages { get; }
 }
@@ -36,14 +36,14 @@ public record AppendEventPackage : IAppendEventPackage
 }
 
 /// <inheritdoc />
-public record AppendCommandPackage : IAppendCommandPackage
+public record AppendCommandPackage<TId> : IAppendCommandPackage<TId>
 {
     public TenantId TenantId { get; init; }
     public CommandId CommandId { get; init; }
     public CommandId ParentCommandId { get; init; }
     public CommandSequenceId SequenceId { get; init; }
     public DateTime Timestamp { get; init; }
-    public object AggregateId { get; init; }
+    public TId AggregateId { get; init; }
     public PrincipalId PrincipalId { get; init; }
     public string Source { get; init; }
     public object Payload { get; init; }

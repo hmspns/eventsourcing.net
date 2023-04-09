@@ -7,12 +7,12 @@ namespace EventSourcing.Abstractions.Contracts;
 /// <summary>
 /// Data added to storage.
 /// </summary>
-public interface IAppendDataPackage
+public interface IAppendDataPackage<TId>
 {
     /// <summary>
     /// Command data.
     /// </summary>
-    public IAppendCommandPackage CommandPackage { get; }
+    public IAppendCommandPackage<TId> CommandPackage { get; }
         
     /// <summary>
     /// Events data.
@@ -49,7 +49,7 @@ public interface IAppendEventPackage
 /// <summary>
 /// Package with command data.
 /// </summary>
-public interface IAppendCommandPackage
+public interface IAppendCommandPackage<out TId>
 {
     /// <summary>
     /// Tenant id.
@@ -79,7 +79,7 @@ public interface IAppendCommandPackage
     /// <summary>
     /// Aggregate id.
     /// </summary>
-    public object AggregateId { get; }
+    public TId AggregateId { get; }
         
     /// <summary>
     /// Principal id.

@@ -33,7 +33,7 @@ public interface IAppendOnly : IDisposable, IAsyncDisposable
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of append operation.</returns>
     /// <exception cref="EventSourcing.Core.Exceptions.AppendOnlyStoreConcurrencyException">Event with the given version already presents in the stream.</exception>
-    Task<IAppendEventsResult> Append(StreamId streamName, IAppendDataPackage data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default);
+    Task<IAppendEventsResult> Append<TId>(StreamId streamName, IAppendDataPackage<TId> data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Read events for specific stream.

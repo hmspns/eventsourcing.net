@@ -40,5 +40,5 @@ public interface IEventStore
     /// <param name="aggregateVersion">Aggregate version.</param>
     /// <param name="events">Events that should be added.</param>
     /// <returns>Result of the operation.</returns>
-    Task<IAppendEventsResult> AppendToStream(ICommandEnvelope commandEnvelope, StreamId streamName, AggregateVersion aggregateVersion, IReadOnlyList<IEventEnvelope> events);
+    Task<IAppendEventsResult> AppendToStream<TId>(ICommandEnvelope<TId> commandEnvelope, StreamId streamName, AggregateVersion aggregateVersion, IReadOnlyList<IEventEnvelope> events);
 }
