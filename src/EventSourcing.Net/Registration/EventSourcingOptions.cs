@@ -104,21 +104,7 @@ public sealed class EventSourcingOptions
         Services.IfNotRegistered<IResolveSnapshotStore>(x => x.AddSingleton<IResolveSnapshotStore, NoSnapshotStoreResolver>());
         Services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
         Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
-        
-        IServiceCollection local = Services;
-        Lazy<IEventSourcingEngine> lazy = new Lazy<IEventSourcingEngine>(() =>
-        {
-            ServiceProvider provider = local.BuildServiceProvider();
-            EventSourcingEngine engine = new EventSourcingEngine(
-                provider.GetRequiredService<IResolveEventStore>(),
-                provider.GetRequiredService<IResolveSnapshotStore>(),
-                provider.GetRequiredService<IResolveEventPublisher>());
-            return engine;
-        }, LazyThreadSafetyMode.ExecutionAndPublication);
-        
-        EventSourcingEngineFactory.Initialize(lazy);
-
-        Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine>(x => lazy.Value));
+        Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine, EventSourcingEngine>());
     }
     
     private static Type[] GetTypesForMapping(params Assembly[] assemblies)

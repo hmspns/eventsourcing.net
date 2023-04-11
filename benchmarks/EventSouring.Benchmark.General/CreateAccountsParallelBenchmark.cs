@@ -12,12 +12,12 @@ namespace EventSouring.Benchmark.General;
 [MinColumn, MaxColumn, IterationsColumn]
 public class CreateAccountsParallelBenchmark
 {
-    [Params(100, 250, 500)]
+    
+    [Params(250)]
     public int AddCount { get; set; }
     
-    [Params(3, 10)]
+    [Params(3)]
     public int TaskCount { get; set; }
-    
 
     [Benchmark]
     public async Task PgFullNoRedisBusParallel()

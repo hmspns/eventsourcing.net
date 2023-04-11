@@ -88,12 +88,13 @@ public static class BenchmarkBus
                     x.StoreCommands = true;
                     x.StorePrincipal = true;
                     x.StoreCommandSource = true;
+                    x.MetadataSchemaName = "PgFullRedis";
                     x.MultitenancySchemaName = x => "full_redis_" + x.ToString();
                 });
             options.UseRedisSnapshotStore(_configuration.GetConnectionString("Redis"), _redisPolicy);
         });
         ServiceProvider provider = services.BuildServiceProvider();
-        provider.GetRequiredService<IResolveAppender>().Get(TenantId).Initialize().Wait();
+        InitializeEs(provider);
         PgFullRedisBus = (provider.GetRequiredService<IEventSourcingCommandBus>(), provider.GetRequiredService<IEventSourcingEngine>());
     }
     
@@ -112,11 +113,12 @@ public static class BenchmarkBus
                     x.StoreCommands = true;
                     x.StorePrincipal = true;
                     x.StoreCommandSource = true;
+                    x.MetadataSchemaName = "PgFullNoRedis";
                     x.MultitenancySchemaName = x => "full_no_redis_" + x.ToString();
                 });
         });
         ServiceProvider provider = services.BuildServiceProvider();
-        provider.GetRequiredService<IResolveAppender>().Get(TenantId).Initialize().Wait();
+        InitializeEs(provider);
         PgFullNoRedisBus = (provider.GetRequiredService<IEventSourcingCommandBus>(), provider.GetRequiredService<IEventSourcingEngine>());
     }
 
@@ -135,12 +137,13 @@ public static class BenchmarkBus
                     x.StoreCommands = false;
                     x.StorePrincipal = false;
                     x.StoreCommandSource = false;
+                    x.MetadataSchemaName = "PgMinRedis";
                     x.NonMultitenancySchemaName = "min_redis";
                 });
             options.UseRedisSnapshotStore(_configuration.GetConnectionString("Redis"), _redisPolicy);
         });
         ServiceProvider provider = services.BuildServiceProvider();
-        provider.GetRequiredService<IResolveAppender>().Get(TenantId).Initialize().Wait();
+        InitializeEs(provider);
         PgMinRedisBus = (provider.GetRequiredService<IEventSourcingCommandBus>(), provider.GetRequiredService<IEventSourcingEngine>());
     }
     
@@ -159,22 +162,18 @@ public static class BenchmarkBus
                     x.StoreCommands = false;
                     x.StorePrincipal = false;
                     x.StoreCommandSource = false;
+                    x.MetadataSchemaName = "PgMinNoRedis";
                     x.NonMultitenancySchemaName = "min_no_redis";
                 });
         });
         ServiceProvider provider = services.BuildServiceProvider();
-        provider.GetRequiredService<IResolveAppender>().Get(TenantId).Initialize().Wait();
+        InitializeEs(provider);
         PgMinNoRedisBus = (provider.GetRequiredService<IEventSourcingCommandBus>(), provider.GetRequiredService<IEventSourcingEngine>());
     }
-}
 
-/// <summary>
-/// It's using to create events db only.
-/// </summary>
-public sealed class EventsDbContext : DbContext
-{
-    public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
+    private static void InitializeEs(IServiceProvider provider)
     {
-        
+        provider.StartEventSourcingEngine().Wait();
+        provider.GetRequiredService<IEventSourcingStorage>().Initialize(TenantId).Wait();
     }
 }

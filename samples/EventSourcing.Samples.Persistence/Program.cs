@@ -1,3 +1,4 @@
+using BlazorBootstrap;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Samples.Persistence;
@@ -11,6 +12,7 @@ builder.Configuration.AddJsonFile("appsettings.json");
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddBlazorBootstrap(); // Add this line
 
 // register db context
 builder.Services.RegisterDbContext(builder.Configuration);

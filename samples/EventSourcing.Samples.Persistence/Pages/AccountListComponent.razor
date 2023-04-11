@@ -6,33 +6,53 @@
 
 @if (Data != null)
 {
-    <p>Accounts data</p>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Account id</th>
-            <th>Owner</th>
-            <th>Creation date</th>
-            <th>Closing date</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var result in Data)
-        {
-            string url = "accounts/" + result.Id.ToString();
-            <tr>
-                <td>@result.Id</td>
-                <td>@result.OwnerName</td>
-                <td>@result.CreationDate</td>
-                <td>@result.ClosingDate</td>
-                <td>
-                    <NavLink class="nav-link" href="@url">
-                        Details
-                    </NavLink>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="row">
+            <p>Accounts data</p>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Account id</th>
+                    <th>Owner</th>
+                    <th>Creation date</th>
+                    <th>Closing date</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var result in Data)
+                {
+                    string url = "accounts/" + result.Id.ToString();
+                    <tr>
+                        <td>@result.Id</td>
+                        <td>@result.OwnerName</td>
+                        <td>@result.CreationDate</td>
+                        <td>@result.ClosingDate</td>
+                        <td>
+                            <NavLink class="nav-link" href="@url">
+                                Details
+                            </NavLink>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+    </div>
+
 }
+<div class="row">
+    <button @onclick="OnCreateAccount">Create account</button>
+</div>
+
+<Modal @ref="Modal" Title="Modal title">
+    <BodyTemplate>
+        <div class="row">
+            <div class="col-6">Owner name</div>
+            <div class="col-6">
+                <input type="text" class="form-control" @bind="OwnerName"/>
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Primary" @onclick="OnCreateAccountClick">Add</Button>
+    </FooterTemplate>
+</Modal>

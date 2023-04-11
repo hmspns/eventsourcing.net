@@ -8,6 +8,29 @@
 
 <h4>Operations</h4>
 
+@if (CommandExecutionResult != null && !CommandExecutionResult.IsAccepted)
+{
+    <div class="row">
+        <h4>Command execution result</h4>
+        <table class="table">
+            <thead>
+            <th>Command id</th>
+            <th>Is accepted</th>
+            <th>Has changes</th>
+            <th>Error code</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>@CommandExecutionResult.CommandId</td>
+                <td>@CommandExecutionResult.IsAccepted</td>
+                <td>@CommandExecutionResult.HasChanges</td>
+                <td>@CommandExecutionResult.ErrorCode</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
 <div class="row">
     <table class="table table-striped">
         <thead>
@@ -53,28 +76,4 @@
 else
 {
     <CreateOperationComponent AccountId="Id" OnCreateOperationCallback="CreateOperation"></CreateOperationComponent>
-}
-
-
-@if (CommandExecutionResult != null)
-{
-    <div class="row">
-        <h4>Command execution result</h4>
-        <table class="table">
-            <thead>
-            <th>Command id</th>
-            <th>Is accepted</th>
-            <th>Has changes</th>
-            <th>Error code</th>
-            </thead>
-            <tbody>
-            <tr>
-                <td>@CommandExecutionResult.CommandId</td>
-                <td>@CommandExecutionResult.IsAccepted</td>
-                <td>@CommandExecutionResult.HasChanges</td>
-                <td>@CommandExecutionResult.ErrorCode</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
 }

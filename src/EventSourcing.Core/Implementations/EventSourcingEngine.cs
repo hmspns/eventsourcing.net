@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Core.Exceptions;
 
 namespace EventSourcing.Core.Implementations;
 
@@ -9,7 +10,7 @@ public sealed class EventSourcingEngine : IEventSourcingEngine
 {
     private static IEventSourcingEngine _instance;
     
-    internal EventSourcingEngine(
+    public EventSourcingEngine(
         IResolveEventStore eventStoreResolver,
         IResolveSnapshotStore snapshotStoreResolver,
         IResolveEventPublisher publisherResolver)
@@ -27,8 +28,7 @@ public sealed class EventSourcingEngine : IEventSourcingEngine
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (_instance == null)
             {
-                IEventSourcingEngine local = EventSourcingEngineFactory.Get();
-                Interlocked.CompareExchange(ref _instance, local, null);
+                Thrown.InvalidOperationException("EventSourcingEngine not set");
             }
 
             return _instance;

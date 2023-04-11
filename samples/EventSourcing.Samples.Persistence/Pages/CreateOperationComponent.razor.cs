@@ -1,4 +1,5 @@
-﻿using EventSourcing.Samples.Persistence.Data;
+﻿using BlazorBootstrap;
+using EventSourcing.Samples.Persistence.Data;
 using EventSourcing.Samples.Persistence.Types;
 using Microsoft.AspNetCore.Components;
 
@@ -12,9 +13,16 @@ public partial class CreateOperationComponent
     [Parameter]
     public EventCallback<CreateOperationArguments> OnCreateOperationCallback { get; set; }
 
+    private Modal Modal { get; set; }
+
     private decimal Amount { get; set; }
     
     private OperationType OperationType { get; set; }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return Modal.ShowAsync();
+    }
 
     private Task OnCreateOperationClick()
     {
@@ -24,6 +32,8 @@ public partial class CreateOperationComponent
             AccountId = AccountId,
             OperationType = OperationType
         };
+        Amount = 0;
+        OperationType = OperationType.Replenishment;
         return OnCreateOperationCallback.InvokeAsync(args);
     }
 }
