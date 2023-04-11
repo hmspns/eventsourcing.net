@@ -1,25 +1,35 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
-using CommunityToolkit.HighPerformance;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
 using EventSourcing.Core;
+using EventSourcing.Core.Exceptions;
 using StackExchange.Redis;
 
 namespace EventSourcing.Storage.Redis;
 
+/// <inheritdoc />
 public sealed class RedisSnapshotStore : ISnapshotStore
 {
     private readonly IRedisConnection _redisConnection;
     private readonly TenantId _tenantId;
     private readonly ISnapshotsSerializerFactory _serializerFactory;
+    private readonly RedisSnapshotCreationPolicy _redisSnapshotCreationPolicy;
+    private readonly IRedisKeyGenerator _keyGenerator;
+    private readonly ITypeMappingHandler _typeMappingHandler;
 
-    internal RedisSnapshotStore(IRedisConnection redisConnection, ISnapshotsSerializerFactory _serializerFactory,
+    internal RedisSnapshotStore(
+        IRedisConnection redisConnection,
+        ISnapshotsSerializerFactory serializerFactory,
+        RedisSnapshotCreationPolicy redisSnapshotCreationPolicy,
+        IRedisKeyGenerator keyGenerator,
+        ITypeMappingHandler typeMappingHandler,
         TenantId tenantId)
     {
-        this._serializerFactory = _serializerFactory;
+        _typeMappingHandler = typeMappingHandler;
+        _keyGenerator = keyGenerator;
+        _redisSnapshotCreationPolicy = redisSnapshotCreationPolicy;
+        _serializerFactory = serializerFactory;
         _tenantId = tenantId;
         _redisConnection = redisConnection;
     }
@@ -29,15 +39,16 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
-            RedisValue value = await database.HashGetAsync(_tenantId.ToString(), streamName.ToString());
-            SnapshotEnvelope envelope = SnapshotEnvelope.Empty;
-            FromRedisValue(ref value, ref envelope);
+            RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
+            RedisValue value = await database.StringGetAsync(key).ConfigureAwait(false);
+            RedisSnapshotEnvelopeSerializer.FromRedisValue(ref value, out SnapshotEnvelope envelope);
             if (envelope.IsEmpty)
             {
                 return NoSnapshot(streamName);
             }
 
-            object state = _serializerFactory.Get().Deserialize(envelope.State, envelope.Type);
+            Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
+            object state = _serializerFactory.Get().Deserialize(type, envelope.State);
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
@@ -47,13 +58,34 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         }
     }
 
-    public async Task SaveSnapshot(StreamId streamName, ISnapshot snapshot)
+    public Task SaveSnapshot(StreamId streamName, ISnapshot? snapshot)
     {
         if (snapshot == null)
         {
-            throw new ArgumentNullException(nameof(snapshot));
+            Thrown.ArgumentNullException(nameof(snapshot));
+        }
+        if (!snapshot.HasSnapshot)
+        {
+            return Task.CompletedTask;
         }
 
+        if (_redisSnapshotCreationPolicy.Behaviour == RedisSnapshotCreationBehaviour.EveryCommit &&
+            snapshot.Version > _redisSnapshotCreationPolicy.MinAggregateVersion)
+        {
+            return SaveSnapshotInternal(streamName, snapshot);
+        }
+
+        if (snapshot.Version % _redisSnapshotCreationPolicy.CommitThreshold == 0 &&
+            snapshot.Version > _redisSnapshotCreationPolicy.MinAggregateVersion)
+        {
+            return SaveSnapshotInternal(streamName, snapshot);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveSnapshotInternal(StreamId streamName, ISnapshot snapshot)
+    {
         if (snapshot.State == null)
         {
             Trace.WriteLine($"Snapshot.State for {streamName.ToString()} is null");
@@ -63,17 +95,21 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
-            byte[] data = _serializerFactory.Get().Serialize(snapshot.State, out string type);
+            TypeMappingId typeId = _typeMappingHandler.GetIdByType(snapshot.State.GetType());
+            byte[] data = _serializerFactory.Get().Serialize(snapshot.State);
             SnapshotEnvelope envelope = new SnapshotEnvelope()
             {
                 State = data,
                 AggregateVersion = snapshot.Version,
-                Type = type
+                TypeId = typeId
             };
-            RedisValue value = RedisValue.Null;
-            ToRedisValue(ref envelope, ref value);
+            RedisSnapshotEnvelopeSerializer.ToRedisValue(ref envelope, out RedisValue value);
 
-            await database.HashSetAsync(_tenantId.ToString(), streamName.ToString(), value);
+            RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
+            TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
+                ? _redisSnapshotCreationPolicy.ExpireAfter
+                : null;
+            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget).ConfigureAwait(false);
         }
         catch (ObjectDisposedException e)
         {
@@ -84,52 +120,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
     private ISnapshot NoSnapshot(StreamId streamName) => new Snapshot()
     {
         State = null,
-        HasSnapshot = false,
         StreamName = streamName,
         Version = AggregateVersion.NotCreated
     };
-
-    private void ToRedisValue(ref SnapshotEnvelope envelope, ref RedisValue result)
-    {
-        int capacity = envelope.State.Length + envelope.Type.Length * 2 + 24;
-        using MemoryStream ms = new MemoryStream(capacity);
-        using BinaryWriter bw = new BinaryWriter(ms);
-        
-        bw.Write(envelope.Type);
-        bw.Write(envelope.AggregateVersion);
-        bw.Write(envelope.State.Length);
-        bw.Write(envelope.State);
-        
-        byte[] rawData = ms.GetBuffer();
-        Memory<byte> rawMemory = rawData.AsMemory();
-        Memory<byte> data = rawMemory.Slice(0, (int)ms.Length);
-        
-        result = data;
-    }
-
-    private void FromRedisValue(ref RedisValue value, ref SnapshotEnvelope result)
-    {
-        if (!value.HasValue)
-        {
-            result = SnapshotEnvelope.Empty;
-            return;
-        }
-
-        ReadOnlyMemory<byte> memory = value;
-        using Stream s = memory.AsStream();
-        using BinaryReader reader = new BinaryReader(s);
-
-        string type = reader.ReadString();
-        long version = reader.ReadInt64();
-        int dataLength = reader.ReadInt32();
-        byte[] data = reader.ReadBytes(dataLength);
-
-        result = new SnapshotEnvelope()
-        {
-            State = data,
-            AggregateVersion = version,
-            Type = type,
-            IsEmpty = false
-        };
-    }
 }

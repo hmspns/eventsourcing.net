@@ -1,0 +1,22 @@
+﻿<Modal @ref="Modal" Title="Modal title">
+    <BodyTemplate>
+        <div class="row">
+            <div class="col-6">Operation type</div>
+            <div class="col-6">
+                <select class="form-select" @bind="OperationType">
+                    <option>Replenishment</option>
+                    <option>Withdrawn</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">Amount</div>
+            <div class="col-6">
+                <input type="number" class="form-control" @bind="Amount"/>
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Primary" @onclick="OnCreateOperationClick">Add</Button>
+    </FooterTemplate>
+</Modal>

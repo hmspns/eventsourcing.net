@@ -5,44 +5,43 @@ using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using MassTransit.Mediator;
 
-namespace EventSourcing.Bus.MassTransit
+namespace EventSourcing.Bus.MassTransit;
+
+/// <inheritdoc />
+public sealed class EventPublisherResolver : IResolveEventPublisher
 {
-    /// <inheritdoc />
-    public sealed class EventPublisherResolver : IResolveEventPublisher
+    private readonly IMediator _mediator;
+
+    public EventPublisherResolver(IMediator mediator)
     {
-        private readonly IMediator _mediator;
-
-        public EventPublisherResolver(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        public IEventPublisher Get(TenantId tenantId)
-        {
-            return new EventPublisher(_mediator, tenantId);
-        }
+        _mediator = mediator;
     }
 
-    /// <inheritdoc />
-    public sealed class EventPublisher : IEventPublisher
+    public IEventPublisher Get(TenantId tenantId)
     {
-        private readonly IMediator _mediator;
-        
-        public EventPublisher(IMediator mediator, TenantId tenantId)
-        {
-            _mediator = mediator;
-        }
-        
-        public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
-        {
-            await _mediator.Publish<IEsCommandPublicationStarted>(new EsCommandPublicationStarted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
-            
-            foreach (IEventEnvelope @event in events)
-            {
-                await _mediator.Publish(@event);
-            }
+        return new EventPublisher(_mediator, tenantId);
+    }
+}
 
-            await _mediator.Publish<IEsCommandPublicationCompleted>(new EsCommandPublicationCompleted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
+/// <inheritdoc />
+public sealed class EventPublisher : IEventPublisher
+{
+    private readonly IMediator _mediator;
+        
+    public EventPublisher(IMediator mediator, TenantId tenantId)
+    {
+        _mediator = mediator;
+    }
+        
+    public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
+    {
+        await _mediator.Publish<IEsCommandPublicationStarted>(new EsCommandPublicationStarted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
+            
+        foreach (IEventEnvelope @event in events)
+        {
+            await _mediator.Publish(@event);
         }
+
+        await _mediator.Publish<IEsCommandPublicationCompleted>(new EsCommandPublicationCompleted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
     }
 }

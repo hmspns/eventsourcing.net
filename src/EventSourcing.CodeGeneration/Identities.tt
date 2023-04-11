@@ -1,11 +1,16 @@
 <#@ template language="C#" hostspecific="true" #>
 <#@ output extension=".cs" encoding="utf-8" #>
 <#@ import namespace="System.IO" #>
-<#@ include file="IdentitiesConfigParser.ttinclude"#>
-<#@ include file="SaveHelpers.ttinclude"#>
+<#@ include file="IdentitiesConfigParser.ttinclude" once="true"#>
+<#@ include file="SaveHelpers.ttinclude" once="true"#>
+<#@ include file="BuildIntBased.ttinclude" once="true"#>
+
 <#@ import namespace="System.Linq" #>
 <#
 JsonData data = this.ReadConfig();
+
+WriteIntBased(data.IntBased);
+
 foreach (DataItem item in data.GuidBased)
 {
 #>

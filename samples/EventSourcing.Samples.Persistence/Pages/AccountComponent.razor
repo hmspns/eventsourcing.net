@@ -1,0 +1,79 @@
+﻿@page "/accounts/{Id:guid}"
+
+@if (Account == null)
+{
+    <p>Couldn't find account with id @Id.ToString()</p>
+    return;
+}
+
+<h4>Operations</h4>
+
+@if (CommandExecutionResult != null && !CommandExecutionResult.IsAccepted)
+{
+    <div class="row">
+        <h4>Command execution result</h4>
+        <table class="table">
+            <thead>
+            <th>Command id</th>
+            <th>Is accepted</th>
+            <th>Has changes</th>
+            <th>Error code</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>@CommandExecutionResult.CommandId</td>
+                <td>@CommandExecutionResult.IsAccepted</td>
+                <td>@CommandExecutionResult.HasChanges</td>
+                <td>@CommandExecutionResult.ErrorCode</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="row">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Operation id</th>
+            <th>Operation type</th>
+            <th>Amount</th>
+            <th>Creation date</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var result in Account.Operations)
+        {
+            <tr>
+                <td>@result.Id</td>
+                <td>@(result.IsWithdrawn ? "withdrawn" : "replenishment")</td>
+                <td>@result.Amount.ToString("N0")</td>
+                <td>@result.OperationDate</td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <b>Total</b>
+            </td>
+            <td></td>
+            <td>
+                <b>@(Account.Operations.Sum(x => x.Amount).ToString("N0"))</b>
+            </td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+@if (!IsNewOperationMode)
+{
+    <div class="row">
+        <button @onclick="SwitchToNewOperationMode">Create operation</button>
+    </div>
+}
+else
+{
+    <CreateOperationComponent AccountId="Id" OnCreateOperationCallback="CreateOperation"></CreateOperationComponent>
+}

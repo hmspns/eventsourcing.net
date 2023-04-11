@@ -1,16 +1,15 @@
 ﻿using System.Threading.Tasks;
 
-namespace EventSourcing.Abstractions.Contracts
+namespace EventSourcing.Abstractions.Contracts;
+
+/// <summary>
+/// Event bus.
+/// </summary>
+public interface IEventBus
 {
     /// <summary>
-    /// Event bus.
+    /// Send the event to the bus.
     /// </summary>
-    public interface IEventBus
-    {
-        /// <summary>
-        /// Send the event to the bus.
-        /// </summary>
-        /// <param name="eventEnvelope">Event envelope.</param>
-        Task Send(IEventEnvelope eventEnvelope);
-    }
+    /// <param name="eventEnvelope">Event envelope.</param>
+    Task Send(IEventEnvelope eventEnvelope);
 }

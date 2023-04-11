@@ -18,7 +18,7 @@ public sealed class FileAppender : IAppendOnly
         _stream = stream;
     }
     
-    public Task<IAppendEventsResult> Append(StreamId streamName, IAppendDataPackage data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default)
+    public Task<IAppendEventsResult> Append<TId>(StreamId streamName, IAppendDataPackage<TId> data, AggregateVersion expectedStreamVersion, CancellationToken cancellationToken = default)
     {
         throw new NotSupportedException();
     }

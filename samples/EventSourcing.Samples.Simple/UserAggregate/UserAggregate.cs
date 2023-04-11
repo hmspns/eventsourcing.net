@@ -11,7 +11,7 @@ public class UserAggregate : Aggregate<Guid, UserState, UserStateMutator>
 
     public CommandExecutionResult<Guid> CreateUser(ICommandEnvelope<Guid, CreateUserCommand> cmd)
     {
-        if (!State.Current.IsCreated)
+        if (!State.IsCreated)
         {
             Apply(cmd, new UserCreatedEvent(cmd.Payload.Name, cmd.Payload.BirthDate, cmd.Payload.PhoneNumber));
         }
@@ -21,19 +21,19 @@ public class UserAggregate : Aggregate<Guid, UserState, UserStateMutator>
 
     public CommandExecutionResult<Guid> UpdateUser(ICommandEnvelope<Guid, UpdateUserCommand> cmd)
     {
-        if (!State.Current.IsCreated || State.Current.IsDeleted)
+        if (!State.IsCreated || State.IsDeleted)
         {
             return CommandExecutionResult<Guid>.NotExists(cmd);
         }
 
-        if (!string.Equals(State.Current.Name, cmd.Payload.Name, StringComparison.Ordinal))
+        if (!string.Equals(State.Name, cmd.Payload.Name, StringComparison.Ordinal))
         {
-            Apply(cmd, new UserNameChangedEvent(State.Current.Name, cmd.Payload.Name));
+            Apply(cmd, new UserNameChangedEvent(State.Name, cmd.Payload.Name));
         }
 
-        if (!string.Equals(State.Current.PhoneNumber, cmd.Payload.PhoneNumber, StringComparison.Ordinal))
+        if (!string.Equals(State.PhoneNumber, cmd.Payload.PhoneNumber, StringComparison.Ordinal))
         {
-            Apply(cmd, new UserPhoneChangedEvent(State.Current.PhoneNumber, cmd.Payload.PhoneNumber));
+            Apply(cmd, new UserPhoneChangedEvent(State.PhoneNumber, cmd.Payload.PhoneNumber));
         }
         
         return CommandExecutionResult<Guid>.OkIfChanges(this, cmd);
@@ -41,12 +41,12 @@ public class UserAggregate : Aggregate<Guid, UserState, UserStateMutator>
 
     public CommandExecutionResult<Guid> DeleteUser(ICommandEnvelope<Guid, DeleteUserCommand> cmd)
     {
-        if (!State.Current.IsCreated)
+        if (!State.IsCreated)
         {
             return CommandExecutionResult<Guid>.NotExists(cmd);
         }
 
-        if (!State.Current.IsDeleted) // don't apply duplicate event
+        if (!State.IsDeleted) // don't apply duplicate event
         {
             Apply(cmd, new UserDeletedEvent());
         }

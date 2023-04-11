@@ -63,11 +63,14 @@ internal static class NpgSqlBatchCommandExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void AddJsonParameter(this NpgsqlBatchCommand cmd, byte[] value)
+    internal static void AddBinaryParameter(this NpgsqlBatchCommand cmd, byte[] value, PgStorageOptions options)
     {
+        NpgsqlDbType type = options.BinaryDataPostgresType == BinaryDataPostgresType.JsonB
+            ? NpgsqlDbType.Jsonb
+            : NpgsqlDbType.Bytea;
         cmd.Parameters.Add(new NpgsqlParameter<byte[]>(null, value)
         {
-            NpgsqlDbType = NpgsqlDbType.Jsonb
+            NpgsqlDbType = type
         });
     }
 }

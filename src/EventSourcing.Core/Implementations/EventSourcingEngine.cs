@@ -1,28 +1,44 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Core.Exceptions;
 
-namespace EventSourcing.Core.Implementations
+namespace EventSourcing.Core.Implementations;
+
+/// <inheritdoc />
+public sealed class EventSourcingEngine : IEventSourcingEngine
 {
-    /// <inheritdoc />
-    public sealed class EventSourcingEngine : IEventSourcingEngine
+    private static IEventSourcingEngine _instance;
+    
+    public EventSourcingEngine(
+        IResolveEventStore eventStoreResolver,
+        IResolveSnapshotStore snapshotStoreResolver,
+        IResolveEventPublisher publisherResolver)
     {
-        private readonly IResolveEventStore _eventStoreResolver;
-        private readonly IResolveSnapshotStore _snapshotStoreResolver;
-        private readonly IResolveEventPublisher _publisherResolver;
-
-        public EventSourcingEngine(
-            IResolveEventStore eventStoreResolver,
-            IResolveSnapshotStore snapshotStoreResolver,
-            IResolveEventPublisher publisherResolver)
-        {
-            _eventStoreResolver = eventStoreResolver;
-            _snapshotStoreResolver = snapshotStoreResolver;
-            _publisherResolver = publisherResolver;
-        }
-
-        public IResolveEventStore EventStoreResolver => _eventStoreResolver;
-
-        public IResolveSnapshotStore SnapshotStoreResolver => _snapshotStoreResolver;
-
-        public IResolveEventPublisher PublisherResolver => _publisherResolver;
+        EventStoreResolver = eventStoreResolver;
+        SnapshotStoreResolver = snapshotStoreResolver;
+        PublisherResolver = publisherResolver;
     }
+
+    [MemberNotNull(nameof(_instance))]
+    internal static IEventSourcingEngine Instance
+    {
+        get
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (_instance == null)
+            {
+                Thrown.InvalidOperationException("EventSourcingEngine not set");
+            }
+
+            return _instance;
+        }
+        set => Interlocked.Exchange(ref _instance, value);
+    }
+
+    public IResolveEventStore EventStoreResolver { get; }
+
+    public IResolveSnapshotStore SnapshotStoreResolver { get; }
+
+    public IResolveEventPublisher PublisherResolver { get; }
 }

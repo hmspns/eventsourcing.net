@@ -11,23 +11,23 @@ namespace EventSourcing.Net;
 
 public sealed class EventSourcingOptions
 {
-    internal readonly IServiceCollection _services;
-
+    internal IServiceCollection Services { get; private set; }
+    
     private readonly EventSourcingBusOptions _busOptions;
 
-    private IEventTypeMappingHandler _eventTypeMappingHandler;
+    private ITypeStringConverter _typeStringConverter;
 
     internal EventSourcingOptions(IServiceCollection services)
     {
-        _services = services;
-        _busOptions = new EventSourcingBusOptions(services);
+        Services = services;
+        _busOptions = new EventSourcingBusOptions(this);
     }
 
     /// <summary>
     /// Get object to configure bus.
     /// </summary>
     public EventSourcingBusOptions Bus => _busOptions;
-
+    
     /// <summary>
     /// Register classes that implement IEvent for serialization mapping from given assemblies.
     /// </summary>
@@ -45,11 +45,19 @@ public sealed class EventSourcingOptions
         {
             assemblies = AppDomain.CurrentDomain.GetAssemblies();
         }
-        Dictionary<string,Type> mappings = assemblies.SelectMany(x => x.GetTypes())
-            .Where(x => x.IsAssignableTo(typeof(IEvent)))
-            .ToDictionary(x => x.FullName, x => x, StringComparer.Ordinal);
-        mappings.TrimExcess();
-        _eventTypeMappingHandler = new InMemoryEventTypeMappingHandler(mappings);
+
+        Type[] types = GetTypesForMapping(assemblies);
+        Services.AddSingleton<ITypeMappingHandler>(x =>
+        {
+            ITypeMappingStorageProvider typeMappingStorageProvider = x.GetRequiredService<ITypeMappingStorageProvider>();
+            ITypeStringConverter typeStringConverter = x.GetRequiredService<ITypeStringConverter>();
+            TypeMappingHandler handler = new TypeMappingHandler(typeMappingStorageProvider, typeStringConverter);
+            ((ITypeMappingHandler)handler).SetStorageTypes(types);
+            return handler;
+        });
+
+        _typeStringConverter = new DefaultTypeStringConverter();
+        Services.AddSingleton(_typeStringConverter);
         return this;
     }
 
@@ -60,29 +68,68 @@ public sealed class EventSourcingOptions
     /// <returns>EventSourcingOptions for next fluent call.</returns>
     /// <remarks>Handler will be registered as singleton.</remarks>
     /// <exception cref="ArgumentNullException">Handler is null.</exception>
-    public EventSourcingOptions RegisterEventTypesMapping(IEventTypeMappingHandler handler)
+    public EventSourcingOptions RegisterEventTypesMapping(ITypeStringConverter handler)
     {
         if (handler == null)
         {
             throw new ArgumentNullException(nameof(handler));
         }
-        _eventTypeMappingHandler = handler;
+        _typeStringConverter = handler;
         return this;
     }
 
     internal void Build()
     {
-        _services.AddTransient<IResolveEventStore, EventStoreResolver>();
-        _services.AddTransient<IResolveSnapshotStore, NoSnapshotStoreResolver>();
-        _services.AddTransient<IEventSourcingEngine, EventSourcingEngine>();
-        _services.AddSingleton<IResolveAppender, InMemoryResolveAppender>();
-        _services.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>();
-        _services.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>();
+        Services.AddSingleton<EventSourcingEngineStarter>();
+        Services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
+        Services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
         
-         if (_eventTypeMappingHandler == null)
-         {
-             RegisterEventTypesMapping();
-         }
-         _services.AddSingleton<IEventTypeMappingHandler>(_eventTypeMappingHandler);
+        if (_typeStringConverter == null)
+        { 
+            RegisterEventTypesMapping();
+        }
+
+        Services.IfNotRegistered<ITypeStringConverter>(x => x.AddSingleton<ITypeStringConverter>(_typeStringConverter));
+
+        Services.IfNotRegistered<ITypeMappingStorageProvider>(x => x.AddSingleton<ITypeMappingStorageProvider, InMemoryTypeMappingStorageProvider>());
+        Services.IfNotRegistered<IEventSourcingStorage>(x => x.AddTransient<IEventSourcingStorage, InMemoryEventSourcingStorage>());
+        
+        RegisterEventSourcingEngine();
+        Services = null; // do not handle reference to the service collection
+    }
+
+    private void RegisterEventSourcingEngine()
+    {
+        Services.IfNotRegistered<IResolveEventStore>(x => x.AddSingleton<IResolveEventStore, EventStoreResolver>());
+        Services.IfNotRegistered<IResolveSnapshotStore>(x => x.AddSingleton<IResolveSnapshotStore, NoSnapshotStoreResolver>());
+        Services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
+        Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
+        Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine, EventSourcingEngine>());
+    }
+    
+    private static Type[] GetTypesForMapping(params Assembly[] assemblies)
+    {
+        Type[] allTypes = assemblies.SelectMany(x => x.GetTypes()).ToArray();
+
+        IEnumerable<Type> events = allTypes.Where(x => x.IsAssignableTo(typeof(IEvent)));
+        IEnumerable<Type> commands = allTypes.Where(x => x.IsAssignableTo(typeof(ICommand)));
+
+        List<Type> aggregateParts = new List<Type>();
+        IEnumerable<Type> aggregates = allTypes.Where(x => x.IsAssignableTo(typeof(IAggregate)));
+        foreach (Type aggregateType in aggregates)
+        {
+            if (aggregateType.BaseType is { IsGenericType: true, GenericTypeArguments.Length: 3, })
+            {
+                Type genericTypeDefinition = aggregateType.BaseType.GetGenericTypeDefinition();
+                if (genericTypeDefinition == typeof(Aggregate<,,>))
+                {
+                    Type[] args = aggregateType.BaseType.GetGenericArguments();
+                    aggregateParts.Add(args[0]); // TId
+                    aggregateParts.Add(args[1]); // TState
+                }
+            }
+        }
+
+        return aggregateParts.Union(events).Union(commands).Distinct().Where(x => !x.IsInterface).ToArray();
     }
 }

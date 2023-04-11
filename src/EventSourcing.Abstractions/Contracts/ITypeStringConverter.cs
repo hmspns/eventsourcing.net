@@ -5,19 +5,20 @@ namespace EventSourcing.Abstractions.Contracts;
 /// <summary>
 /// Provide functionality to resolve type of event by string representation.
 /// </summary>
-public interface IEventTypeMappingHandler
+public interface ITypeStringConverter
 {
     /// <summary>
     /// Get correct type by string representation of type.
     /// </summary>
     /// <param name="stringRepresentation">String representation of type.</param>
     /// <returns>Event type.</returns>
-    Type GetEventType(string stringRepresentation);
+    Type GetType(string? stringRepresentation);
 
     /// <summary>
-    /// Get string representation of specific type.
+    /// Get string representation of type to store it in the storage.
     /// </summary>
-    /// <param name="type">Type of event.</param>
+    /// <param name="type">Type to get its string representation.</param>
     /// <returns>String representation of type.</returns>
+    /// <exception cref="InvalidOperationException">AssemblyQualifiedName of <paramref name="type"/> returns null.</exception>
     string GetStringRepresentation(Type type);
 }

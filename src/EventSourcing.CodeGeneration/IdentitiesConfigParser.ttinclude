@@ -3,6 +3,7 @@
 <#@ assembly name="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"#>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="Newtonsoft.Json" #>
+<#@ import namespace="System" #>
 <#+
     // features to be included to other t4 files
     public class DataItem
@@ -17,6 +18,7 @@
     {
         public DataItem[] GuidBased { get; set; }
         public DataItem[] StringBased { get; set; }
+        public DataItem[] IntBased { get; set; }
 
         public DataItem[] All
         {
@@ -25,6 +27,7 @@
                 List<DataItem> items = new List<DataItem>();
                 items.AddRange(GuidBased);
                 items.AddRange(StringBased);
+                items.AddRange(IntBased);
                 return items.OrderBy(x => x.Name).ToArray();
             }
         }
@@ -33,7 +36,7 @@
     public JsonData ReadConfig()
     {
         string path = this.Host.ResolvePath("Identities.json");
-        string dataString = File.ReadAllText(path);
+        string dataString = System.IO.File.ReadAllText(path);
         JsonData? config = JsonConvert.DeserializeObject<JsonData>(dataString);
         ValidateConfig(config);
         return config;
