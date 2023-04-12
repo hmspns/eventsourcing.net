@@ -12,8 +12,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\EventSourcing.Abstractions\EventSourcing.Abstractions.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Core\EventSourcing.Core.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj" />
       <ProjectReference Include="..\EventSourcing.Benchmark.Shared\EventSourcing.Benchmark.Shared.csproj" />
-      <ProjectReference Include="..\EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj" />
     </ItemGroup>
 
 </Project>
