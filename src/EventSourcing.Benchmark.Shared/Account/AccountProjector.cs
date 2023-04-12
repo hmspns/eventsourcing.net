@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.ServiceRegistration;
 
-namespace EventSouring.Benchmark.General.Aggregate;
+namespace EventSourcing.Benchmark.Shared.Account;
 
 public sealed class AccountProjector :
     IEventConsumer<Guid, AccountCreatedEvent>,

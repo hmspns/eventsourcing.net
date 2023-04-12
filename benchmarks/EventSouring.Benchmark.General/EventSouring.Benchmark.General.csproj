@@ -4,7 +4,7 @@
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\EventSourcing.Benchmark.Shared\EventSourcing.Benchmark.Shared.csproj" />
       <ProjectReference Include="..\..\src\EventSourcing.Core\EventSourcing.Core.csproj" />
       <ProjectReference Include="..\..\src\EventSourcing.Net\EventSourcing.Net.csproj" />
       <ProjectReference Include="..\..\src\EventSourcing.Storage.Postgres\EventSourcing.Storage.Postgres.csproj" />

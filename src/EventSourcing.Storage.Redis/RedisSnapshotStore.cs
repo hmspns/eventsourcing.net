@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
@@ -36,25 +37,50 @@ public sealed class RedisSnapshotStore : ISnapshotStore
 
     public async Task<ISnapshot> LoadSnapshot(StreamId streamName)
     {
+        byte[] pooledArray = null;
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
             RedisValue value = await database.StringGetAsync(key).ConfigureAwait(false);
-            RedisSnapshotEnvelopeSerializer.FromRedisValue(ref value, out SnapshotEnvelope envelope);
-            if (envelope.IsEmpty)
+            if (!value.HasValue)
             {
                 return NoSnapshot(streamName);
             }
+            SnapshotEnvelope envelope;
+            if (BenchmarkSwitcher.BenchmarkOption == BenchmarkOption.A)
+            {
+                RedisSnapshotEnvelopeSerializer.FromRedisValueOld(ref value, out envelope);
+            }
+            else
+            {
+                pooledArray = ArrayPool<byte>.Shared.Rent((int)value.Length());
+                RedisSnapshotEnvelopeSerializer.FromRedisValue(pooledArray, ref value, out envelope);
+            }
 
             Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
-            object state = _serializerFactory.Get().Deserialize(type, envelope.State);
+            object state;
+            if (BenchmarkSwitcher.BenchmarkOption == BenchmarkOption.A)
+            {
+                state = _serializerFactory.Get().Deserialize(type, envelope.State);
+            }
+            else
+            {
+                state = _serializerFactory.Get().Deserialize(type, envelope.MemoryState);
+            }
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
         catch (ObjectDisposedException e)
         {
             return NoSnapshot(streamName);
+        }
+        finally
+        {
+            if (pooledArray != null)
+            {
+                ArrayPool<byte>.Shared.Return(pooledArray);
+            }
         }
     }
 
@@ -92,6 +118,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             return;
         }
 
+        byte[] pooledArray = null;
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
@@ -103,17 +130,34 @@ public sealed class RedisSnapshotStore : ISnapshotStore
                 AggregateVersion = snapshot.Version,
                 TypeId = typeId
             };
-            RedisSnapshotEnvelopeSerializer.ToRedisValue(ref envelope, out RedisValue value);
+            RedisValue value;
+            if (BenchmarkSwitcher.BenchmarkOption == BenchmarkOption.A)
+            {
+                RedisSnapshotEnvelopeSerializer.ToRedisValueOld(ref envelope, out value);
+            }
+            else
+            {
+                pooledArray = ArrayPool<byte>.Shared.Rent(RedisSnapshotEnvelopeSerializer.GetSize(data));
+                RedisSnapshotEnvelopeSerializer.ToRedisValue(pooledArray, ref envelope, out value);
+            }
 
             RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
             TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
                 ? _redisSnapshotCreationPolicy.ExpireAfter
                 : null;
-            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget).ConfigureAwait(false);
+            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget)
+                .ConfigureAwait(false);
         }
         catch (ObjectDisposedException e)
         {
             // connection might be disposed during reconnect
+        }
+        finally
+        {
+            if (pooledArray != null)
+            {
+                ArrayPool<byte>.Shared.Return(pooledArray);
+            }
         }
     }
     
