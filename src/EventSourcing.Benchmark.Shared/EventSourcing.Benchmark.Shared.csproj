@@ -1,19 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\EventSourcing.Abstractions\EventSourcing.Abstractions.csproj" />
       <ProjectReference Include="..\EventSourcing.Core\EventSourcing.Core.csproj" />
-      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
     </ItemGroup>
 
 </Project>

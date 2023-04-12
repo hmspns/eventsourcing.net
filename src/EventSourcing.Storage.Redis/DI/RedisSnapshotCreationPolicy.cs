@@ -21,6 +21,11 @@ public sealed class RedisSnapshotCreationPolicy
     /// </summary>
     public TimeSpan ExpireAfter { get; set; } = TimeSpan.Zero;
 
+    /// <summary>
+    /// The least version of aggregate that will be stored to Redis. State of aggregates with version less than MinAggregateVersion won't be stored in redis.
+    /// </summary>
+    /// <remarks>Storing short aggregates (less than 100 events around) may decrease performance due to network interactions with Redis.
+    /// On the long aggregates, however, you will get a significant performance boost and a significant reduction in memory consumption.</remarks>
     public int MinAggregateVersion { get; set; } = 0;
 
     /// <summary>

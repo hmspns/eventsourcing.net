@@ -1,54 +1,54 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using System.Buffers.Binary;
 using EventSourcing.Abstractions.Identities;
+using EventSourcing.Core.Exceptions;
 using StackExchange.Redis;
 
 namespace EventSourcing.Storage.Redis;
 
 internal static class RedisSnapshotEnvelopeSerializer
 {
-    internal static void ToRedisValue(ref SnapshotEnvelope envelope, out RedisValue result)
-    {
-        int capacity = envelope.State.Length + 16 + 24;
-        using MemoryStream ms = new MemoryStream(capacity);
-        using BinaryWriter bw = new BinaryWriter(ms);
-        
-        bw.Write(envelope.TypeId.Id.ToByteArray());
-        bw.Write(envelope.AggregateVersion);
-        bw.Write(envelope.State.Length);
-        bw.Write(envelope.State);
-        
-        byte[] rawData = ms.GetBuffer();
-        Memory<byte> rawMemory = rawData.AsMemory();
-        Memory<byte> data = rawMemory.Slice(0, (int)ms.Length);
-        
-        result = data;
-    }
+    private const int ID_LENGTH = 16;
+    private const int VERSION_LENGTH = 8;
 
-    internal static void FromRedisValue(ref RedisValue value, out SnapshotEnvelope result)
+    internal static void ToRedisValue(byte[] pooledArray, ref SnapshotEnvelope envelope, out RedisValue result)
     {
-        if (!value.HasValue)
+        int size = GetSize(envelope.State.Length);
+        Memory<byte> resultMemory = new Memory<byte>(pooledArray).Slice(0, size);
+        Span<byte> id = resultMemory.Slice(0, ID_LENGTH).Span;
+        if (!envelope.TypeId.Id.TryWriteBytes(id))
         {
-            result = SnapshotEnvelope.Empty;
-            return;
+            Thrown.InvalidOperationException("Couldn't write id");
         }
 
-        ReadOnlyMemory<byte> memory = value;
-        using Stream s = memory.AsStream();
-        using BinaryReader reader = new BinaryReader(s);
+        Span<byte> version = resultMemory.Slice(ID_LENGTH, VERSION_LENGTH).Span;
+        BinaryPrimitives.WriteInt64LittleEndian(version, envelope.AggregateVersion);
+        envelope.State.CopyTo(resultMemory.Slice(ID_LENGTH + VERSION_LENGTH));
+        result = resultMemory;
+    }
 
-        byte[] source = reader.ReadBytes(16);
-        long version = reader.ReadInt64();
-        int dataLength = reader.ReadInt32();
-        byte[] data = reader.ReadBytes(dataLength);
-        
-        TypeMappingId type = new TypeMappingId(new Guid(source));
+    internal static void FromRedisValue(byte[] pooledArray, ref RedisValue value, out SnapshotEnvelope result)
+    {
+        ReadOnlyMemory<byte> redisValueMemory = value;
+        Guid id = new Guid(redisValueMemory.Slice(0, ID_LENGTH).Span);
+        long version = BinaryPrimitives.ReadInt64LittleEndian(redisValueMemory.Slice(ID_LENGTH, VERSION_LENGTH).Span);
+
+        Memory<byte> pooledMemory = new Memory<byte>(pooledArray);
+        redisValueMemory.Slice(ID_LENGTH + VERSION_LENGTH).CopyTo(pooledMemory);
+        TypeMappingId type = new TypeMappingId(id);
 
         result = new SnapshotEnvelope()
         {
-            State = data,
             AggregateVersion = version,
             TypeId = type,
-            IsEmpty = false
+            State = pooledMemory.Slice(0, redisValueMemory.Length - ID_LENGTH - VERSION_LENGTH)
         };
+    }
+
+    internal static int GetSize(int stateLength)
+    {
+        int size = ID_LENGTH + //TypeId
+                   VERSION_LENGTH + //AggregateVersion
+                   stateLength;
+        return size;
     }
 }

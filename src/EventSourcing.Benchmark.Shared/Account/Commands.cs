@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Abstractions.Contracts;
 
-namespace EventSouring.Benchmark.General.Aggregate;
+namespace EventSourcing.Benchmark.Shared.Account;
 
 public record CreateAccountCommand(string OwnerName) : ICommand;
 

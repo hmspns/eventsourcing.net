@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers;
+using System.Diagnostics;
 using EventSourcing.Abstractions.Contracts;
 using EventSourcing.Abstractions.Identities;
 using EventSourcing.Abstractions.Types;
@@ -34,18 +35,26 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         _redisConnection = redisConnection;
     }
 
+    /// <summary>
+    /// Load snapshot.
+    /// </summary>
+    /// <param name="streamName">Stream name.</param>
+    /// <returns>Snapshot data.</returns>
     public async Task<ISnapshot> LoadSnapshot(StreamId streamName)
     {
+        byte[]? pooledArray = null;
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
             RedisValue value = await database.StringGetAsync(key).ConfigureAwait(false);
-            RedisSnapshotEnvelopeSerializer.FromRedisValue(ref value, out SnapshotEnvelope envelope);
-            if (envelope.IsEmpty)
+            if (!value.HasValue)
             {
                 return NoSnapshot(streamName);
             }
+
+            pooledArray = ArrayPool<byte>.Shared.Rent((int)value.Length());
+            RedisSnapshotEnvelopeSerializer.FromRedisValue(pooledArray, ref value, out SnapshotEnvelope envelope);
 
             Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
             object state = _serializerFactory.Get().Deserialize(type, envelope.State);
@@ -56,8 +65,20 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         {
             return NoSnapshot(streamName);
         }
+        finally
+        {
+            if (pooledArray != null)
+            {
+                ArrayPool<byte>.Shared.Return(pooledArray);
+            }
+        }
     }
 
+    /// <summary>
+    /// Save snapshot to store.
+    /// </summary>
+    /// <param name="streamName">Stream name.</param>
+    /// <param name="snapshot">Snapshot data.</param>
     public Task SaveSnapshot(StreamId streamName, ISnapshot? snapshot)
     {
         if (snapshot == null)
@@ -92,6 +113,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             return;
         }
 
+        byte[]? pooledArray = null;
         try
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
@@ -103,17 +125,26 @@ public sealed class RedisSnapshotStore : ISnapshotStore
                 AggregateVersion = snapshot.Version,
                 TypeId = typeId
             };
-            RedisSnapshotEnvelopeSerializer.ToRedisValue(ref envelope, out RedisValue value);
+            pooledArray = ArrayPool<byte>.Shared.Rent(RedisSnapshotEnvelopeSerializer.GetSize(data.Length));
+            RedisSnapshotEnvelopeSerializer.ToRedisValue(pooledArray, ref envelope, out RedisValue value);
 
             RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
             TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
                 ? _redisSnapshotCreationPolicy.ExpireAfter
                 : null;
-            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget).ConfigureAwait(false);
+            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget)
+                .ConfigureAwait(false);
         }
         catch (ObjectDisposedException e)
         {
             // connection might be disposed during reconnect
+        }
+        finally
+        {
+            if (pooledArray != null)
+            {
+                ArrayPool<byte>.Shared.Return(pooledArray);
+            }
         }
     }
     

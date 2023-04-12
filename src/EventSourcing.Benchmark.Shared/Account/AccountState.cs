@@ -1,4 +1,4 @@
-﻿namespace EventSouring.Benchmark.General.Aggregate;
+﻿namespace EventSourcing.Benchmark.Shared.Account;
 
 public record AccountState
 {
