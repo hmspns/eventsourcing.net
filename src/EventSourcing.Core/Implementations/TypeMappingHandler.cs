@@ -61,7 +61,7 @@ public sealed class TypeMappingHandler : ITypeMappingHandler
                     int count = 10;
                     do
                     {
-                        Thread.Sleep(20);
+                        Thread.Sleep(20); // wait until mapping probably been added by concurrent stream
                         if (_mappings.TryGetValue(type, out id))
                         {
                             idFound = true;
