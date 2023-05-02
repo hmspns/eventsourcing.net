@@ -1,7 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Contracts;
 
-namespace EventSourcing.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.Newtonsoft;
 
 /// <inheritdoc />
 public sealed class NewtonsoftJsonSnapshotsSerializerFactory : ISnapshotsSerializerFactory

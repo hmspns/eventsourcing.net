@@ -1,12 +1,8 @@
 ﻿using System.Buffers;
-using System.Text;
-using EventSourcing.Net.Abstractions;
-using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
-namespace EventSourcing.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.Newtonsoft;
 
 /// <inheritdoc />
 public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer

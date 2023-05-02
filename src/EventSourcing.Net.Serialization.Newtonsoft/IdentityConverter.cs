@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
-namespace EventSourcing.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.Newtonsoft;
 
 public sealed class IdentityConverter : JsonConverter<IIdentity>
 {
