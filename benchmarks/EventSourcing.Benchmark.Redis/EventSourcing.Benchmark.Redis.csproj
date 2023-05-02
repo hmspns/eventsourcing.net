@@ -13,7 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
-      <ProjectReference Include="..\..\src\EventSourcing.Net.Core\EventSourcing.Net.Core.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
       <ProjectReference Include="..\..\src\EventSourcing.Net.Storage.Redis\EventSourcing.Net.Storage.Redis.csproj" />
       <ProjectReference Include="..\EventSourcing.Benchmark.Shared\EventSourcing.Benchmark.Shared.csproj" />
     </ItemGroup>

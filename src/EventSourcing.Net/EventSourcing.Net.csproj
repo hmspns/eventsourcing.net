@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Net.Core\EventSourcing.Net.Core.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
     </ItemGroup>
 
 </Project>

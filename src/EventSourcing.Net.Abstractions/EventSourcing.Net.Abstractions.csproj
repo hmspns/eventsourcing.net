@@ -4,10 +4,24 @@
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <Version>0.8.0</Version>
+        <Title>EventSourcing.Net.Abstractions</Title>
+        <Authors>Pavel Gribov</Authors>
+        <Description>Abstraction for EventSourcing.Net library.</Description>
+        <Copyright>Pavel Gribov</Copyright>
+        <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
       <Folder Include="Identities" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\..\Docs\Packages Readme\EventSourcing.Net.Abstractions.md">
+        <Link>EventSourcing.Net.Abstractions.md</Link>
+      </Content>
     </ItemGroup>
 
 </Project>

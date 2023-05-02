@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Abstractions.Types;
-using EventSourcing.Net.Core;
-using EventSourcing.Net.Core.Exceptions;
+using EventSourcing.Net.Engine;
+using EventSourcing.Net.Engine.Exceptions;
 using Npgsql;
 
 namespace EventSourcing.Net.Storage.Postgres;

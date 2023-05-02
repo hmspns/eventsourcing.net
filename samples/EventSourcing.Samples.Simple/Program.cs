@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
-using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
 

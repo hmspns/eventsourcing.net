@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Identities;
 
 namespace EventSourcing.Net.Abstractions.Contracts;
 

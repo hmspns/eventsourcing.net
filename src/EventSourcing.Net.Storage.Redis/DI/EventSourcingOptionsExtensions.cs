@@ -1,5 +1,5 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Core.Exceptions;
+using EventSourcing.Net.Engine.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net.Storage.Redis;

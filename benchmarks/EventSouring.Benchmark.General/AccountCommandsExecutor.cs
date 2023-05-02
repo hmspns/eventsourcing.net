@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Benchmark.Shared.Account;
-using EventSourcing.Net.Core.Implementations;
+using EventSourcing.Net.Engine.Implementations;
 
 namespace EventSouring.Benchmark.General;
 

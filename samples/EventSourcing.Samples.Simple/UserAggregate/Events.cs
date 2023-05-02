@@ -1,5 +1,4 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSourcing.Samples.Simple.UserAggregate;
 

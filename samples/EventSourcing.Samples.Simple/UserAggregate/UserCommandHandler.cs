@@ -1,6 +1,5 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Core;
+using EventSourcing.Net.Engine;
 
 namespace EventSourcing.Samples.Simple.UserAggregate;
 

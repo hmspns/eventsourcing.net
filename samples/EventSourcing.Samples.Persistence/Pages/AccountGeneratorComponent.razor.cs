@@ -1,8 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Samples.Persistence.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace EventSourcing.Samples.Persistence.Pages;
 

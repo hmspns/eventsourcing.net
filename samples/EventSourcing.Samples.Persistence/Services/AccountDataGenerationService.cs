@@ -1,5 +1,4 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Samples.Persistence.Aggregate;
 
 namespace EventSourcing.Samples.Persistence.Services;
