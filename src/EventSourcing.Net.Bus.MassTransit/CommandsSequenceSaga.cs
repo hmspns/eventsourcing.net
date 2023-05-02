@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Identities;
 using MassTransit;
 
-namespace EventSourcing.Bus.MassTransit;
+namespace EventSourcing.Net.Bus.MassTransit;
 
 /// <summary>
 /// State for saga.

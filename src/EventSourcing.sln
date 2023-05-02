@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Abstracti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.CodeGeneration", "EventSourcing.CodeGeneration\EventSourcing.CodeGeneration.csproj", "{1FF4919B-F8F9-45EE-B823-78BA3299BD51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Bus.MassTransit", "EventSourcing.Bus.MassTransit\EventSourcing.Bus.MassTransit.csproj", "{F31FF2B2-35E5-40E7-80EB-CD623CCD72F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Bus.MassTransit", "EventSourcing.Net.Bus.MassTransit\EventSourcing.Net.Bus.MassTransit.csproj", "{F31FF2B2-35E5-40E7-80EB-CD623CCD72F4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Storage.Postgres", "EventSourcing.Net.Storage.Postgres\EventSourcing.Net.Storage.Postgres.csproj", "{7CF0D720-F5E0-4BA9-BA09-37383A67FFB3}"
 EndProject

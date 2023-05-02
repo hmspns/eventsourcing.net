@@ -4,10 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Contracts;
 using MassTransit;
 
-namespace EventSourcing.Bus.MassTransit;
+namespace EventSourcing.Net.Bus.MassTransit;
 
 /// <summary>
 /// Listening notification about completion of sequence of commands and notify <see cref="EventSourcing.Net.Abstractions.Contracts.IPublicationAwaiter"/> about it.

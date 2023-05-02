@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventSourcing.Net.Abstractions;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Contracts;
 using MassTransit.Mediator;
 
-namespace EventSourcing.Bus.MassTransit;
+namespace EventSourcing.Net.Bus.MassTransit;
 
 /// <inheritdoc />
 public sealed class EventPublisherResolver : IResolveEventPublisher
