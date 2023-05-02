@@ -1,6 +1,6 @@
 ﻿using System.Buffers.Binary;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Core.Exceptions;
+using EventSourcing.Net.Core.Exceptions;
 using StackExchange.Redis;
 
 namespace EventSourcing.Storage.Redis;

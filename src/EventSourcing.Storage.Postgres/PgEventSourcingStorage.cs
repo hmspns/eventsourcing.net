@@ -1,8 +1,8 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Core.Exceptions;
 using EventSourcing.Net;
 using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Core.Exceptions;
 
 namespace EventSourcing.Storage.Postgres;
 

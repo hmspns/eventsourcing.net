@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Core.Exceptions;
 using EventSourcing.Net;
+using EventSourcing.Net.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

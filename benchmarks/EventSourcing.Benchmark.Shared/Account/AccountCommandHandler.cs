@@ -1,5 +1,5 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Core;
+using EventSourcing.Net.Core;
 
 namespace EventSourcing.Benchmark.Shared.Account;
 

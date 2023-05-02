@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Core;
-using EventSourcing.Core.Exceptions;
 using EventSourcing.Net.Abstractions.Types;
+using EventSourcing.Net.Core;
+using EventSourcing.Net.Core.Exceptions;
 using StackExchange.Redis;
 
 namespace EventSourcing.Storage.Redis;

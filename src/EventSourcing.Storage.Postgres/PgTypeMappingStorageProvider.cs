@@ -1,5 +1,4 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Core;
 using EventSourcing.Net.Abstractions.Types;
 using Npgsql;
 

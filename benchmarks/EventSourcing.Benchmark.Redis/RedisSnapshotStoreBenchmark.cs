@@ -5,10 +5,10 @@ using BenchmarkDotNet.Jobs;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Benchmark.Shared.Account;
-using EventSourcing.Core;
-using EventSourcing.Core.Implementations;
-using EventSourcing.Core.InMemory;
-using EventSourcing.Core.Serialization;
+using EventSourcing.Net.Core;
+using EventSourcing.Net.Core.Implementations;
+using EventSourcing.Net.Core.InMemory;
+using EventSourcing.Net.Core.Serialization;
 using EventSourcing.Storage.Redis;
 using StackExchange.Redis;
 

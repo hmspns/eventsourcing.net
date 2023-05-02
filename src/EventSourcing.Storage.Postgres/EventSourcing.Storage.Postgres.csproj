@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Core\EventSourcing.Core.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net.Core\EventSourcing.Net.Core.csproj" />
       <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
     </ItemGroup>
 

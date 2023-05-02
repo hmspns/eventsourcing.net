@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Core;
 using EventSourcing.Net.Abstractions.ServiceRegistration;
+using EventSourcing.Net.Core;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
