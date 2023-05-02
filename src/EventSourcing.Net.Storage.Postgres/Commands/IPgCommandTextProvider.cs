@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Types;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public interface IPgCommandTextProvider
 {

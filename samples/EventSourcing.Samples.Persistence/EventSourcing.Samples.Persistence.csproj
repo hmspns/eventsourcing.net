@@ -9,7 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\EventSourcing.Net.Core\EventSourcing.Net.Core.csproj" />
       <ProjectReference Include="..\..\src\EventSourcing.Net\EventSourcing.Net.csproj" />
-      <ProjectReference Include="..\..\src\EventSourcing.Storage.Postgres\EventSourcing.Storage.Postgres.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Storage.Postgres\EventSourcing.Net.Storage.Postgres.csproj" />
       <ProjectReference Include="..\..\src\EventSourcing.Storage.Redis\EventSourcing.Storage.Redis.csproj" />
     </ItemGroup>
 

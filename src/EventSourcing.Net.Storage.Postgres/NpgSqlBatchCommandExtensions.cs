@@ -2,7 +2,7 @@
 using Npgsql;
 using NpgsqlTypes;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 internal static class NpgSqlBatchCommandExtensions
 {

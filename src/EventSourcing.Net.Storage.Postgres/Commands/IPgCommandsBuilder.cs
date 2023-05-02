@@ -3,7 +3,7 @@ using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Abstractions.Types;
 using Npgsql;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public interface IPgCommandsBuilder
 {

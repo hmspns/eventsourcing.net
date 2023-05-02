@@ -1,9 +1,7 @@
-﻿using EventSourcing.Net.Abstractions;
-using EventSourcing.Net.Abstractions.Contracts;
+﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Contracts;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public sealed class PgSnapshotStoreResolver : IResolveSnapshotStore
 {

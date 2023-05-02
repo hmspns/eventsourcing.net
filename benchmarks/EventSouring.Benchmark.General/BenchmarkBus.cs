@@ -2,7 +2,7 @@
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net;
-using EventSourcing.Storage.Postgres;
+using EventSourcing.Net.Storage.Postgres;
 using EventSourcing.Storage.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

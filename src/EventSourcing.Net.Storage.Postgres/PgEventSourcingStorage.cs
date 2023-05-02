@@ -1,10 +1,8 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net;
-using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Core.Exceptions;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 /// <inheritdoc />
 public class PgEventSourcingStorage : IEventSourcingStorage

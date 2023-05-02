@@ -1,9 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Contracts;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 [StructLayout(LayoutKind.Auto)]
 public readonly struct InsertEventCommandArguments<TId>

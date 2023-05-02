@@ -1,11 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using EventSourcing.Net.Abstractions.Contracts;
+﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Abstractions.Types;
 using Npgsql;
-using NpgsqlTypes;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public sealed class PgCommandsBuilder : IPgCommandsBuilder
 {

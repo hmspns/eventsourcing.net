@@ -2,4 +2,4 @@
 
 [assembly: InternalsVisibleTo("EventSourcing.Net")]
 [assembly: InternalsVisibleTo("EventSourcing.Storage.Redis")]
-[assembly: InternalsVisibleTo("EventSourcing.Storage.Postgres")]
+[assembly: InternalsVisibleTo("EventSourcing.Net.Storage.Postgres")]

@@ -1,9 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using EventSourcing.Net.Abstractions.Types;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public sealed class PgCommandTextProvider : IPgCommandTextProvider
 {

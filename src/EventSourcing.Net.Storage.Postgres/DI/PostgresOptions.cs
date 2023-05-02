@@ -1,7 +1,4 @@
-﻿using EventSourcing.Net;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace EventSourcing.Storage.Postgres;
+﻿namespace EventSourcing.Net.Storage.Postgres;
 
 public sealed class PostgresOptions
 {

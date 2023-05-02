@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Runtime.CompilerServices;
-using System.Text;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Abstractions.Types;
@@ -8,7 +7,7 @@ using EventSourcing.Net.Core;
 using EventSourcing.Net.Core.Exceptions;
 using Npgsql;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public sealed class PgSqlAppender : IAppendOnly
 {

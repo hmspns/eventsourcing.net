@@ -1,10 +1,7 @@
-﻿using EventSourcing.Net.Abstractions;
-using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net;
-using EventSourcing.Net.Abstractions.Contracts;
+﻿using EventSourcing.Net.Abstractions.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 public static class EventSourcingOptionsExtensions
 {

@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Identities;
 
-namespace EventSourcing.Storage.Postgres;
+namespace EventSourcing.Net.Storage.Postgres;
 
 /// <summary>
 /// Configuration for postgres events storage.
