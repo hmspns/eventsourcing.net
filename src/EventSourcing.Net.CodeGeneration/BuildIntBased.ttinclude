@@ -17,7 +17,7 @@ namespace EventSourcing.Abstractions.Identities
     /// <summary>
     /// <#= item.Comment #>.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public <#=
                 item.IsPartial ? "readonly partial" : "readonly" #> struct <#= item.Name #> : IIdentity, IEquatable<<#= item.Name #>>
     {

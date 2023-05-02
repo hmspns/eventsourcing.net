@@ -78,4 +78,3 @@ namespace EventSourcing.Net.Abstractions.Contracts
         }
     }
 }
-

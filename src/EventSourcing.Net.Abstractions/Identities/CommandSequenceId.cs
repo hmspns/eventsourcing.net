@@ -7,7 +7,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// Command sequence identifier.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public readonly struct CommandSequenceId : IIdentity, IEquatable<CommandSequenceId>
     {
         private readonly Guid _id;
@@ -119,4 +119,3 @@ namespace EventSourcing.Net.Abstractions.Identities
         public static bool operator !=(CommandSequenceId a, CommandSequenceId b) { return a._id != b._id; }
     }
 }
-

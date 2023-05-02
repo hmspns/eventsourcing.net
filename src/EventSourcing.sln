@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Core", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Abstractions", "EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj", "{47C84E19-4A1B-47A2-A1FD-5411A919A755}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.CodeGeneration", "EventSourcing.CodeGeneration\EventSourcing.CodeGeneration.csproj", "{1FF4919B-F8F9-45EE-B823-78BA3299BD51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.CodeGeneration", "EventSourcing.Net.CodeGeneration\EventSourcing.Net.CodeGeneration.csproj", "{1FF4919B-F8F9-45EE-B823-78BA3299BD51}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Bus.MassTransit", "EventSourcing.Net.Bus.MassTransit\EventSourcing.Net.Bus.MassTransit.csproj", "{F31FF2B2-35E5-40E7-80EB-CD623CCD72F4}"
 EndProject

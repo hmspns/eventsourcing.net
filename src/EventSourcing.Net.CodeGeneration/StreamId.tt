@@ -24,7 +24,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// <#= item.Comment #>.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.</remarks>
     public <#= item.IsPartial ? "partial" : "readonly" #> struct <#= item.Name #> : IIdentity, IEquatable<<#= item.Name #>>
     {
         private readonly string _id;
@@ -134,6 +134,6 @@ namespace EventSourcing.Net.Abstractions.Identities
     }
 }
 <#
-    SaveFile("Identities", item.Name, this.GenerationEnvironment.ToString());
+    SaveFile("Identities", item.Name, this.GenerationEnvironment.ToString().Trim());
     this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
 #>

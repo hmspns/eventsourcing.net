@@ -23,7 +23,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// <#=item.Comment#>.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public <#=item.IsPartial ? "readonly partial" : "readonly"#> struct <#=item.Name#> : IIdentity, IEquatable<<#=item.Name#>>
     {
         private readonly Guid _id;
@@ -136,7 +136,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     }
 }
 <#
-    SaveFile("Identities", item.Name, this.GenerationEnvironment.ToString());
+    SaveFile("Identities", item.Name, this.GenerationEnvironment.ToString().Trim());
     this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
 }
 
@@ -152,7 +152,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// <#=item.Comment#>.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public <#=item.IsPartial ? "readonly partial" : "readonly"#> struct <#=item.Name#> : IIdentity, IEquatable<<#=item.Name#>>
     {
         private readonly string _id;
@@ -253,7 +253,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     }
 }
 <#
-    SaveFile("Identities", item.Name, this.GenerationEnvironment.ToString());
+    SaveFile("Identities", item.Name, this.GenerationEnvironment.ToString().Trim());
     this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
 }
 #>
@@ -342,6 +342,6 @@ foreach (var item in data.All)
     }
 }
 <#
-SaveFile("Contracts", "IIdentity", this.GenerationEnvironment.ToString());
+SaveFile("Contracts", "IIdentity", this.GenerationEnvironment.ToString().Trim());
 this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
 #>

@@ -7,7 +7,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// Principal identifier.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public readonly struct PrincipalId : IIdentity, IEquatable<PrincipalId>
     {
         private readonly string _id;
@@ -107,4 +107,3 @@ namespace EventSourcing.Net.Abstractions.Identities
         public static bool operator !=(PrincipalId a, PrincipalId b) { return !string.Equals(a._id, b._id, StringComparison.Ordinal); }
     }
 }
-

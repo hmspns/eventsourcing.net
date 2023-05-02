@@ -7,7 +7,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// Tenant identifier.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public readonly struct TenantId : IIdentity, IEquatable<TenantId>
     {
         private readonly Guid _id;
@@ -119,4 +119,3 @@ namespace EventSourcing.Net.Abstractions.Identities
         public static bool operator !=(TenantId a, TenantId b) { return a._id != b._id; }
     }
 }
-

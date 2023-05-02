@@ -7,7 +7,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// Id of mapping for type.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public readonly struct TypeMappingId : IIdentity, IEquatable<TypeMappingId>
     {
         private readonly Guid _id;
@@ -119,4 +119,3 @@ namespace EventSourcing.Net.Abstractions.Identities
         public static bool operator !=(TypeMappingId a, TypeMappingId b) { return a._id != b._id; }
     }
 }
-

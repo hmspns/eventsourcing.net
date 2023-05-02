@@ -7,7 +7,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// <summary>
     /// Event identifier.
     /// </summary>
-    /// <remarks>Generated from EventSourcing.CodeGeneration.Identities.tt</remarks>
+    /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
     public readonly struct EventId : IIdentity, IEquatable<EventId>
     {
         private readonly Guid _id;
@@ -119,4 +119,3 @@ namespace EventSourcing.Net.Abstractions.Identities
         public static bool operator !=(EventId a, EventId b) { return a._id != b._id; }
     }
 }
-
