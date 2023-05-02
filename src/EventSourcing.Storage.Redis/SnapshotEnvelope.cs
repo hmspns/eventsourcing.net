@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Identities;
 
 namespace EventSourcing.Storage.Redis;
 

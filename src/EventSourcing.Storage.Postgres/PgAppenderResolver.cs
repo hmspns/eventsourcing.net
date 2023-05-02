@@ -1,6 +1,7 @@
-﻿using EventSourcing.Abstractions;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+﻿using EventSourcing.Net.Abstractions;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
 using Npgsql;
 
 namespace EventSourcing.Storage.Postgres;

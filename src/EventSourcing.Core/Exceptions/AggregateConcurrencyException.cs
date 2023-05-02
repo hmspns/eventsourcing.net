@@ -1,6 +1,6 @@
 ﻿using System;
-using EventSourcing.Abstractions.Identities;
-using EventSourcing.Abstractions.Types;
+using EventSourcing.Net.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Core.Exceptions;
 

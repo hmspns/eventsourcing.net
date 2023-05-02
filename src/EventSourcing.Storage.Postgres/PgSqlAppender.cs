@@ -1,11 +1,11 @@
 ﻿using System.Data;
 using System.Runtime.CompilerServices;
 using System.Text;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
-using EventSourcing.Abstractions.Types;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Core;
 using EventSourcing.Core.Exceptions;
+using EventSourcing.Net.Abstractions.Types;
 using Npgsql;
 
 namespace EventSourcing.Storage.Postgres;

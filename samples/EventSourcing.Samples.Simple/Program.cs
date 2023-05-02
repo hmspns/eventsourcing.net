@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Core.Implementations;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,4 +24,3 @@ IEventSourcingCommandBus bus = provider.GetRequiredService<IEventSourcingCommand
 ICommandExecutionResult<Guid> result = await bus.Send(Guid.NewGuid(), cmd);
 
 Console.WriteLine(result);
-

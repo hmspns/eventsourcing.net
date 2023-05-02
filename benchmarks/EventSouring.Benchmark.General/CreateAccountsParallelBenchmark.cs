@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSouring.Benchmark.General;
 

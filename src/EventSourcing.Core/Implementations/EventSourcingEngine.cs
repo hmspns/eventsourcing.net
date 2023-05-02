@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading;
-using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Core.Exceptions;
+using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Implementations;
 

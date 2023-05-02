@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Core;
 using EventSourcing.Core.Exceptions;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 

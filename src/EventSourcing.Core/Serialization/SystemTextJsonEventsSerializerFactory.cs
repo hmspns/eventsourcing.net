@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSourcing.Core.Serialization;
 

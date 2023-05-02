@@ -1,5 +1,5 @@
 ﻿using System.Buffers.Binary;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Core.Exceptions;
 using StackExchange.Redis;
 

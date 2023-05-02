@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using MassTransit;
 
 namespace EventSourcing.Bus.MassTransit;

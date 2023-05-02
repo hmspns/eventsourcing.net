@@ -2,8 +2,8 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Benchmark.Shared.Account;
 using EventSourcing.Core;
 using EventSourcing.Core.Implementations;

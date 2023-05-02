@@ -1,6 +1,7 @@
 using BlazorBootstrap;
-using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Samples.Persistence;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;

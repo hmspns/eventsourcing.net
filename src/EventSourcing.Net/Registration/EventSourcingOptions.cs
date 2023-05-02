@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Core;
 using EventSourcing.Core.Implementations;
 using EventSourcing.Core.InMemory;
 using EventSourcing.Core.NoImplementation;
 using EventSourcing.Core.Serialization;
+using EventSourcing.Net.Abstractions.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;

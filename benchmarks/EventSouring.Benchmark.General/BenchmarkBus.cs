@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net;
 using EventSourcing.Storage.Postgres;
 using EventSourcing.Storage.Redis;

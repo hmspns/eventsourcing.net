@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Identities;
 using StackExchange.Redis;
 
 namespace EventSourcing.Storage.Redis;

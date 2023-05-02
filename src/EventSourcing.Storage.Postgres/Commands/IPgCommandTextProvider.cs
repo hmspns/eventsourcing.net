@@ -1,4 +1,4 @@
-﻿using EventSourcing.Abstractions.Types;
+﻿using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Storage.Postgres;
 

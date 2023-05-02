@@ -1,4 +1,4 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
 namespace EventSourcing.Serialization.Newtonsoft;

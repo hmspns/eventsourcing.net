@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using EventSourcing.Abstractions.Types;
+using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Storage.Postgres;
 

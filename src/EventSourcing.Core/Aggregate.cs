@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
-using EventSourcing.Abstractions.Types;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Core.Exceptions;
+using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Core;
 

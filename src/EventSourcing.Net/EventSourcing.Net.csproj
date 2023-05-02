@@ -4,6 +4,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <Version>0.8.0</Version>
+        <Title>EventSourcing.net</Title>
+        <Authors>Pavel Gribov</Authors>
+        <Description>Fast event sourcing engine</Description>
+        <Copyright>Pavel Gribov</Copyright>
+        <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>

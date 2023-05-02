@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSourcing.Storage.Postgres;
 

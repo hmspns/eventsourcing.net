@@ -1,8 +1,9 @@
 ﻿using System.Buffers;
 using System.Text;
-using EventSourcing.Abstractions;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
 namespace EventSourcing.Serialization.Newtonsoft;
