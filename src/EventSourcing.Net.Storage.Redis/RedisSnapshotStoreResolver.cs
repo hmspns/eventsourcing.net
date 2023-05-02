@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 public sealed class RedisSnapshotStoreResolver : IResolveSnapshotStore
 {

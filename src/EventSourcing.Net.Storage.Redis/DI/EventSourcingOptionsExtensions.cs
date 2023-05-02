@@ -1,10 +1,8 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net;
 using EventSourcing.Net.Core.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 public static class EventSourcingOptionsExtensions
 {

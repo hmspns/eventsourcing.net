@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 public interface IRedisConnection
 {

@@ -9,7 +9,7 @@ using EventSourcing.Net.Core;
 using EventSourcing.Net.Core.Implementations;
 using EventSourcing.Net.Core.InMemory;
 using EventSourcing.Net.Core.Serialization;
-using EventSourcing.Storage.Redis;
+using EventSourcing.Net.Storage.Redis;
 using StackExchange.Redis;
 
 namespace EventSourcing.Benchmark.Redis;

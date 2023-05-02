@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using EventSourcing.Net.Abstractions.Identities;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct SnapshotEnvelope

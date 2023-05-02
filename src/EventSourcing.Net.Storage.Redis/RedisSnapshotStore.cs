@@ -7,7 +7,7 @@ using EventSourcing.Net.Core;
 using EventSourcing.Net.Core.Exceptions;
 using StackExchange.Redis;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 /// <inheritdoc />
 public sealed class RedisSnapshotStore : ISnapshotStore

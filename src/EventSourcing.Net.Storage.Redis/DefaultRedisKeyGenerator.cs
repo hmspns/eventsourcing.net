@@ -2,7 +2,7 @@
 using EventSourcing.Net.Abstractions.Identities;
 using StackExchange.Redis;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 /// <inheritdoc />
 internal sealed class DefaultRedisKeyGenerator : IRedisKeyGenerator

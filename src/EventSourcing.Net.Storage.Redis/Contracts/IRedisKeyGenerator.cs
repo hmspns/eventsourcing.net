@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Net.Abstractions.Identities;
 using StackExchange.Redis;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 /// <summary>
 /// Generator to generate redis key.

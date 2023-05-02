@@ -1,4 +1,4 @@
-﻿namespace EventSourcing.Storage.Redis;
+﻿namespace EventSourcing.Net.Storage.Redis;
 
 /// <summary>
 /// Policy how to create snapshot.

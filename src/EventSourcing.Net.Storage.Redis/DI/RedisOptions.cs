@@ -1,7 +1,6 @@
-﻿using EventSourcing.Net;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace EventSourcing.Storage.Redis;
+namespace EventSourcing.Net.Storage.Redis;
 
 public sealed class RedisOptions
 {

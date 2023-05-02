@@ -3,8 +3,8 @@ using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net;
 using EventSourcing.Net.Storage.Postgres;
+using EventSourcing.Net.Storage.Redis;
 using EventSourcing.Samples.Persistence.Data;
-using EventSourcing.Storage.Redis;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventSourcing.Samples.Persistence;
