@@ -9,8 +9,10 @@
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <license>Apache-2.0</license>
-        <Version>0.8.0</Version>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <Version>0.8.1</Version>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
         <Authors>Pavel Gribov</Authors>
         <Description>Implementation of snapshot store based on redis for EventSourcing.Net</Description>
     </PropertyGroup>
@@ -27,6 +29,10 @@
       <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
       <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
       <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

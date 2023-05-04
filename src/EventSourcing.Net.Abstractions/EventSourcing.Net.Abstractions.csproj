@@ -4,7 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-        <Version>0.8.0</Version>
+        <Version>0.8.1</Version>
         <Title>EventSourcing.Net.Abstractions</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Abstraction for EventSourcing.Net library.</Description>
@@ -12,8 +12,8 @@
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageLicenseUrl>https://choosealicense.com/licenses/mit/</PackageLicenseUrl>
-        <license>Apache-2.0</license>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -25,9 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\..\Docs\Packages Readme\EventSourcing.Net.Abstractions.md">
-        <Link>EventSourcing.Net.Abstractions.md</Link>
-      </Content>
+      <None Include="readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

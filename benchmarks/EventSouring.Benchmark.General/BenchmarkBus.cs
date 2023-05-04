@@ -66,7 +66,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
         });
         ServiceProvider provider = services.BuildServiceProvider();
@@ -78,7 +78,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
@@ -103,7 +103,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
@@ -127,7 +127,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
@@ -152,7 +152,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>

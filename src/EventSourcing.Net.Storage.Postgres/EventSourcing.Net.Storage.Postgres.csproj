@@ -7,7 +7,7 @@
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Storage.Postgres</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.8.0</Version>
+        <Version>0.8.1</Version>
         <Title>Storage implementation based on Postgres for EventSourcing.net</Title>
         <Authors>Pavel Gribov</Authors>
         <AssemblyVersion>0.8.0</AssemblyVersion>
@@ -15,7 +15,8 @@
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <license>Apache-2.0</license>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -31,6 +32,10 @@
       <PackageReference Include="NodaTime" Version="3.1.9" />
       <PackageReference Include="Npgsql" Version="7.0.2" />
       <PackageReference Include="Npgsql.NodaTime" Version="7.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

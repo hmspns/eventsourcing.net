@@ -28,7 +28,7 @@ public static class StartupExtensions
         services.AddEventSourcing(options =>
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            options.Bus.RegisterImplicitCommandHandlers(assembly);
+            options.Bus.RegisterCommandHandlers(assembly);
             options.Bus.RegisterEventConsumers(assembly);
             options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
