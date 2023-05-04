@@ -18,21 +18,23 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\EventSourcing.Net.Storage.Redis.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\EventSourcing.Net.Storage.Redis.xml</DocumentationFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.104"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
-      <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
-      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
+        <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj"/>
+        <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj"/>
+        <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="readme.md" Pack="true" PackagePath="\" />
+        <None Include="readme.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

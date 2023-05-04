@@ -17,15 +17,18 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\EventSourcing.Net.Abstractions.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\EventSourcing.Net.Abstractions.xml</DocumentationFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Identities" />
+        <Folder Include="Identities" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="readme.md" Pack="true" PackagePath="\" />
+        <None Include="readme.md" Pack="true" PackagePath="\" />
+        <None Remove="EventSourcing.Net.Abstractions.nuspec" />
     </ItemGroup>
 
 </Project>
