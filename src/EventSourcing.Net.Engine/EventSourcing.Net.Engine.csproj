@@ -17,15 +17,18 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\EventSourcing.Net.Engine.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\EventSourcing.Net.Engine.xml</DocumentationFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
+        <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="readme.md" Pack="true" PackagePath="\" />
+        <None Remove="EventSourcing.Net.Engine.nuspec" />
     </ItemGroup>
 
 </Project>

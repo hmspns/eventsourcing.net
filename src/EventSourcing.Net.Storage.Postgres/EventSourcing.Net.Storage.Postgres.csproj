@@ -20,22 +20,24 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\EventSourcing.Net.Storage.Postgres.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\EventSourcing.Net.Storage.Postgres.xml</DocumentationFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
-      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
+        <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj"/>
+        <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="NodaTime" Version="3.1.9" />
-      <PackageReference Include="Npgsql" Version="7.0.2" />
-      <PackageReference Include="Npgsql.NodaTime" Version="7.0.2" />
+        <PackageReference Include="NodaTime" Version="3.1.9"/>
+        <PackageReference Include="Npgsql" Version="7.0.2"/>
+        <PackageReference Include="Npgsql.NodaTime" Version="7.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="readme.md" Pack="true" PackagePath="\" />
+        <None Include="readme.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
