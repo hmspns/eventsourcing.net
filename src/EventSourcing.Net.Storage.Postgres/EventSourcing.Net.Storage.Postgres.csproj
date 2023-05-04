@@ -6,6 +6,20 @@
         <LangVersion>10</LangVersion>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Storage.Postgres</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.8.0</Version>
+        <Title>Storage implementation based on Postgres for EventSourcing.net</Title>
+        <Authors>Pavel Gribov</Authors>
+        <AssemblyVersion>0.8.0</AssemblyVersion>
+        <Copyright>Pavel Gribov</Copyright>
+        <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <license>Apache-2.0</license>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\EventSourcing.Net.Storage.Postgres.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
