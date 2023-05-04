@@ -1,12 +1,15 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.ServiceRegistration;
-using EventSourcing.Core;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.ServiceRegistration;
+using EventSourcing.Net.Engine;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <summary>
+/// Options to configure event sourcing engine.
+/// </summary>
 public sealed class EventSourcingBusOptions
 {
     private readonly EventSourcingOptions _options;
@@ -19,28 +22,30 @@ public sealed class EventSourcingBusOptions
     /// <summary>
     /// Register implicit command handlers.
     /// </summary>
-    /// <param name="services">Services.</param>
-    /// <param name="assembly">Assemblies to register handlers.</param>
-    public void RegisterImplicitCommandHandlers(params Assembly[] assemblies)
+    /// <param name="assemblies">Assemblies to register handlers.</param>
+    public void RegisterCommandHandlers(params Assembly[] assemblies)
     {
         Type[] types = assemblies
             .SelectMany(x => x.GetTypes())
             .Where(x => x.IsAssignableTo(typeof(ICommandHandler)))
             .ToArray();
-        RegisterImplicitCommandHandlers(types);
+        RegisterCommandHandlers(types);
     }
 
     /// <summary>
     /// Register implicit command handlers.
     /// </summary>
-    /// <param name="services">Services.</param>
     /// <param name="assembly">Assembly to register handlers.</param>
-    public void RegisterImplicitCommandHandlers(Assembly assembly)
+    public void RegisterCommandHandlers(Assembly assembly)
     {
         Type[] types = assembly.GetTypes().Where(x => x.IsAssignableTo(typeof(ICommandHandler))).ToArray();
-        RegisterImplicitCommandHandlers(types);
+        RegisterCommandHandlers(types);
     }
 
+    /// <summary>
+    /// Register event consumers.
+    /// </summary>
+    /// <param name="assembly">Assembly to register consumers.</param>
     public void RegisterEventConsumers(Assembly assembly)
     {
         Type interfaceType = typeof(IEventConsumer<,>);
@@ -53,6 +58,10 @@ public sealed class EventSourcingBusOptions
         RegisterEventConsumers(types);
     }
 
+    /// <summary>
+    /// Register event consumers.
+    /// </summary>
+    /// <param name="types">Types that implement IEventConsumer interface.</param>
     public void RegisterEventConsumers(Type[] types)
     {
         EventConsumers consumers = new EventConsumers();
@@ -86,7 +95,7 @@ public sealed class EventSourcingBusOptions
         });
     }
     
-    private void RegisterImplicitCommandHandlers(Type[] types)
+    private void RegisterCommandHandlers(Type[] types)
     {
         Dictionary<Type, CommandHandlerActivation> handlers = new();
 

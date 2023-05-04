@@ -1,5 +1,5 @@
-﻿using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.ServiceRegistration;
+﻿using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.ServiceRegistration;
 
 namespace EventSourcing.Benchmark.Shared.Account;
 

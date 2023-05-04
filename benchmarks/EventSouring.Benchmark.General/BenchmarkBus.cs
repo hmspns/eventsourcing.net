@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net;
-using EventSourcing.Storage.Postgres;
-using EventSourcing.Storage.Redis;
+using EventSourcing.Net.Storage.Postgres;
+using EventSourcing.Net.Storage.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,7 +66,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
         });
         ServiceProvider provider = services.BuildServiceProvider();
@@ -78,7 +78,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
@@ -103,7 +103,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
@@ -127,7 +127,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
@@ -152,7 +152,7 @@ public static class BenchmarkBus
         IServiceCollection services = new ServiceCollection();
         services.AddEventSourcing(options =>
         {
-            options.Bus.RegisterImplicitCommandHandlers(_assembly);
+            options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
             options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>

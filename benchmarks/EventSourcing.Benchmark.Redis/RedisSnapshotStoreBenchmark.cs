@@ -2,14 +2,14 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Benchmark.Shared.Account;
-using EventSourcing.Core;
-using EventSourcing.Core.Implementations;
-using EventSourcing.Core.InMemory;
-using EventSourcing.Core.Serialization;
-using EventSourcing.Storage.Redis;
+using EventSourcing.Net.Engine;
+using EventSourcing.Net.Engine.Implementations;
+using EventSourcing.Net.Engine.InMemory;
+using EventSourcing.Net.Engine.Serialization;
+using EventSourcing.Net.Storage.Redis;
 using StackExchange.Redis;
 
 namespace EventSourcing.Benchmark.Redis;

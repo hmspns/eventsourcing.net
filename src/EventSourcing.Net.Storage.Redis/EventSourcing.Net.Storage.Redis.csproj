@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <RootNamespace>EventSourcing.Net.Storage.Redis</RootNamespace>
+        <Copyright>Pavel Gribov</Copyright>
+        <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <Version>0.8.1</Version>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <Authors>Pavel Gribov</Authors>
+        <Description>Implementation of snapshot store based on redis for EventSourcing.Net</Description>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\EventSourcing.Net.Storage.Redis.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="readme.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>

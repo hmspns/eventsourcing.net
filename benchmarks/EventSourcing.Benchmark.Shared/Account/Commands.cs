@@ -1,4 +1,4 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSourcing.Benchmark.Shared.Account;
 

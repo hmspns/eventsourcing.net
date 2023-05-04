@@ -1,5 +1,5 @@
-﻿using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.ServiceRegistration;
+﻿using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.ServiceRegistration;
 using EventSourcing.Samples.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
 

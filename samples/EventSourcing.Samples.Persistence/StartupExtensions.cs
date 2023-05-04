@@ -1,11 +1,8 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
-using EventSourcing.Abstractions.Types;
 using EventSourcing.Net;
+using EventSourcing.Net.Storage.Postgres;
+using EventSourcing.Net.Storage.Redis;
 using EventSourcing.Samples.Persistence.Data;
-using EventSourcing.Storage.Postgres;
-using EventSourcing.Storage.Redis;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventSourcing.Samples.Persistence;
@@ -31,7 +28,7 @@ public static class StartupExtensions
         services.AddEventSourcing(options =>
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
-            options.Bus.RegisterImplicitCommandHandlers(assembly);
+            options.Bus.RegisterCommandHandlers(assembly);
             options.Bus.RegisterEventConsumers(assembly);
             options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>

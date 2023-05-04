@@ -1,4 +1,4 @@
-﻿using EventSourcing.Abstractions.Contracts;
+﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Samples.Persistence.Aggregate;
 using EventSourcing.Samples.Persistence.Data;
 using EventSourcing.Samples.Persistence.Types;

@@ -1,6 +1,5 @@
-﻿using System.Linq.Expressions;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Abstractions.Identities;
+﻿using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 

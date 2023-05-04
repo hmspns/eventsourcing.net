@@ -1,5 +1,5 @@
-﻿using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Core.Implementations;
+﻿using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Engine.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;

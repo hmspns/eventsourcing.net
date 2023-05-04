@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
-using EventSourcing.Abstractions.Contracts;
-using EventSourcing.Core.Implementations;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +9,7 @@ Assembly assembly = Assembly.GetExecutingAssembly();
 IServiceCollection services = new ServiceCollection();
 services.AddEventSourcing(options =>
     {
-        options.Bus.RegisterImplicitCommandHandlers(assembly);
+        options.Bus.RegisterCommandHandlers(assembly);
         options.Bus.RegisterEventConsumers(assembly);
     });
 IServiceProvider provider = services.BuildServiceProvider();
@@ -24,4 +23,3 @@ IEventSourcingCommandBus bus = provider.GetRequiredService<IEventSourcingCommand
 ICommandExecutionResult<Guid> result = await bus.Send(Guid.NewGuid(), cmd);
 
 Console.WriteLine(result);
-

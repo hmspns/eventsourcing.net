@@ -1,10 +1,7 @@
 using BlazorBootstrap;
-using EventSourcing.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Samples.Persistence;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using EventSourcing.Samples.Persistence.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");
