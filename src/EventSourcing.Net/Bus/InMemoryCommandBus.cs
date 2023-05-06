@@ -118,6 +118,16 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
         return (command, activator);
     }
     
+    /// <summary>
+    /// Create command envelope in case when TPayload is ICommand. We have to use reflection to create proper envelop.
+    /// </summary>
+    /// <param name="tenantId">Tenant id.</param>
+    /// <param name="principalId">Principal id.</param>
+    /// <param name="source">Command source.</param>
+    /// <param name="aggregateId">Aggregate id.</param>
+    /// <param name="commandPayload">Command payload.</param>
+    /// <typeparam name="TId">Type of aggregate id.</typeparam>
+    /// <returns></returns>
     private (ICommandEnvelope<TId>, CommandHandlerActivation) GetDataSlow<TId>(
         TenantId tenantId,
         PrincipalId principalId,
@@ -127,6 +137,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
     {
         Type envelopeType = typeof(CommandEnvelope<,>).MakeGenericType(typeof(TId), commandPayload.GetType());
         object command = Activator.CreateInstance(envelopeType)!;
+
         envelopeType.GetProperty(nameof(ICommandEnvelope.Payload))!.SetValue(command, commandPayload);
         envelopeType.GetProperty(nameof(ICommandEnvelope.Timestamp))!.SetValue(command, DateTime.UtcNow);
         envelopeType.GetProperty(nameof(ICommandEnvelope.AggregateId))!.SetValue(command, aggregateId);

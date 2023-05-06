@@ -12,7 +12,7 @@ public void RegisterEventSourcing(IServiceCollection services, IConfiguration co
 }
 ```
 
-EventSourcing.Net documentation available [here](https://www.nuget.org/packages/EventSourcing.Net/)
+EventSourcing.Net documentation available [here](https://github.com/hmspns/eventsourcing.net).
 
 ### Notes
 

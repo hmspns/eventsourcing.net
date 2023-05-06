@@ -6,7 +6,7 @@ internal sealed class EventConsumers
 
     internal void Add(Type eventType, EventConsumerActivation activation)
     {
-        if (!_hash.TryGetValue(eventType, out List<EventConsumerActivation> values))
+        if (!_hash.TryGetValue(eventType, out List<EventConsumerActivation>? values))
         {
             values = new List<EventConsumerActivation>();
             _hash.Add(eventType, values);

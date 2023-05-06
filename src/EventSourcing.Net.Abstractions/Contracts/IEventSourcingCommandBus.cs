@@ -24,7 +24,7 @@ public interface IEventSourcingCommandBus
     /// </summary>
     /// <param name="tenantId">Tenant id.</param>
     /// <param name="principalId">Principal id.</param>
-    /// <param name="source">Command sounrce.</param>
+    /// <param name="source">Command source.</param>
     /// <param name="aggregateId">Aggregate id.</param>
     /// <param name="commandPayload">Command data.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
