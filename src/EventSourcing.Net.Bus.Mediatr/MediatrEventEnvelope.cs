@@ -6,6 +6,7 @@ using MediatR;
 
 namespace EventSourcing.Net.Bus.Mediatr;
 
+/// <inheritdoc />
 public record MediatrEventEnvelope<TId, TPayload> :
     IEventEnvelope<TId, TPayload>,
     IInitializableEventEnvelope,

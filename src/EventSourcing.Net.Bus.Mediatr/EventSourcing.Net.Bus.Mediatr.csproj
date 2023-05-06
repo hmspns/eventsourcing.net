@@ -24,7 +24,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MediatR" Version="12.0.1"/>
+        <PackageReference Include="MediatR" Version="12.0.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,8 +32,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj"/>
-        <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj"/>
+        <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
+        <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
     </ItemGroup>
 
 </Project>

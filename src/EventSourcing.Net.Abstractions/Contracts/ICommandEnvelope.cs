@@ -71,7 +71,7 @@ public interface ICommandEnvelope<out TId, out TPayload> : ICommandEnvelope<TId>
 }
 
 /// <inheritdoc />
-public sealed class CommandEnvelope<TId, TPayload> : ICommandEnvelope<TId, TPayload> where TPayload : ICommand 
+public record CommandEnvelope<TId, TPayload> : ICommandEnvelope<TId, TPayload> where TPayload : ICommand 
 {
     public TenantId TenantId { get; init; }
     public CommandSequenceId SequenceId { get; init; }
