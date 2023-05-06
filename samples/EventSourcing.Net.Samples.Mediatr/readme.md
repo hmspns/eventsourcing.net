@@ -1,0 +1,1 @@
+﻿This is sample how to use MediatR library as message bus for EventSourcing.Net.
