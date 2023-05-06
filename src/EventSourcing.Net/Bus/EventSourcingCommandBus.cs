@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
-public sealed class InMemoryCommandBus : IEventSourcingCommandBus
+public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
 {
     public IPublicationAwaiter PublicationAwaiter => _publicationAwaiter;
 
@@ -17,7 +17,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
     private readonly object _boxedCancellationTokenNone = CancellationToken.None; 
     private readonly InMemoryPublicationAwaiter _publicationAwaiter = new();
 
-    internal InMemoryCommandBus(IServiceProvider provider, Dictionary<Type, CommandHandlerActivation> handlers)
+    internal EventSourcingCommandBus(IServiceProvider provider, Dictionary<Type, CommandHandlerActivation> handlers)
     {
         _provider = provider;
         _handlers = handlers;
@@ -117,7 +117,7 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
 
         return (command, activator);
     }
-    
+
     /// <summary>
     /// Create command envelope in case when TPayload is ICommand. We have to use reflection to create proper envelop.
     /// </summary>
@@ -138,15 +138,16 @@ public sealed class InMemoryCommandBus : IEventSourcingCommandBus
         Type envelopeType = typeof(CommandEnvelope<,>).MakeGenericType(typeof(TId), commandPayload.GetType());
         object command = Activator.CreateInstance(envelopeType)!;
 
-        envelopeType.GetProperty(nameof(ICommandEnvelope.Payload))!.SetValue(command, commandPayload);
-        envelopeType.GetProperty(nameof(ICommandEnvelope.Timestamp))!.SetValue(command, DateTime.UtcNow);
-        envelopeType.GetProperty(nameof(ICommandEnvelope.AggregateId))!.SetValue(command, aggregateId);
-        envelopeType.GetProperty(nameof(ICommandEnvelope.CommandId))!.SetValue(command, CommandId.New());
-        envelopeType.GetProperty(nameof(ICommandEnvelope.SequenceId))!.SetValue(command, CommandSequenceId.New());
-        envelopeType.GetProperty(nameof(ICommandEnvelope.ParentCommandId))!.SetValue(command, CommandId.Empty);
-        envelopeType.GetProperty(nameof(ICommandEnvelope.TenantId))!.SetValue(command, tenantId);
-        envelopeType.GetProperty(nameof(ICommandEnvelope.Source))!.SetValue(command, source);
-        envelopeType.GetProperty(nameof(ICommandEnvelope.PrincipalId))!.SetValue(command, principalId);
+        IInitializableCommandEnvelope initializable = (IInitializableCommandEnvelope)command;
+        initializable.Payload = commandPayload;
+        initializable.Timestamp = DateTime.UtcNow;
+        initializable.AggregateId = aggregateId;
+        initializable.CommandId = CommandId.New();
+        initializable.SequenceId = CommandSequenceId.New();
+        initializable.ParentCommandId = CommandId.Empty;
+        initializable.TenantId = tenantId;
+        initializable.Source = source;
+        initializable.PrincipalId = principalId;
 
         Type handlerType = typeof(ICommandEnvelope<,>).MakeGenericType(typeof(TId), commandPayload.GetType());
 

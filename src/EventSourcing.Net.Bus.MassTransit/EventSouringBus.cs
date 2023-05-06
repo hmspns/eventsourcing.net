@@ -9,11 +9,11 @@ using MassTransit.Mediator;
 namespace EventSourcing.Net.Bus.MassTransit;
 
 /// <inheritdoc />
-public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
+public sealed class MassTransitEventSourcingCommandBus : IEventSourcingCommandBus
 {
     private readonly IMediator _mediator;
 
-    public EventSourcingCommandBus(IMediator mediator, IPublicationAwaiter publicationAwaiter)
+    public MassTransitEventSourcingCommandBus(IMediator mediator, IPublicationAwaiter publicationAwaiter)
     {
         _mediator = mediator;
         PublicationAwaiter = publicationAwaiter;

@@ -132,7 +132,7 @@ public sealed class EventSourcingBusOptions
 
         handlers.TrimExcess();
         _options.Services.IfNotRegistered<IEventSourcingCommandBus>(
-            services => services.AddSingleton<IEventSourcingCommandBus>(x => new InMemoryCommandBus(x, handlers))
+            services => services.AddSingleton<IEventSourcingCommandBus>(x => new EventSourcingCommandBus(x, handlers))
         );
     }
 
