@@ -1,6 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 
-namespace EventSourcing.Samples.Simple.UserAggregate;
+namespace EventSourcing.Net.Samples.Simple.UserAggregate;
 
 public record UserCreatedEvent(string Name, DateTime BirthDate, string PhoneNumber) : IEvent;
 

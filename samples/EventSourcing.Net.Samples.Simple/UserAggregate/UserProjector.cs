@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.ServiceRegistration;
 
-namespace EventSourcing.Samples.Simple.UserAggregate;
+namespace EventSourcing.Net.Samples.Simple.UserAggregate;
 
 public class UserProjector :
     IEventConsumer<Guid, UserCreatedEvent>,

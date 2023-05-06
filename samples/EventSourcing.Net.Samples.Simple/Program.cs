@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
-using EventSourcing.Samples.Simple.UserAggregate;
+using EventSourcing.Net.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
 
 Assembly assembly = Assembly.GetExecutingAssembly();

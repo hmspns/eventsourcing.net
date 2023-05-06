@@ -1,7 +1,7 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Engine;
 
-namespace EventSourcing.Samples.Simple.UserAggregate;
+namespace EventSourcing.Net.Samples.Simple.UserAggregate;
 
 public class UserAggregate : Aggregate<Guid, UserState, UserStateMutator>
 {

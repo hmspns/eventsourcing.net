@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net", "EventS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{8AC07F01-906D-4824-8322-41C6E1116F73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Simple", "..\samples\EventSourcing.Samples.Simple\EventSourcing.Samples.Simple.csproj", "{FC39728A-92EB-4D88-8B5B-70ABF3C0B668}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.Simple", "..\samples\EventSourcing.Net.Samples.Simple\EventSourcing.Net.Samples.Simple.csproj", "{FC39728A-92EB-4D88-8B5B-70ABF3C0B668}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Storage.Redis", "EventSourcing.Net.Storage.Redis\EventSourcing.Net.Storage.Redis.csproj", "{7175C6E2-D981-41EB-B08B-00DDD0097FA3}"
 EndProject
