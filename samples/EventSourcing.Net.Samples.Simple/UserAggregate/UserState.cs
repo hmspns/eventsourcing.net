@@ -3,7 +3,7 @@
 public record UserState
 {
     /// <summary>
-    /// Property to indicate that current user exists. Exists means UserCreatedEvent was handled.
+    /// Property to indicate that current user is exists. Exists means UserCreatedEvent was handled.
     /// </summary>
     public bool IsCreated { get; set; }
     
