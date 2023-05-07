@@ -25,7 +25,7 @@ internal static class EventPackageExtensions
         Type genericType = baseType.MakeGenericType(aggregateIdType, payloadType);
 
         object? payloadEvent = Activator.CreateInstance(genericType);
-        IInitializablePayloadEvent<TId>? initializer = payloadEvent as IInitializablePayloadEvent<TId>;
+        IInitializableEventEnvelope<TId>? initializer = payloadEvent as IInitializableEventEnvelope<TId>;
         if (payloadEvent == null || initializer == null)
         {
             Thrown.InvalidOperationException("Couldn't create instance for type " + genericType.FullName + " for event " + eventPackage.EventId);    

@@ -11,7 +11,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <Version>0.8.1</Version>
+        <Version>0.8.2</Version>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <Authors>Pavel Gribov</Authors>
         <Description>Implementation of snapshot store based on redis for EventSourcing.Net</Description>

@@ -19,6 +19,8 @@ public sealed class EventSourcingBusOptions
         _options = options;
     }
 
+    internal EventSourcingOptions Options => _options;
+
     /// <summary>
     /// Register implicit command handlers.
     /// </summary>
@@ -88,11 +90,9 @@ public sealed class EventSourcingBusOptions
         }
 
         Dictionary<Type, EventConsumerActivation[]> results = consumers.GetResults();
-        _options.Services.Remove<IResolveEventPublisher>();
-        _options.Services.AddSingleton<IResolveEventPublisher>(x =>
-        {
-            return new InMemoryEventPublisherResolver(x, results);
-        });
+        _options.Services.IfNotRegistered<IResolveEventPublisher>(
+            services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
+        );
     }
     
     private void RegisterCommandHandlers(Type[] types)
@@ -131,8 +131,9 @@ public sealed class EventSourcingBusOptions
         }
 
         handlers.TrimExcess();
-        _options.Services.Remove<IEventSourcingCommandBus>();
-        _options.Services.AddSingleton<IEventSourcingCommandBus>(x => new InMemoryCommandBus(x, handlers));
+        _options.Services.IfNotRegistered<IEventSourcingCommandBus>(
+            services => services.AddSingleton<IEventSourcingCommandBus>(x => new EventSourcingCommandBus(x, handlers))
+        );
     }
 
     private static bool IsValidCommandHandlerMethod(MethodInfo methodInfo, Type envelopeType, out bool useCancellation,

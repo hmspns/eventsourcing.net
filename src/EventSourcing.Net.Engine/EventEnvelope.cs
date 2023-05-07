@@ -5,14 +5,11 @@ using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Net.Engine;
 
-/// <summary>
-/// Interface to encapsulate set methods.
-/// </summary>
-internal interface IInitializablePayloadEvent<in TId>
+internal interface IInitializableEventEnvelope
 {
     EventId EventId { set; }
         
-    TId AggregateId { set; }
+    object AggregateId { set; }
         
     object Payload { set; }
         
@@ -29,8 +26,16 @@ internal interface IInitializablePayloadEvent<in TId>
     TenantId TenantId { set; }
 }
 
+/// <summary>
+/// Interface to encapsulate set methods.
+/// </summary>
+internal interface IInitializableEventEnvelope<in TId> : IInitializableEventEnvelope
+{
+    TId AggregateId { set; }
+}
+
 /// <inheritdoc />
-public class EventEnvelope<TId, TPayload> : IEventEnvelope<TId, TPayload>, IInitializablePayloadEvent<TId> where TPayload : IEvent
+public record EventEnvelope<TId, TPayload> : IEventEnvelope<TId, TPayload>, IInitializableEventEnvelope<TId> where TPayload : IEvent
 {
     public EventId EventId { get; set; } = EventId.New();
         
@@ -50,8 +55,13 @@ public class EventEnvelope<TId, TPayload> : IEventEnvelope<TId, TPayload>, IInit
         
     public TenantId TenantId { get; set; }
 
-    object IInitializablePayloadEvent<TId>.Payload
+    object IInitializableEventEnvelope.Payload
     {
         set => Payload = (TPayload)value;
+    }
+    
+    object IInitializableEventEnvelope.AggregateId
+    {
+        set => AggregateId = (TId)value;
     }
 }

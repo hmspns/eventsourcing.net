@@ -1,5 +1,6 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
+using EventSourcing.Net.Engine.Exceptions;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,9 +43,9 @@ public sealed class InMemoryEventPublisher : IEventPublisher
         await using var scope = _provider.CreateAsyncScope();
         foreach (IEventEnvelope envelope in events)
         {
-            Type envelopeType = GetEnvelopeInterfaceType(envelope);
+            Type envelopeType = envelope.GetEnvelopeTypedInterface();
             
-            if (_handlers.TryGetValue(envelopeType, out var activators))
+            if (_handlers.TryGetValue(envelopeType, out EventConsumerActivation[]? activators))
             {
                 foreach (EventConsumerActivation activator in activators)
                 {
@@ -54,21 +55,5 @@ public sealed class InMemoryEventPublisher : IEventPublisher
                 }
             }
         }
-    }
-
-    private Type GetEnvelopeInterfaceType(IEventEnvelope envelope)
-    {
-        Type envelopeType = envelope.GetType();
-        Type genericInterfaceType = typeof(IEventEnvelope<,>);
-
-        foreach (Type interfaceType in envelopeType.GetInterfaces())
-        {
-            if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == genericInterfaceType)
-            {
-                return interfaceType;
-            }
-        }
-
-        throw new InvalidOperationException($"Type {envelope.GetType()} should implement interface IEventEnvelope<TId, TPayload>");
     }
 }

@@ -69,17 +69,3 @@ public interface ICommandEnvelope<out TId, out TPayload> : ICommandEnvelope<TId>
 
     ICommand ICommandEnvelope.Payload => Payload;
 }
-
-/// <inheritdoc />
-public sealed class CommandEnvelope<TId, TPayload> : ICommandEnvelope<TId, TPayload> where TPayload : ICommand 
-{
-    public TenantId TenantId { get; init; }
-    public CommandSequenceId SequenceId { get; init; }
-    public CommandId CommandId { get; init; }
-    public CommandId ParentCommandId { get; init; }
-    public DateTime Timestamp { get; init; }
-    public TId AggregateId { get; init; }
-    public TPayload Payload { get; init; }
-    public PrincipalId PrincipalId { get; init; }
-    public string Source { get; init; }
-}
