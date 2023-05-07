@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Storage.Redis", "EventSourcing.Net.Storage.Redis\EventSourcing.Net.Storage.Redis.csproj", "{7175C6E2-D981-41EB-B08B-00DDD0097FA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Samples.Persistence", "..\samples\EventSourcing.Samples.Persistence\EventSourcing.Samples.Persistence.csproj", "{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.Persistence", "..\samples\EventSourcing.Net.Samples.Persistence\EventSourcing.Net.Samples.Persistence.csproj", "{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}"
 EndProject
