@@ -32,7 +32,7 @@ public static class EventSourcingOptionsExtensions
         options.Services.Remove<IAppendOnly>();
         options.Services.AddSingleton<IResolveAppender>(x =>
         {
-            IEventsPayloadSerializerFactory serializerFactory = x.GetRequiredService<IEventsPayloadSerializerFactory>();
+            IPayloadSerializerFactory serializerFactory = x.GetRequiredService<IPayloadSerializerFactory>();
             IPayloadSerializer payloadSerializer = serializerFactory.GetSerializer();
             IPgCommandsBuilder commandsBuilder = x.GetRequiredService<IPgCommandsBuilder>();
             ITypeMappingHandler typeMappingHandler = x.GetRequiredService<ITypeMappingHandler>();

@@ -31,7 +31,7 @@ public static class EventSourcingOptionsExtensions
             x.AddSingleton<IResolveSnapshotStore>(x =>
             {
                 RedisConnection connection = new RedisConnection(connectionString);
-                ISnapshotsSerializerFactory serializerFactory = x.GetRequiredService<ISnapshotsSerializerFactory>();
+                ISnapshotSerializerFactory serializerFactory = x.GetRequiredService<ISnapshotSerializerFactory>();
                 IRedisKeyGenerator keyGenerator = x.GetRequiredService<IRedisKeyGenerator>();
                 ITypeMappingHandler typeMappingHandler = x.GetRequiredService<ITypeMappingHandler>();
                 return new RedisSnapshotStoreResolver(

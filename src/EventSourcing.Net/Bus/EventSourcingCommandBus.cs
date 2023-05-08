@@ -7,8 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <summary>
+/// Built in command bus.
+/// </summary>
 public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
 {
+    /// <inheritdoc />
     public IPublicationAwaiter PublicationAwaiter => _publicationAwaiter;
 
     private readonly IReadOnlyDictionary<Type, CommandHandlerActivation> _handlers;

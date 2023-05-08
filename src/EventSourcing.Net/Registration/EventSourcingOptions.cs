@@ -14,6 +14,7 @@ public sealed class EventSourcingOptions
     internal IServiceCollection Services { get; private set; }
     
     private readonly EventSourcingBusOptions _busOptions;
+    private readonly EventSourcingSerializationOptions _serializationOptions;
 
     private ITypeStringConverter _typeStringConverter;
 
@@ -21,12 +22,18 @@ public sealed class EventSourcingOptions
     {
         Services = services;
         _busOptions = new EventSourcingBusOptions(this);
+        _serializationOptions = new EventSourcingSerializationOptions(this);
     }
 
     /// <summary>
     /// Get object to configure bus.
     /// </summary>
     public EventSourcingBusOptions Bus => _busOptions;
+
+    /// <summary>
+    /// Get object to configure serialization.
+    /// </summary>
+    public EventSourcingSerializationOptions Serialization => _serializationOptions;
     
     /// <summary>
     /// Register classes that implement IEvent for serialization mapping from given assemblies.
@@ -81,8 +88,9 @@ public sealed class EventSourcingOptions
     internal void Build()
     {
         Services.AddSingleton<EventSourcingEngineStarter>();
-        Services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
-        Services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
+        
+        Services.RegisterEventsSerialization(null);
+        Services.RegisterSnapshotSerialization(null);
         
         if (_typeStringConverter == null)
         { 

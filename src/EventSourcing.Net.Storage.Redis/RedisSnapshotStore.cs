@@ -14,14 +14,14 @@ public sealed class RedisSnapshotStore : ISnapshotStore
 {
     private readonly IRedisConnection _redisConnection;
     private readonly TenantId _tenantId;
-    private readonly ISnapshotsSerializerFactory _serializerFactory;
+    private readonly ISnapshotSerializerFactory _serializerFactory;
     private readonly RedisSnapshotCreationPolicy _redisSnapshotCreationPolicy;
     private readonly IRedisKeyGenerator _keyGenerator;
     private readonly ITypeMappingHandler _typeMappingHandler;
 
     internal RedisSnapshotStore(
         IRedisConnection redisConnection,
-        ISnapshotsSerializerFactory serializerFactory,
+        ISnapshotSerializerFactory serializerFactory,
         RedisSnapshotCreationPolicy redisSnapshotCreationPolicy,
         IRedisKeyGenerator keyGenerator,
         ITypeMappingHandler typeMappingHandler,
