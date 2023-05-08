@@ -15,8 +15,8 @@ public static class EventSourcingBusExtensions
     /// </remarks>
     public static EventSourcingBusOptions UseMediatr(this EventSourcingBusOptions bus)
     {
-        bus.Options.Services.AddTransient<IResolveEventPublisher, MediatrEventPublisherResolver>();
-        bus.Options.Services.AddTransient<IEventSourcingCommandBus, MediatrEventSourcingCommandBus>();
+        bus.ReplaceTransient<IResolveEventPublisher, MediatrEventPublisherResolver>();
+        bus.ReplaceTransient<IEventSourcingCommandBus, MediatrEventSourcingCommandBus>();
         return bus;
     }
 }

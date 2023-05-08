@@ -18,14 +18,8 @@ public static class NewtonsoftEventSourcingSerializationOptionsExtensions
     {
         NewtonsoftJsonSerializerOptions o = new NewtonsoftJsonSerializerOptions();
         configurator?.Invoke(o);
-        options.EventSourcingOptions.Services.Replace<IPayloadSerializerFactory>(services =>
-        {
-            services.AddSingleton<IPayloadSerializerFactory>(x => new NewtonsoftJsonPayloadSerializerFactory(o.PayloadSerializationOptions));
-        });
-        options.EventSourcingOptions.Services.Replace<ISnapshotSerializerFactory>(services =>
-        {
-            services.AddSingleton<ISnapshotSerializerFactory>(x => new NewtonsoftJsonSnapshotSerializerFactory(o.SnapshotSerializationOptions));
-        });
+        options.ReplaceSingleton<IPayloadSerializerFactory>(x => new NewtonsoftJsonPayloadSerializerFactory(o.PayloadSerializationOptions));
+        options.ReplaceSingleton<ISnapshotSerializerFactory>(x => new NewtonsoftJsonSnapshotSerializerFactory(o.SnapshotSerializationOptions));
     }
 }
 

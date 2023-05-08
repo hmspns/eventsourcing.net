@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Engine;
 using EventSourcing.Net.Engine.Implementations;
@@ -89,8 +90,8 @@ public sealed class EventSourcingOptions
     {
         Services.AddSingleton<EventSourcingEngineStarter>();
         
-        Services.RegisterEventsSerialization(null);
-        Services.RegisterSnapshotSerialization(null);
+        Services.IfNotRegistered<IPayloadSerializerFactory>(x => x.AddSingleton<IPayloadSerializerFactory>(new SystemTextJsonPayloadSerializerFactory(null)));
+        Services.IfNotRegistered<ISnapshotSerializerFactory>(x => x.AddSingleton<ISnapshotSerializerFactory>(new SystemTextJsonSnapshotSerializerFactory(null)));
         
         if (_typeStringConverter == null)
         { 

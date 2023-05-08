@@ -1,19 +1,19 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Engine.Serialization;
 
 namespace EventSourcing.Net;
 
 /// <summary>
 /// Options to configure serialization.
 /// </summary>
-public sealed class EventSourcingSerializationOptions
+public sealed class EventSourcingSerializationOptions : SpecificOptions
 {
-    private readonly EventSourcingOptions _options;
-
-    internal EventSourcingOptions EventSourcingOptions => _options;
-
-    public EventSourcingSerializationOptions(EventSourcingOptions options)
+    /// <summary>
+    /// Initialize new object.
+    /// </summary>
+    /// <param name="options">Event sourcing options.</param>
+    public EventSourcingSerializationOptions(EventSourcingOptions options) : base(options.Services)
     {
-        _options = options;
     }
 
     /// <summary>
@@ -25,8 +25,8 @@ public sealed class EventSourcingSerializationOptions
     {
         SystemTextJsonSerializationOptions options = new SystemTextJsonSerializationOptions();
         configurator?.Invoke(options);
-        
-        _options.Services.RegisterEventsSerialization(options.PayloadSerializationOptions);
-        _options.Services.RegisterSnapshotSerialization(options.SnapshotSerializationOptions);
+
+        ReplaceSingleton<IPayloadSerializerFactory>(x => new SystemTextJsonPayloadSerializerFactory(options.PayloadSerializationOptions));
+        ReplaceSingleton<ISnapshotSerializerFactory>(x => new SystemTextJsonSnapshotSerializerFactory(options.SnapshotSerializationOptions));
     }
 }

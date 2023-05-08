@@ -10,16 +10,11 @@ namespace EventSourcing.Net;
 /// <summary>
 /// Options to configure event sourcing engine.
 /// </summary>
-public sealed class EventSourcingBusOptions
+public sealed class EventSourcingBusOptions : SpecificOptions
 {
-    private readonly EventSourcingOptions _options;
-
-    internal EventSourcingBusOptions(EventSourcingOptions options)
+    internal EventSourcingBusOptions(EventSourcingOptions options) : base(options.Services)
     {
-        _options = options;
     }
-
-    internal EventSourcingOptions Options => _options;
 
     /// <summary>
     /// Register implicit command handlers.
@@ -84,13 +79,12 @@ public sealed class EventSourcingBusOptions
                     consumers.Add(argumentType, activation);
                 }
 
-                _options.Services.Remove(type);
-                _options.Services.AddScoped(type);
+                ReplaceScoped(type);
             }
         }
 
         Dictionary<Type, EventConsumerActivation[]> results = consumers.GetResults();
-        _options.Services.IfNotRegistered<IResolveEventPublisher>(
+        IfNotRegistered<IResolveEventPublisher>(
             services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
         );
     }
@@ -126,12 +120,12 @@ public sealed class EventSourcingBusOptions
 
             if (hasHandlers)
             {
-                _options.Services.AddTransient(commandHandlerType);
+                ReplaceTransient(commandHandlerType);
             }
         }
 
         handlers.TrimExcess();
-        _options.Services.IfNotRegistered<IEventSourcingCommandBus>(
+        IfNotRegistered<IEventSourcingCommandBus>(
             services => services.AddSingleton<IEventSourcingCommandBus>(x => new EventSourcingCommandBus(x, handlers))
         );
     }

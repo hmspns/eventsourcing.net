@@ -66,14 +66,4 @@ public static class EventSourcingServicesExtensions
         handler(services);
         return services;
     }
-
-    internal static void RegisterSnapshotSerialization(this IServiceCollection services, JsonSerializerOptions? options)
-    {
-        services.IfNotRegistered<ISnapshotSerializerFactory>(x => x.AddSingleton<ISnapshotSerializerFactory>(new SystemTextJsonSnapshotSerializerFactory(options)));
-    }
-
-    internal static void RegisterEventsSerialization(this IServiceCollection services, JsonSerializerOptions? options)
-    {
-        services.IfNotRegistered<IPayloadSerializerFactory>(x => x.AddSingleton<IPayloadSerializerFactory>(new SystemTextJsonPayloadSerializerFactory(options)));
-    }
 }

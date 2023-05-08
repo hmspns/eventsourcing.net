@@ -1,15 +1,23 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Engine.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <summary>
+/// Start event sourcing engine.
+/// </summary>
 public sealed class EventSourcingEngineStarter
 {
     private IServiceProvider _provider;
     
     internal bool IsStarted { get; private set; }
 
+    /// <summary>
+    /// Initialize new object.
+    /// </summary>
+    /// <param name="provider">Service provider.</param>
     public EventSourcingEngineStarter(IServiceProvider provider)
     {
         _provider = provider;
@@ -18,7 +26,9 @@ public sealed class EventSourcingEngineStarter
     /// <summary>
     /// Start event sourcing engine.
     /// </summary>
-    public async Task Start()
+    /// <param name="initializeStorageForDefaultTenant">Should storage be initialized for default tenant (TenantId.Empty).</param>
+    /// <remarks>For multitenancy environment you should manually initialize storage per tenant.</remarks>
+    public async Task Start(bool initializeStorageForDefaultTenant = true)
     {
         if (IsStarted)
         {
@@ -33,6 +43,12 @@ public sealed class EventSourcingEngineStarter
 
         IEventSourcingEngine engine = _provider.GetRequiredService<IEventSourcingEngine>();
         EventSourcingEngine.Instance = engine;
+
+        if (initializeStorageForDefaultTenant)
+        {
+            IEventSourcingStorage resolveEventStore = _provider.GetRequiredService<IEventSourcingStorage>();
+            await resolveEventStore.Initialize();
+        }
 
         _provider = null;
         IsStarted = true;
