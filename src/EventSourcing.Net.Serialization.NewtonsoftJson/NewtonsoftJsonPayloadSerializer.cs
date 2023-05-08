@@ -1,8 +1,9 @@
 ﻿using System.Buffers;
+using System.Text;
 using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
-namespace EventSourcing.Net.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.NewtonsoftJson;
 
 /// <inheritdoc />
 public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
@@ -65,6 +66,7 @@ public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
         };
         JsonSerializer serializer = JsonSerializer.CreateDefault(_settings);
         serializer.Serialize(jw, obj);
+        jw.Flush();
         return ms.ToArray();
     }
     

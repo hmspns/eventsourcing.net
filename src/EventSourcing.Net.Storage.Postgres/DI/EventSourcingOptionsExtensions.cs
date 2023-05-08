@@ -10,11 +10,12 @@ public static class EventSourcingOptionsExtensions
     /// </summary>
     /// <param name="options">Configuration options.</param>
     /// <param name="connectionString">Connection string to Postgres DB.</param>
+    /// <param name="configurator">Optional callback to configure postgres store.</param>
     /// <returns>Configuration options.</returns>
     public static PostgresOptions UsePostgresEventsStore(
         this EventSourcingOptions options,
         string connectionString, 
-        Action<PgStorageOptions>? configure = null)
+        Action<PgStorageOptions>? configurator = null)
     {
         if (connectionString == null)
         {
@@ -22,7 +23,7 @@ public static class EventSourcingOptionsExtensions
         }
 
         PgStorageOptions storageOptions = new PgStorageOptions();
-        configure?.Invoke(storageOptions);
+        configurator?.Invoke(storageOptions);
         
         options.Services.AddSingleton<IPgCommandTextProvider, PgCommandTextProvider>();
         options.Services.AddSingleton<IPgCommandsBuilder, PgCommandsBuilder>();

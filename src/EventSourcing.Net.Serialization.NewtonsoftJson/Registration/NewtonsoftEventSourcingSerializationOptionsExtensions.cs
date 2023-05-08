@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace EventSourcing.Net.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.NewtonsoftJson;
 
 /// <summary>
 /// Provide extensions for registration.

@@ -2,16 +2,14 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace EventSourcing.Net.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.NewtonsoftJson;
 
-/// <summary>
-/// Implementation of payload serializer factory based on Newtonsoft.Json.
-/// </summary>
-public sealed class NewtonsoftJsonPayloadSerializerFactory : IPayloadSerializerFactory
+/// <inheritdoc />
+public sealed class NewtonsoftJsonSnapshotSerializerFactory : ISnapshotSerializerFactory
 {
     private readonly NewtonsoftJsonPayloadSerializer _serializer;
     
-    public NewtonsoftJsonPayloadSerializerFactory(JsonSerializerSettings? settings = null)
+    public NewtonsoftJsonSnapshotSerializerFactory(JsonSerializerSettings? settings = null)
     {
         if (settings == null)
         {
@@ -33,12 +31,8 @@ public sealed class NewtonsoftJsonPayloadSerializerFactory : IPayloadSerializerF
 
         _serializer = new NewtonsoftJsonPayloadSerializer(settings);
     }
-
-    /// <summary>
-    /// Return payload serializer.
-    /// </summary>
-    /// <returns>Payload serializer.</returns>
-    public IPayloadSerializer GetSerializer()
+    
+    public IPayloadSerializer Get()
     {
         return _serializer;
     }
