@@ -15,7 +15,7 @@ namespace EventSourcing.Net;
 /// </summary>
 public sealed class EventSourcingOptions
 {
-    internal IServiceCollection Services { get; }
+    private IServiceCollection Services { get; }
 
     private ITypeStringConverter _typeStringConverter;
 

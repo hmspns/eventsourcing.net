@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Net.Abstractions.Contracts;
+﻿using System;
+
+namespace EventSourcing.Net.Abstractions.Contracts;
 
 /// <summary>
 /// Factory to create snapshot serializer.
@@ -9,5 +11,12 @@ public interface ISnapshotSerializerFactory
     /// Return payload serializer.
     /// </summary>
     /// <returns>Payload serializer.</returns>
-    IPayloadSerializer Get();
+    IPayloadSerializer GetSerializer();
+
+    /// <summary>
+    /// Return payload serializer.
+    /// </summary>
+    /// <returns>Payload serializer.</returns>
+    [Obsolete("Use GetSerializer instead")]
+    IPayloadSerializer Get() => GetSerializer();
 }

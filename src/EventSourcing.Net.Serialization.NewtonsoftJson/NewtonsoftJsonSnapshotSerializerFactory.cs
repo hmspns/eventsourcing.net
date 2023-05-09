@@ -32,7 +32,7 @@ public sealed class NewtonsoftJsonSnapshotSerializerFactory : ISnapshotSerialize
         _serializer = new NewtonsoftJsonPayloadSerializer(settings);
     }
     
-    public IPayloadSerializer Get()
+    public IPayloadSerializer GetSerializer()
     {
         return _serializer;
     }

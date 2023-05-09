@@ -57,7 +57,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             RedisSnapshotEnvelopeSerializer.FromRedisValue(pooledArray, ref value, out SnapshotEnvelope envelope);
 
             Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
-            object state = _serializerFactory.Get().Deserialize(type, envelope.State);
+            object state = _serializerFactory.GetSerializer().Deserialize(type, envelope.State);
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
@@ -118,7 +118,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             TypeMappingId typeId = _typeMappingHandler.GetIdByType(snapshot.State.GetType());
-            byte[] data = _serializerFactory.Get().Serialize(snapshot.State);
+            byte[] data = _serializerFactory.GetSerializer().Serialize(snapshot.State);
             SnapshotEnvelope envelope = new SnapshotEnvelope()
             {
                 State = data,

@@ -31,7 +31,7 @@ public sealed class SystemTextJsonSnapshotSerializerFactory : ISnapshotSerialize
         _serializer = new SystemTextJsonPayloadSerializer(options);
     }
     
-    public IPayloadSerializer Get()
+    public IPayloadSerializer GetSerializer()
     {
         return _serializer;
     }
