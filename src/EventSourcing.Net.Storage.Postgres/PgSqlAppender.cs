@@ -178,24 +178,24 @@ public sealed class PgSqlAppender : IAppendOnly
         batch.BatchCommands.Add(getEventsCommand);
         batch.BatchCommands.Add(_commandsBuilder.GetEventsStreamCountCommand(schemaName, _eventsTableName));
             
-        await batch.PrepareAsync();
+        await batch.PrepareAsync().ConfigureAwait(false);
 
-        await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync();
+        await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync().ConfigureAwait(false);
 
         List<EventPackage> results = new List<EventPackage>((int)Math.Min(8192, (long)(to - from)));
 
-        while (await reader.ReadAsync())
+        while (await reader.ReadAsync().ConfigureAwait(false))
         {
             EventPackage package = ReadEventPackage(reader, streamName);
             results.Add(package);
         }
 
-        await reader.NextResultAsync();
-        await reader.ReadAsync();
+        await reader.NextResultAsync().ConfigureAwait(false);
+        await reader.ReadAsync().ConfigureAwait(false);
         StreamPosition max = reader.GetInt64(0);
 
-        await reader.CloseAsync();
-        await conn.CloseAsync();
+        await reader.CloseAsync().ConfigureAwait(false);
+        await conn.CloseAsync().ConfigureAwait(false);
 
         return new EventsData(results, max);
     }
@@ -207,25 +207,25 @@ public sealed class PgSqlAppender : IAppendOnly
     /// <returns>Events data.</returns>
     public async Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
     {
-        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
+        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync().ConfigureAwait(false);
         await using NpgsqlCommand cmd = _commandsBuilder.GetReadAllStreamsCommand(readOptions, SchemaName, _eventsTableName);
         cmd.Connection = conn;
 
-        await cmd.PrepareAsync();
+        await cmd.PrepareAsync().ConfigureAwait(false);
 
-        await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+        await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
 
         List<EventPackage> results = new List<EventPackage>((int)Math.Min(8192, (long)(readOptions.To - readOptions.From)));
 
-        while (await reader.ReadAsync())
+        while (await reader.ReadAsync().ConfigureAwait(false))
         {
             EventPackage package = ReadEventPackage(reader, readOptions);
 
             results.Add(package);
         }
 
-        await reader.CloseAsync();
-        await conn.CloseAsync();
+        await reader.CloseAsync().ConfigureAwait(false);
+        await conn.CloseAsync().ConfigureAwait(false);
 
         return new EventsData(results.ToArray(), StreamPosition.End);
     }
@@ -237,20 +237,20 @@ public sealed class PgSqlAppender : IAppendOnly
     /// <returns>Names of streams.</returns>
     public async Task<StreamId[]> FindStreamIds(string startsWithPrefix)
     {
-        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
+        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync().ConfigureAwait(false);
         await using NpgsqlCommand cmd = _commandsBuilder.GetFindStreamIdsByPatternCommand(startsWithPrefix, SchemaName, _eventsTableName);
         cmd.Connection = conn;
 
-        await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+        await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
 
         List<string> streams = new List<string>();
-        while (await reader.ReadAsync())
+        while (await reader.ReadAsync().ConfigureAwait(false))
         {
             streams.Add(reader[0].ToString()!);
         }
 
-        await reader.CloseAsync();
-        await conn.CloseAsync();
+        await reader.CloseAsync().ConfigureAwait(false);
+        await conn.CloseAsync().ConfigureAwait(false);
 
         return streams.Select(StreamId.Parse).ToArray();
     }
@@ -260,13 +260,13 @@ public sealed class PgSqlAppender : IAppendOnly
     /// </summary>
     public async Task<bool> IsExist()
     {
-        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
+        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync().ConfigureAwait(false);
 
         await using NpgsqlCommand cmd = _commandsBuilder.GetCheckStorageExistsCommand(SchemaName, _eventsTableName);
         cmd.Connection = conn;
 
-        object? result = await cmd.ExecuteScalarAsync();
-        await conn.CloseAsync();
+        object? result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+        await conn.CloseAsync().ConfigureAwait(false);
 
         return result is true;
     }
@@ -276,13 +276,13 @@ public sealed class PgSqlAppender : IAppendOnly
     /// </summary>
     public async Task Initialize()
     {
-        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync();
+        await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync().ConfigureAwait(false);
 
         await using NpgsqlCommand cmd = _commandsBuilder.GetCreateStorageCommand(SchemaName, _eventsTableName, _commandsTableName);
         cmd.Connection = conn;
         
-        await cmd.ExecuteNonQueryAsync();
-        await conn.CloseAsync();
+        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+        await conn.CloseAsync().ConfigureAwait(false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

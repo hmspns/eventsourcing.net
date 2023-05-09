@@ -35,8 +35,8 @@ internal sealed class AggregateUpdater<TId, TAggregate> where TAggregate : IAggr
         IEventStore eventStore = _engine.EventStoreResolver.Get(commandEnvelope.TenantId);
             
         StreamId streamId = StreamId.Parse(commandEnvelope.AggregateId.ToString());
-        ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId);
-        EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, (StreamPosition)snapshot.Version, StreamPosition.End);
+        ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId).ConfigureAwait(false);
+        EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, (StreamPosition)snapshot.Version, StreamPosition.End).ConfigureAwait(false);
             
         TAggregate aggregate = _activator(commandEnvelope.AggregateId);
 
@@ -55,9 +55,11 @@ internal sealed class AggregateUpdater<TId, TAggregate> where TAggregate : IAggr
                 }
                     
                 IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
-                IAppendEventsResult result = await eventStore.AppendToStream<TId>(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted);
-                await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted);
-                await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.GetSnapshot(result));
+                IAppendEventsResult result = await eventStore
+                    .AppendToStream<TId>(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted)
+                    .ConfigureAwait(false);
+                await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted).ConfigureAwait(false);
+                await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.GetSnapshot(result)).ConfigureAwait(false);
             }
             catch (AppendOnlyStoreConcurrencyException e)
             {

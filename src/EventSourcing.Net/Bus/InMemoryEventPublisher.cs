@@ -51,7 +51,10 @@ public sealed class InMemoryEventPublisher : IEventPublisher
                 {
                     object instance = ActivatorUtilities.GetServiceOrCreateInstance(scope.ServiceProvider, activator.Type);
                     Task result = (Task)activator.Method.Invoke(instance, new[] { envelope });
-                    await result;
+                    if (result != null)
+                    {
+                        await result.ConfigureAwait(false);
+                    }
                 }
             }
         }

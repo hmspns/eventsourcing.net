@@ -40,7 +40,7 @@ public sealed class ViewsRebuilder
             TraceHelper th = new TraceHelper(
                 $"Reading batch from position {position.ToString()}",
                 $"Batch read from {position.ToString()}");
-            data = await ReadBatch(tenantId, position, _batchSize);
+            data = await ReadBatch(tenantId, position, _batchSize).ConfigureAwait(false);
             th.Dispose(); // to avoid second message on exception
 
 
@@ -53,7 +53,7 @@ public sealed class ViewsRebuilder
             th = new TraceHelper(
                 $"Creating views for {data.Events.Count.ToString()} events",
                 "Views created");
-            await BuildViews(data);
+            await BuildViews(data).ConfigureAwait(false);
             th.Dispose(); // to avoid second message on exception
 
             position = position + _batchSize;
@@ -81,7 +81,7 @@ public sealed class ViewsRebuilder
             ReadingVolume = StreamReadVolume.MetaAndData
         };
 
-        IEventsData events = await appender.ReadAllStreams(readOptions);
+        IEventsData events = await appender.ReadAllStreams(readOptions).ConfigureAwait(false);
 
         return events;
     }

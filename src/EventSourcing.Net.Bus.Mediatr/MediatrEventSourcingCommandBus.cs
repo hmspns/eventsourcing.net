@@ -47,7 +47,7 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
             TenantId = tenantId,
             ParentCommandId = CommandId.Empty
         };
-        return await _sender.Send(envelope, cancellationToken);
+        return await _sender.Send(envelope, cancellationToken).ConfigureAwait(false);
     }
 
     public IPublicationAwaiter PublicationAwaiter { get; }

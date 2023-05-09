@@ -132,7 +132,8 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
                 ? _redisSnapshotCreationPolicy.ExpireAfter
                 : null;
-            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget)
+            await database
+                .StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget)
                 .ConfigureAwait(false);
         }
         catch (ObjectDisposedException e)

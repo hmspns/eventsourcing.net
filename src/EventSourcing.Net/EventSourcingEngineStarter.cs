@@ -39,7 +39,7 @@ public sealed class EventSourcingEngineStarter
         await storageTypeMappingProvider.Initialize().ConfigureAwait(false);
 
         ITypeMappingHandler typeMappingHandler = _provider.GetRequiredService<ITypeMappingHandler>();
-        await typeMappingHandler.SynchronizeAppTypesWithStorageTypes();
+        await typeMappingHandler.SynchronizeAppTypesWithStorageTypes().ConfigureAwait(false);
 
         IEventSourcingEngine engine = _provider.GetRequiredService<IEventSourcingEngine>();
         EventSourcingEngine.Instance = engine;
@@ -49,7 +49,7 @@ public sealed class EventSourcingEngineStarter
         if (initializeStorageForDefaultTenant)
         {
             IEventSourcingStorage resolveEventStore = _provider.GetRequiredService<IEventSourcingStorage>();
-            await resolveEventStore.Initialize();
+            await resolveEventStore.Initialize().ConfigureAwait(false);
         }
         
         _provider = null; // don't handle reference to the IServiceProvider.
