@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
     </ItemGroup>
 
 </Project>

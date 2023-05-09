@@ -10,7 +10,7 @@ public sealed class ProtobufNetPayloadSerializer : IPayloadSerializer
     public byte[] Serialize(object obj)
     {
         using MemoryStream ms = new MemoryStream();
-        Serializer.Serialize(ms, obj);
+        RuntimeTypeModel.Default.Serialize(ms, obj);
         return ms.ToArray();
     }
 

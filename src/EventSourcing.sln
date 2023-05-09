@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Tests.Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Tests", "..\tests\EventSourcing.Net.Tests\EventSourcing.Net.Tests.csproj", "{0AD14FC4-C559-49B7-A96C-268796630B10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Serialization.ProtobufNet.Tests", "..\tests\EventSourcing.Net.Serialization.ProtobufNet.Tests\EventSourcing.Net.Serialization.ProtobufNet.Tests.csproj", "{03618FB2-A5F0-4399-90B7-1443F0356308}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -138,6 +140,10 @@ Global
 		{0AD14FC4-C559-49B7-A96C-268796630B10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AD14FC4-C559-49B7-A96C-268796630B10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AD14FC4-C559-49B7-A96C-268796630B10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03618FB2-A5F0-4399-90B7-1443F0356308}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03618FB2-A5F0-4399-90B7-1443F0356308}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03618FB2-A5F0-4399-90B7-1443F0356308}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03618FB2-A5F0-4399-90B7-1443F0356308}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,5 +160,6 @@ Global
 		{A04EA9CA-8DA7-4964-BB24-7B3AFD4A66FD} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
 		{AA164C4F-C146-4381-9541-181449773B79} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
 		{0AD14FC4-C559-49B7-A96C-268796630B10} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
+		{03618FB2-A5F0-4399-90B7-1443F0356308} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
 	EndGlobalSection
 EndGlobal
