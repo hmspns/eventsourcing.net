@@ -185,8 +185,10 @@ public async Task CreateUser(IEventSourcingCommandBus bus)
 
 ### Extensions
 
-- [EventSourcing.Net.Storage.Postgres](https://www.nuget.org/packages/EventSourcing.Net.Storage.Postgres/) - the implementation of an event store for Postgres 
+- [EventSourcing.Net.Storage.Postgres](https://www.nuget.org/packages/EventSourcing.Net.Storage.Postgres/) - the implementation of an event store for Postgres.
 - [EventSourcing.Net.Storage.Redis](https://www.nuget.org/packages/EventSourcing.Net.Storage.Redis/) - the implementation of an snapshot store for Redis.
 - [EventSourcing.Net.Bus.Mediatr](https://www.nuget.org/packages/EventSourcing.Net.Bus.Mediatr/) - the implementation of EventSourcing.Net bus based on MediatR.
+- [EventSourcing.Net.Serialization.NewtonsoftJson](https://www.nuget.org/packages/EventSourcing.Net.Serialization.NewtonsoftJson/) - the implementation of EventSourcing.Net serialization based on Newtonsoft.Json.
+- [EventSourcing.Net.Serialization.ProtobufNet](https://www.nuget.org/packages/EventSourcing.Net.Serialization.ProtobufNet/) - the implementation of EventSourcing.Net serialization based on protobuf-net.
 
 
