@@ -1,18 +1,19 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Engine.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
 /// <summary>
 /// Options to configure serialization.
 /// </summary>
-public sealed class EventSourcingSerializationOptions : SpecificOptions
+public sealed class EventSourcingSerializationOptions : EventSourcingConfigurationOptions
 {
     /// <summary>
     /// Initialize new object.
     /// </summary>
-    /// <param name="options">Event sourcing options.</param>
-    public EventSourcingSerializationOptions(EventSourcingOptions options) : base(options.Services)
+    /// <param name="services">Services to provide DI registration.</param>
+    public EventSourcingSerializationOptions(IServiceCollection services) : base(services)
     {
     }
 

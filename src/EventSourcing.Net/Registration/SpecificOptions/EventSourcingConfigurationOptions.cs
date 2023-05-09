@@ -5,7 +5,7 @@ namespace EventSourcing.Net;
 /// <summary>
 /// Provide methods for service registration.
 /// </summary>
-public abstract class SpecificOptions
+public abstract class EventSourcingConfigurationOptions
 {
     private readonly IServiceCollection _services;
 
@@ -13,7 +13,7 @@ public abstract class SpecificOptions
     /// Initialize new object.
     /// </summary>
     /// <param name="services">Service collection.</param>
-    private protected SpecificOptions(IServiceCollection services)
+    private protected EventSourcingConfigurationOptions(IServiceCollection services)
     {
         _services = services;
     }
@@ -24,7 +24,7 @@ public abstract class SpecificOptions
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <typeparam name="TService">Service type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    public SpecificOptions ReplaceTransient<TInterface, TService>()
+    protected internal EventSourcingConfigurationOptions ReplaceTransient<TInterface, TService>()
         where TInterface : class
         where TService : class, TInterface
     {
@@ -38,7 +38,7 @@ public abstract class SpecificOptions
     /// <param name="handler">Handler to register service.</param>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    public SpecificOptions ReplaceTransient<TInterface>(Func<IServiceProvider, TInterface> handler)
+    protected internal  EventSourcingConfigurationOptions ReplaceTransient<TInterface>(Func<IServiceProvider, TInterface> handler)
         where TInterface : class
     {
         _services.Replace<TInterface>(services => services.AddTransient<TInterface>(x =>
@@ -53,8 +53,8 @@ public abstract class SpecificOptions
     /// Replace transient service.
     /// </summary>
     /// <param name="type">Service type.</param>
-    /// <returns></returns>
-    public SpecificOptions ReplaceTransient(Type type)
+    /// <returns>Options for the fluent flow.</returns>
+    protected internal  EventSourcingConfigurationOptions ReplaceTransient(Type type)
     {
         _services.Remove(type);
         _services.AddTransient(type);
@@ -67,7 +67,7 @@ public abstract class SpecificOptions
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <typeparam name="TService">Service type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    public SpecificOptions ReplaceScoped<TInterface, TService>()
+    protected internal  EventSourcingConfigurationOptions ReplaceScoped<TInterface, TService>()
         where TInterface : class
         where TService : class, TInterface
     {
@@ -81,7 +81,7 @@ public abstract class SpecificOptions
     /// <param name="handler">Handler to register service.</param>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    public SpecificOptions ReplaceScoped<TInterface>(Func<IServiceProvider, TInterface> handler)
+    protected internal  EventSourcingConfigurationOptions ReplaceScoped<TInterface>(Func<IServiceProvider, TInterface> handler)
         where TInterface : class
     {
         _services.Replace<TInterface>(services => services.AddScoped<TInterface>(x =>
@@ -96,21 +96,21 @@ public abstract class SpecificOptions
     /// Replace scoped service.
     /// </summary>
     /// <param name="type">Service type.</param>
-    /// <returns></returns>
-    public SpecificOptions ReplaceScoped(Type type)
+    /// <returns>Options for the fluent flow.</returns>
+    protected internal  EventSourcingConfigurationOptions ReplaceScoped(Type type)
     {
         _services.Remove(type);
         _services.AddScoped(type);
         return this;
     }
-    
+
     /// <summary>
     /// Replace singleton service.
     /// </summary>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <typeparam name="TService">Service type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    public SpecificOptions ReplaceSingleton<TInterface, TService>()
+    protected internal  EventSourcingConfigurationOptions ReplaceSingleton<TInterface, TService>()
         where TInterface : class
         where TService : class, TInterface
     {
@@ -124,7 +124,7 @@ public abstract class SpecificOptions
     /// <param name="handler">Handler to register service.</param>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    public SpecificOptions ReplaceSingleton<TInterface>(Func<IServiceProvider, TInterface> handler)
+    protected internal  EventSourcingConfigurationOptions ReplaceSingleton<TInterface>(Func<IServiceProvider, TInterface> handler)
         where TInterface : class
     {
         _services.Replace<TInterface>(services => services.AddSingleton<TInterface>(x =>
@@ -139,15 +139,38 @@ public abstract class SpecificOptions
     /// Replace singleton service.
     /// </summary>
     /// <param name="type">Service type.</param>
-    /// <returns></returns>
-    public SpecificOptions ReplaceSingleton(Type type)
+    /// <returns>Options for the fluent flow.</returns>
+    protected internal  EventSourcingConfigurationOptions ReplaceSingleton(Type type)
     {
         _services.Remove(type);
         _services.AddSingleton(type);
         return this;
     }
 
-    internal SpecificOptions IfNotRegistered<TInterface>(Action<IServiceCollection> handler)
+    /// <summary>
+    /// Replace singleton service.
+    /// </summary>
+    /// <param name="serviceInstance">Service type.</param>
+    /// <returns>Options for the fluent flow.</returns>
+    protected internal  EventSourcingConfigurationOptions ReplaceSingleton<TService>(TService serviceInstance)
+        where TService : class
+    {
+        _services.Replace<TService>(services => services.AddSingleton<TService>(serviceInstance));
+        return this;
+    }
+
+    /// <summary>
+    /// Remove specific service.
+    /// </summary>
+    /// <typeparam name="TService">Service type.</typeparam>
+    /// <returns>Options for the fluent flow.</returns>
+    protected internal  EventSourcingConfigurationOptions Remove<TService>() where TService : class
+    {
+        _services.Remove<TService>();
+        return this;
+    }
+
+    internal EventSourcingConfigurationOptions IfNotRegistered<TInterface>(Action<IServiceCollection> handler)
     {
         _services.IfNotRegistered<TInterface>(handler);
         return this;

@@ -43,14 +43,15 @@ public sealed class EventSourcingEngineStarter
 
         IEventSourcingEngine engine = _provider.GetRequiredService<IEventSourcingEngine>();
         EventSourcingEngine.Instance = engine;
+        
+        IsStarted = true;
 
         if (initializeStorageForDefaultTenant)
         {
             IEventSourcingStorage resolveEventStore = _provider.GetRequiredService<IEventSourcingStorage>();
             await resolveEventStore.Initialize();
         }
-
-        _provider = null;
-        IsStarted = true;
+        
+        _provider = null; // don't handle reference to the IServiceProvider.
     }
 }

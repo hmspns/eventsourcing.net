@@ -7,7 +7,7 @@ public void RegisterEventSourcing(IServiceCollection services, IConfiguration co
 {  
     services.AddEventSourcing(options =>  
     {  
-        options.UsePostgresEventsStore(configuration.GetConnectionString("EventsDb"));  
+        options.Storage.UsePostgresEventStore(configuration.GetConnectionString("EventsDb"));  
     });
 }
 ```

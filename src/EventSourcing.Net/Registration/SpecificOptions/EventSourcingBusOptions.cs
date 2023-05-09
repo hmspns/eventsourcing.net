@@ -10,9 +10,13 @@ namespace EventSourcing.Net;
 /// <summary>
 /// Options to configure event sourcing engine.
 /// </summary>
-public sealed class EventSourcingBusOptions : SpecificOptions
+public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
 {
-    internal EventSourcingBusOptions(EventSourcingOptions options) : base(options.Services)
+    /// <summary>
+    /// Initialize new object.
+    /// </summary>
+    /// <param name="services">Services to provide DI registration.</param>
+    internal EventSourcingBusOptions(IServiceCollection services) : base(services)
     {
     }
 

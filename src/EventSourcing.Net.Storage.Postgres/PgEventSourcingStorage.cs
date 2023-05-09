@@ -20,7 +20,7 @@ public class PgEventSourcingStorage : IEventSourcingStorage
     {
         if (!_starter.IsStarted)
         {
-            Thrown.InvalidOperationException("Event sourcing not started. You should start it by call extension method 'StartEventSourcingEngine' on instance of IServiceProvider");
+            Thrown.InvalidOperationException("Event sourcing not started. You should start it by call extension method 'StartEventSourcingEngine' on instance of the IServiceProvider");
         }
         return _appender.Get(tenantId).Initialize();
     }
