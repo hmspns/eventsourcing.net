@@ -34,13 +34,13 @@ public sealed class EventPublisher : IEventPublisher
         
     public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
-        await _mediator.Publish<IEsCommandPublicationStarted>(new EsCommandPublicationStarted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
+        await _mediator.Publish<IEsCommandPublicationStarted>(new EsCommandPublicationStarted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId)).ConfigureAwait(false);
             
         foreach (IEventEnvelope @event in events)
         {
-            await _mediator.Publish(@event);
+            await _mediator.Publish(@event).ConfigureAwait(false);
         }
 
-        await _mediator.Publish<IEsCommandPublicationCompleted>(new EsCommandPublicationCompleted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId));
+        await _mediator.Publish<IEsCommandPublicationCompleted>(new EsCommandPublicationCompleted(CommandId: commandEnvelope.CommandId, SequenceId: commandEnvelope.SequenceId)).ConfigureAwait(false);
     }
 }

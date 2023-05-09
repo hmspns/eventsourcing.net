@@ -1,9 +1,9 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
-namespace EventSourcing.Net.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.NewtonsoftJson;
 
-public sealed class IdentityConverter : JsonConverter<IIdentity>
+public sealed class IIdentityConverter : JsonConverter<IIdentity>
 {
     public override void WriteJson(JsonWriter writer, IIdentity? value, JsonSerializer serializer)
     {

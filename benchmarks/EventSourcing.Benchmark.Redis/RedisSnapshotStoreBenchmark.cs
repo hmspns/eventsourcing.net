@@ -21,7 +21,7 @@ public class RedisSnapshotStoreBenchmark
 {
     private readonly IRedisKeyGenerator _keyGenerator;
     private readonly RedisSnapshotCreationPolicy _redisSnapshotCreationPolicy;
-    private readonly ISnapshotsSerializerFactory _serializerFactory = new SystemTextJsonSnapshotsSerializerFactory();
+    private readonly ISnapshotSerializerFactory _serializerFactory = new SystemTextJsonSnapshotSerializerFactory();
     private readonly TypeMappingHandler _typeMappingHandler;
     private readonly RedisConnection _redisConnection;
     private readonly RedisSnapshotStoreResolver _resolver;

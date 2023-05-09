@@ -1,22 +1,25 @@
 ﻿using System.Buffers;
+using System.Text;
 using EventSourcing.Net.Abstractions.Contracts;
 using Newtonsoft.Json;
 
-namespace EventSourcing.Net.Serialization.Newtonsoft;
+namespace EventSourcing.Net.Serialization.NewtonsoftJson;
 
 /// <inheritdoc />
 public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
 {
-    private static readonly JsonSerializerSettings _settings = new()
+    private readonly JsonSerializerSettings _settings;
+    
+    public NewtonsoftJsonPayloadSerializer(JsonSerializerSettings settings)
     {
-        Formatting = Formatting.Indented,
-        ReferenceLoopHandling = ReferenceLoopHandling.Error,
-        Converters = new List<JsonConverter>()
-        {
-            new IdentityConverter()
-        }
-    };
+        _settings = settings;
+    }
 
+    /// <summary>
+    /// Serialize data.
+    /// </summary>
+    /// <param name="obj">Data to be serialized.</param>
+    /// <returns>Serialized data.</returns>
     public byte[] Serialize(object obj)
     {
         if (obj == null)
@@ -26,6 +29,12 @@ public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
         return SerializeJson(obj);
     }
 
+    /// <summary>
+    /// Deserialize data.
+    /// </summary>
+    /// <param name="type">Type of serialized data.</param>
+    /// <param name="data">Binary data.</param>
+    /// <returns>Deserialized object.</returns>
     public object Deserialize(Type type, Memory<byte> data)
     {
         if (data.IsEmpty)
@@ -38,7 +47,7 @@ public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
             throw new ArgumentNullException(nameof(type));
         }
         
-        var result = DeserializeJson(type, data);
+        object? result = DeserializeJson(type, data);
         if (result == null)
         {
             throw new InvalidOperationException($"Couldn't deserialize type {type}");
@@ -57,6 +66,7 @@ public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
         };
         JsonSerializer serializer = JsonSerializer.CreateDefault(_settings);
         serializer.Serialize(jw, obj);
+        jw.Flush();
         return ms.ToArray();
     }
     

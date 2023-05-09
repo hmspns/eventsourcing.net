@@ -51,7 +51,7 @@ public sealed class MediatrEventPublisher : IEventPublisher
         foreach (IEventEnvelope envelope in events)
         {
             IEventEnvelope mediatrEnvelope = GetMediatrEnvelope(envelope);
-            await _publisher.Publish(mediatrEnvelope);
+            await _publisher.Publish(mediatrEnvelope).ConfigureAwait(false);
         }
     }
 

@@ -13,21 +13,7 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
     {
         _sender = sender;
     }
-
-    /// <summary>
-    /// Send the command.
-    /// </summary>
-    /// <param name="id">Aggregate id.</param>
-    /// <param name="command">Command.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>Result of executed command.</returns>
-    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TId id, TPayload command,
-    CancellationToken cancellationToken = default)
-        where TPayload : ICommand
-    {
-        return Send(TenantId.Empty, PrincipalId.Empty, string.Empty, id, command, cancellationToken);
-    }
-
+    
     /// <summary>
     /// Send message to bus.
     /// </summary>
@@ -61,7 +47,7 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
             TenantId = tenantId,
             ParentCommandId = CommandId.Empty
         };
-        return await _sender.Send(envelope, cancellationToken);
+        return await _sender.Send(envelope, cancellationToken).ConfigureAwait(false);
     }
 
     public IPublicationAwaiter PublicationAwaiter { get; }

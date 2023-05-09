@@ -7,7 +7,7 @@ public void RegisterEventSourcing(IServiceCollection services, IConfiguration co
 {  
     services.AddEventSourcing(options =>  
     {  
-        options.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"));  
+        options.Storage.UseRedisSnapshotStore(configuration.GetConnectionString("Redis"));  
     }); 
 }
 ```

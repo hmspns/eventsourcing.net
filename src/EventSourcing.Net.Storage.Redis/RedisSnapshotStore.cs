@@ -14,14 +14,14 @@ public sealed class RedisSnapshotStore : ISnapshotStore
 {
     private readonly IRedisConnection _redisConnection;
     private readonly TenantId _tenantId;
-    private readonly ISnapshotsSerializerFactory _serializerFactory;
+    private readonly ISnapshotSerializerFactory _serializerFactory;
     private readonly RedisSnapshotCreationPolicy _redisSnapshotCreationPolicy;
     private readonly IRedisKeyGenerator _keyGenerator;
     private readonly ITypeMappingHandler _typeMappingHandler;
 
     internal RedisSnapshotStore(
         IRedisConnection redisConnection,
-        ISnapshotsSerializerFactory serializerFactory,
+        ISnapshotSerializerFactory serializerFactory,
         RedisSnapshotCreationPolicy redisSnapshotCreationPolicy,
         IRedisKeyGenerator keyGenerator,
         ITypeMappingHandler typeMappingHandler,
@@ -57,7 +57,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             RedisSnapshotEnvelopeSerializer.FromRedisValue(pooledArray, ref value, out SnapshotEnvelope envelope);
 
             Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
-            object state = _serializerFactory.Get().Deserialize(type, envelope.State);
+            object state = _serializerFactory.GetSerializer().Deserialize(type, envelope.State);
             return new Snapshot(streamName, state, envelope.AggregateVersion);
 
         }
@@ -118,7 +118,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
         {
             IDatabaseAsync database = _redisConnection.Connection.GetDatabase();
             TypeMappingId typeId = _typeMappingHandler.GetIdByType(snapshot.State.GetType());
-            byte[] data = _serializerFactory.Get().Serialize(snapshot.State);
+            byte[] data = _serializerFactory.GetSerializer().Serialize(snapshot.State);
             SnapshotEnvelope envelope = new SnapshotEnvelope()
             {
                 State = data,
@@ -132,7 +132,8 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero
                 ? _redisSnapshotCreationPolicy.ExpireAfter
                 : null;
-            await database.StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget)
+            await database
+                .StringSetAsync(key, value, expire, When.Always, CommandFlags.FireAndForget)
                 .ConfigureAwait(false);
         }
         catch (ObjectDisposedException e)

@@ -7,8 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <summary>
+/// Built in command bus.
+/// </summary>
 public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
 {
+    /// <inheritdoc />
     public IPublicationAwaiter PublicationAwaiter => _publicationAwaiter;
 
     private readonly IReadOnlyDictionary<Type, CommandHandlerActivation> _handlers;
@@ -21,21 +25,6 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     {
         _provider = provider;
         _handlers = handlers;
-    }
-
-    /// <summary>
-    /// Send command to handler.
-    /// </summary>
-    /// <param name="id">Aggregate id.</param>
-    /// <param name="command">Command payload.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <typeparam name="TId">Type of aggregate id.</typeparam>
-    /// <typeparam name="TPayload">Type of command payload.</typeparam>
-    /// <returns>Result of command execution.</returns>
-    /// <exception cref="InvalidOperationException">Handler not registered.</exception>
-    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TId id, TPayload command, CancellationToken cancellationToken = default) where TPayload : ICommand
-    {
-        return Send(TenantId.Empty, PrincipalId.Empty, string.Empty, id, command, cancellationToken);
     }
 
     /// <summary>

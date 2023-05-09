@@ -28,7 +28,7 @@ public class PgTypeMappingStorageProvider : ITypeMappingStorageProvider
 
         await connection.OpenAsync().ConfigureAwait(false);
         
-        await cmd.ExecuteNonQueryAsync();
+        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
 
         await connection.CloseAsync().ConfigureAwait(false);
     }

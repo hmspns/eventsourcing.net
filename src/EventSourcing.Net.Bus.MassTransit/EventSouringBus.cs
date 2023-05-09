@@ -47,7 +47,7 @@ public sealed class MassTransitEventSourcingCommandBus : IEventSourcingCommandBu
         };
 
         IRequestClient<ICommandEnvelope<TId, TPayload>> requestClient = _mediator.CreateRequestClient<ICommandEnvelope<TId, TPayload>>();
-        Response<ICommandExecutionResult<TId>> response = await requestClient.GetResponse<ICommandExecutionResult<TId>>(command, cancellationToken);
+        Response<ICommandExecutionResult<TId>> response = await requestClient.GetResponse<ICommandExecutionResult<TId>>(command, cancellationToken).ConfigureAwait(false);
         return response.Message;
     }
 

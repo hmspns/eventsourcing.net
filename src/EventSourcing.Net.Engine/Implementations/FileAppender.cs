@@ -57,7 +57,7 @@ public sealed class FileAppender : IAppendOnly
     {
         if (_stream != null)
         {
-            await _stream.DisposeAsync();
+            await _stream.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

@@ -80,7 +80,7 @@ public static class BenchmarkBus
         {
             options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
-            options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
+            options.Storage.UsePostgresEventStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
                 {
                     x.UseMultitenancy = true;
@@ -91,7 +91,7 @@ public static class BenchmarkBus
                     x.MetadataSchemaName = "PgFullRedis";
                     x.MultitenancySchemaName = x => "full_redis_" + x.ToString();
                 });
-            options.UseRedisSnapshotStore(_configuration.GetConnectionString("Redis"), _redisPolicy);
+            options.Storage.UseRedisSnapshotStore(_configuration.GetConnectionString("Redis"), _redisPolicy);
         });
         ServiceProvider provider = services.BuildServiceProvider();
         InitializeEs(provider);
@@ -105,7 +105,7 @@ public static class BenchmarkBus
         {
             options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
-            options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
+            options.Storage.UsePostgresEventStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
                 {
                     x.UseMultitenancy = true;
@@ -129,7 +129,7 @@ public static class BenchmarkBus
         {
             options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
-            options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
+            options.Storage.UsePostgresEventStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
                 {
                     x.UseMultitenancy = false;
@@ -140,7 +140,7 @@ public static class BenchmarkBus
                     x.MetadataSchemaName = "PgMinRedis";
                     x.NonMultitenancySchemaName = "min_redis";
                 });
-            options.UseRedisSnapshotStore(_configuration.GetConnectionString("Redis"), _redisPolicy);
+            options.Storage.UseRedisSnapshotStore(_configuration.GetConnectionString("Redis"), _redisPolicy);
         });
         ServiceProvider provider = services.BuildServiceProvider();
         InitializeEs(provider);
@@ -154,7 +154,7 @@ public static class BenchmarkBus
         {
             options.Bus.RegisterCommandHandlers(_assembly);
             options.Bus.RegisterEventConsumers(_assembly);
-            options.UsePostgresEventsStore(_configuration.GetConnectionString("EventsDb"))
+            options.Storage.UsePostgresEventStore(_configuration.GetConnectionString("EventsDb"))
                 .Configure(x =>
                 {
                     x.UseMultitenancy = false;

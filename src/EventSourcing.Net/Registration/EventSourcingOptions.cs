@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Engine;
 using EventSourcing.Net.Engine.Implementations;
@@ -9,24 +10,37 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <summary>
+/// Options to configure EventSourcing.Net.
+/// </summary>
 public sealed class EventSourcingOptions
 {
-    internal IServiceCollection Services { get; private set; }
-    
-    private readonly EventSourcingBusOptions _busOptions;
+    private IServiceCollection Services { get; }
 
     private ITypeStringConverter _typeStringConverter;
 
     internal EventSourcingOptions(IServiceCollection services)
     {
         Services = services;
-        _busOptions = new EventSourcingBusOptions(this);
+        Bus = new EventSourcingBusOptions(services);
+        Serialization = new EventSourcingSerializationOptions(services);
+        Storage = new EventSourcingStorageOptions(services);
     }
 
     /// <summary>
     /// Get object to configure bus.
     /// </summary>
-    public EventSourcingBusOptions Bus => _busOptions;
+    public EventSourcingBusOptions Bus { get; }
+
+    /// <summary>
+    /// Get object to configure serialization.
+    /// </summary>
+    public EventSourcingSerializationOptions Serialization { get; }
+
+    /// <summary>
+    /// Return 
+    /// </summary>
+    public EventSourcingStorageOptions Storage { get; }
     
     /// <summary>
     /// Register classes that implement IEvent for serialization mapping from given assemblies.
@@ -81,8 +95,9 @@ public sealed class EventSourcingOptions
     internal void Build()
     {
         Services.AddSingleton<EventSourcingEngineStarter>();
-        Services.IfNotRegistered<IEventsPayloadSerializerFactory>(x => x.AddSingleton<IEventsPayloadSerializerFactory, SystemTextJsonEventsSerializerFactory>());
-        Services.IfNotRegistered<ISnapshotsSerializerFactory>(x => x.AddSingleton<ISnapshotsSerializerFactory, SystemTextJsonSnapshotsSerializerFactory>());
+        
+        Services.IfNotRegistered<IPayloadSerializerFactory>(x => x.AddSingleton<IPayloadSerializerFactory>(new SystemTextJsonPayloadSerializerFactory(null)));
+        Services.IfNotRegistered<ISnapshotSerializerFactory>(x => x.AddSingleton<ISnapshotSerializerFactory>(new SystemTextJsonSnapshotSerializerFactory(null)));
         
         if (_typeStringConverter == null)
         { 
@@ -95,7 +110,6 @@ public sealed class EventSourcingOptions
         Services.IfNotRegistered<IEventSourcingStorage>(x => x.AddTransient<IEventSourcingStorage, InMemoryEventSourcingStorage>());
         
         RegisterEventSourcingEngine();
-        Services = null; // do not handle reference to the service collection
     }
 
     private void RegisterEventSourcingEngine()

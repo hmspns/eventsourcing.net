@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text.Json;
+using EventSourcing.Net.Abstractions.Contracts;
+using EventSourcing.Net.Engine.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 

@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
-        <Version>0.8.2</Version>
+        <Version>0.8.3</Version>
         <Title>EventSourcing.Net.Bus.Mediatr</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Bus implementation based on Mediatr for EventSourcing.Net library.</Description>

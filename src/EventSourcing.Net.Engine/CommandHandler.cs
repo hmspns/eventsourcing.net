@@ -73,7 +73,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
                 Trace.WriteLine($"Processing command {commandEnvelope.Payload.GetType().Name} on iteration {i.ToString()}");
                     
                 AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine ?? EventSourcingEngine.Instance, _aggregateActivator);
-                ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler, cancellationToken);
+                ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler, cancellationToken).ConfigureAwait(false);
                 return result;
             }
             catch (AggregateConcurrencyException<TId> e)

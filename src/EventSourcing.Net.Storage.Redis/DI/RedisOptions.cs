@@ -4,9 +4,9 @@ namespace EventSourcing.Net.Storage.Redis;
 
 public sealed class RedisOptions
 {
-    private readonly EventSourcingOptions _options;
+    private readonly EventSourcingStorageOptions _options;
 
-    internal RedisOptions(EventSourcingOptions options)
+    internal RedisOptions(EventSourcingStorageOptions options)
     {
         _options = options;
     }
@@ -22,8 +22,7 @@ public sealed class RedisOptions
     /// </remarks>
     public RedisOptions UseRedisKeyGenerator(IRedisKeyGenerator keyGenerator)
     {
-        _options.Services.Remove<IRedisKeyGenerator>();
-        _options.Services.AddSingleton<IRedisKeyGenerator>(keyGenerator);
+        _options.ReplaceSingleton<IRedisKeyGenerator>(keyGenerator);
         return this;
     }
 }

@@ -37,7 +37,7 @@ public sealed class EventStore : IEventStore
         
     public async Task<EventsStream> LoadEventsStream<TId>(StreamId streamName, StreamPosition from, StreamPosition to)
     {
-        IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to);
+        IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to).ConfigureAwait(false);
 
         List<IEventEnvelope> events = new List<IEventEnvelope>();
         if (dbEvents.Events.Count > 0)
@@ -92,7 +92,7 @@ public sealed class EventStore : IEventStore
 
         AppendDataPackage<TId> package = new AppendDataPackage<TId>(commandPackage, eventsPackage);
 
-        IAppendEventsResult result = await _appender.Append<TId>(streamName, package, aggregateVersion);
+        IAppendEventsResult result = await _appender.Append<TId>(streamName, package, aggregateVersion).ConfigureAwait(false);
         return result;
     }
 }
