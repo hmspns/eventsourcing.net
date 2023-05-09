@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Engine\EventSourcing.Net.Engine.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Serialization.ProtobufNet\EventSourcing.Net.Serialization.ProtobufNet.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Storage.Postgres\EventSourcing.Net.Storage.Postgres.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net.Storage.Redis\EventSourcing.Net.Storage.Redis.csproj" />
+      <ProjectReference Include="..\..\src\EventSourcing.Net\EventSourcing.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    </ItemGroup>
+
+</Project>
