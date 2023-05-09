@@ -30,21 +30,6 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     /// <summary>
     /// Send command to handler.
     /// </summary>
-    /// <param name="id">Aggregate id.</param>
-    /// <param name="command">Command payload.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <typeparam name="TId">Type of aggregate id.</typeparam>
-    /// <typeparam name="TPayload">Type of command payload.</typeparam>
-    /// <returns>Result of command execution.</returns>
-    /// <exception cref="InvalidOperationException">Handler not registered.</exception>
-    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TId id, TPayload command, CancellationToken cancellationToken = default) where TPayload : ICommand
-    {
-        return Send(TenantId.Empty, PrincipalId.Empty, string.Empty, id, command, cancellationToken);
-    }
-
-    /// <summary>
-    /// Send command to handler.
-    /// </summary>
     /// <param name="tenantId">Tenant id.</param>
     /// <param name="principalId">Id of principal.</param>
     /// <param name="source">Command source.</param>
