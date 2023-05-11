@@ -24,10 +24,10 @@
  * SOFTWARE.
  */
 
+namespace EventSourcing.Net.Engine.Pooled.Collections;
+
 using System;
 using System.Collections.Generic;
-
-namespace EventSourcing.Net.Engine.Pooled.Collections;
 
 /// <summary>
 /// Represents a read-only collection of pooled elements that can be accessed by index
@@ -36,7 +36,7 @@ namespace EventSourcing.Net.Engine.Pooled.Collections;
 public interface IReadOnlyPooledList<T> : IReadOnlyList<T>
 {
     /// <summary>
-    /// Gets a <see cref="System.ReadOnlySpan{T}"/> for the items currently in the collection.
+    /// Gets a <see cref="System.ReadOnlySpan{T}" /> for the items currently in the collection.
     /// </summary>
     ReadOnlySpan<T> Span { get; }
 }

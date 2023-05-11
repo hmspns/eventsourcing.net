@@ -24,31 +24,45 @@
  * SOFTWARE.
  */
 
+namespace EventSourcing.Net.Engine.Pooled.Collections;
+
 using System;
 using System.Collections.Generic;
-
-namespace EventSourcing.Net.Engine.Pooled.Collections;
 
 public static class PooledExtensions
 {
     public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items)
-        => new PooledList<T>(items);
+    {
+        return new PooledList<T>(items);
+    }
 
     public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items, int suggestCapacity)
-        => new PooledList<T>(items, suggestCapacity);
+    {
+        return new PooledList<T>(items, suggestCapacity);
+    }
 
     public static PooledList<T> ToPooledList<T>(this T[] array)
-        => new PooledList<T>(array.AsSpan());
+    {
+        return new PooledList<T>(array.AsSpan());
+    }
 
     public static PooledList<T> ToPooledList<T>(this ReadOnlySpan<T> span)
-        => new PooledList<T>(span);
+    {
+        return new PooledList<T>(span);
+    }
 
     public static PooledList<T> ToPooledList<T>(this Span<T> span)
-        => new PooledList<T>(span);
+    {
+        return new PooledList<T>(span);
+    }
 
     public static PooledList<T> ToPooledList<T>(this ReadOnlyMemory<T> memory)
-        => new PooledList<T>(memory.Span);
+    {
+        return new PooledList<T>(memory.Span);
+    }
 
     public static PooledList<T> ToPooledList<T>(this Memory<T> memory)
-        => new PooledList<T>(memory.Span);
+    {
+        return new PooledList<T>(memory.Span);
+    }
 }

@@ -24,11 +24,11 @@
  * SOFTWARE.
  */
 
+namespace EventSourcing.Net.Engine.Pooled.Collections;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
-namespace EventSourcing.Net.Engine.Pooled.Collections;
 
 internal sealed class CollectionDebugView<T>
 {
