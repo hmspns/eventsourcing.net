@@ -65,7 +65,10 @@ public class UserAggregate : Aggregate<Guid, UserState, UserStateMutator>
     {  
         if (!State.IsCreated)  
         {  
-            Apply(cmd, new UserCreatedEvent(cmd.Payload.Name, cmd.Payload.BirthDate, cmd.Payload.PhoneNumber));  
+            Apply(
+                cmd,
+                new UserCreatedEvent(cmd.Payload.Name, cmd.Payload.BirthDate, cmd.Payload.PhoneNumber)
+            );  
         }  
           
         return CommandExecutionResult<Guid>.OkIfChanges(this, cmd);  
@@ -76,7 +79,7 @@ public class UserAggregate : Aggregate<Guid, UserState, UserStateMutator>
 In the example above aggregate using type `Guid` as the type of id, `UserState` as type of state and `UserStateMutator` as type of state mutator.
 
 In EventSourcing.Net aggregates responds only for processing events and nothing more.
-Event stream will be loaded by framework and passed to instance of aggregate. At the moment of excecutin `CreateUser` method state will be exists and available.
+Event stream will be loaded by framework and passed to instance of aggregate. At the moment of execution `CreateUser` method state will be exists and available.
 After each call of `Apply` state will be changed by mutator with respect to passed event.
 
 ### State
@@ -87,7 +90,8 @@ State is the simple POCO object, that can be serialized to snapshot. It might lo
 public record UserState  
 {  
     /// <summary>  
-    /// Property to indicate that current user is exists. Exists means UserCreatedEvent was handled.
+    /// Property to indicate that current user is exists.
+    /// Exists means UserCreatedEvent was handled.
     /// </summary>
     public bool IsCreated { get; set; }  
       

@@ -1,11 +1,13 @@
 ﻿namespace EventSourcing.Net.Abstractions.Types;
 
 using System;
+using System.Runtime.InteropServices;
 using Identities;
 
 /// <summary>
 /// Package with information about specific event.
 /// </summary>
+[StructLayout(LayoutKind.Auto)]
 public record struct EventPackage
 {
     /// <summary>
