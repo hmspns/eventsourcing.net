@@ -54,10 +54,10 @@ public sealed class InMemoryAppender : IAppendOnly
         {
             if (!_data.TryGetValue(streamName, out List<EventPackage>? data))
             {
-                return Task.FromResult<IEventsData>(new EventsData(Array.Empty<IEventPackage>(), StreamPosition.Begin));
+                return Task.FromResult<IEventsData>(new EventsData(Array.Empty<EventPackage>(), StreamPosition.Begin));
             }
 
-            return Task.FromResult<IEventsData>(new EventsData(data.Where(x => x.StreamPosition > from && x.StreamPosition <= to).Select(x => (IEventPackage)x).ToArray(), data.Count));
+            return Task.FromResult<IEventsData>(new EventsData(data.Where(x => x.StreamPosition > from && x.StreamPosition <= to).Select(x => x).ToArray(), data.Count));
         }
     }
 

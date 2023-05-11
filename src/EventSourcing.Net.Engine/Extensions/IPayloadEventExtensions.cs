@@ -4,9 +4,11 @@ using EventSourcing.Net.Engine.Exceptions;
 
 namespace EventSourcing.Net.Engine.Extensions;
 
+using Abstractions.Types;
+
 internal static class EventPackageExtensions
 {
-    internal static IEventEnvelope ToEventEnvelope<TId>(this IEventPackage eventPackage, Func<string, object> parser)
+    internal static IEventEnvelope ToEventEnvelope<TId>(this EventPackage eventPackage, Func<string, object> parser)
     {
         if (eventPackage.Payload == null)
         {

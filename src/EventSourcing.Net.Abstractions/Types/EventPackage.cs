@@ -1,14 +1,12 @@
-﻿using System;
-using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Types;
+﻿namespace EventSourcing.Net.Abstractions.Types;
 
-namespace EventSourcing.Net.Engine;
+using System;
+using Identities;
 
 /// <summary>
 /// Package with information about specific event.
 /// </summary>
-public record EventPackage : IEventPackage
+public record struct EventPackage
 {
     /// <summary>
     /// Id of tenant.

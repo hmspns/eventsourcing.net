@@ -9,4 +9,4 @@ namespace EventSourcing.Net.Engine;
 /// </summary>
 /// <param name="Events">Events.</param>
 /// <param name="StreamEndPosition">Information about stream end.</param>
-public record EventsData(IReadOnlyCollection<IEventPackage> Events, StreamPosition StreamEndPosition) : IEventsData;
+public record EventsData(IReadOnlyCollection<EventPackage> Events, StreamPosition StreamEndPosition) : IEventsData;
