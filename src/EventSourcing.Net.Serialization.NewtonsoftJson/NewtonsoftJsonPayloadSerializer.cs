@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 
 namespace EventSourcing.Net.Serialization.NewtonsoftJson;
 
+using Engine.Pooled;
+
 /// <inheritdoc />
 public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
 {
@@ -58,7 +60,7 @@ public sealed class NewtonsoftJsonPayloadSerializer : IPayloadSerializer
 
     private byte[] SerializeJson(object obj)
     {
-        using MemoryStream ms = new MemoryStream();
+        using PooledMemoryStream ms = new PooledMemoryStream();
         using TextWriter tw = new StreamWriter(ms);
         using JsonTextWriter jw = new JsonTextWriter(tw)
         {
