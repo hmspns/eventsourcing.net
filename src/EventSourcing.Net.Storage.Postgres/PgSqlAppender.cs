@@ -184,7 +184,7 @@ public sealed class PgSqlAppender : IAppendOnly
 
         await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync().ConfigureAwait(false);
 
-        PooledList<EventPackage> results = new PooledList<EventPackage>((int)Math.Min(8192, (long)(to - from)));
+        PooledList<EventPackage> results = new PooledList<EventPackage>((int)Math.Min(32, (long)(to - from)));
 
         while (await reader.ReadAsync().ConfigureAwait(false))
         {

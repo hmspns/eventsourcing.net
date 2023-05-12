@@ -83,7 +83,7 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
             if (value < Count)
             {
                 OtherThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.value,
-                ExceptionResource.ArgumentOutOfRange_SmallCapacity);
+                    ExceptionResource.ArgumentOutOfRange_SmallCapacity);
             }
 
             if (value != _items.Length)
@@ -1507,9 +1507,10 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
     /// before any reallocations are required.
     /// </summary>
     public PooledList(int capacity, bool sizeToCapacity) : this(capacity,
-    ClearMode.Auto,
-    ArrayPool<T>.Shared,
-    sizeToCapacity)
+        ClearMode.Auto,
+        ArrayPool<T>.Shared,
+        sizeToCapacity
+    )
     {
     }
 
@@ -1569,7 +1570,7 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
         if (capacity < 0)
         {
             OtherThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity,
-            ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
         }
 
         _pool = customPool ?? ArrayPool<T>.Shared;

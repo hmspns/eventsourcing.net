@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
+using EventSourcing.Net.Engine.Implementations;
 using EventSourcing.Net.Samples.Simple.UserAggregate;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,12 @@ await provider.StartEventSourcingEngine();
 CreateUserCommand cmd = new CreateUserCommand("Test", DateTime.UtcNow, "123-456-789");
 IEventSourcingCommandBus bus = provider.GetRequiredService<IEventSourcingCommandBus>();
 
-ICommandExecutionResult<Guid> result = await bus.Send(Guid.NewGuid(), cmd);
+Guid aggregateId = Guid.NewGuid();
+ICommandExecutionResult<Guid> result = await bus.Send(aggregateId, cmd);
 
-Console.WriteLine(result);
+Console.WriteLine("CommandExecutionResult: " + result);
+
+AggregateStateLoader<Guid, UserAggregate, UserState> loader = new AggregateStateLoader<Guid, UserAggregate, UserState>();
+UserState state = await loader.GetState(aggregateId);
+
+Console.WriteLine("State: " + state);

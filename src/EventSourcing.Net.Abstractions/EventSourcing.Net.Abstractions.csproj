@@ -4,7 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-        <Version>0.8.3</Version>
+        <Version>0.8.4</Version>
         <Title>EventSourcing.Net.Abstractions</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Abstraction for EventSourcing.Net library.</Description>

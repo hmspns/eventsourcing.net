@@ -3,10 +3,12 @@ using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Net.Abstractions.Contracts;
 
+using System;
+
 /// <summary>
 /// Data of events from storage.
 /// </summary>
-public interface IEventsData
+public interface IEventsData : IDisposable
 {
     /// <summary>
     /// Events.

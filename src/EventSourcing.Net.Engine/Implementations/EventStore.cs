@@ -37,7 +37,7 @@ public sealed class EventStore : IEventStore
         
     public async Task<EventsStream> LoadEventsStream<TId>(StreamId streamName, StreamPosition from, StreamPosition to)
     {
-        IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to).ConfigureAwait(false);
+        using IEventsData dbEvents = await _appender.ReadSpecificStream(streamName, from, to).ConfigureAwait(false);
 
         List<IEventEnvelope> events = new List<IEventEnvelope>(dbEvents.Events.Count);
         if (dbEvents.Events.Count > 0)
