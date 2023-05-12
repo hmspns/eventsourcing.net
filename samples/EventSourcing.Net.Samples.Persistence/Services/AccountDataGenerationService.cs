@@ -16,7 +16,7 @@ public sealed class AccountDataGenerationService
     {
         List<ICommandExecutionResult<Guid>> results = new List<ICommandExecutionResult<Guid>>();
         Guid accountId = Guid.NewGuid();
-        var result = await _bus.Send(accountId, new CreateAccountCommand("Owner for account " + accountId.ToString()));
+        ICommandExecutionResult<Guid>? result = await _bus.Send(accountId, new CreateAccountCommand("Owner for account " + accountId.ToString()));
 
         results.Add(result);
         if (result is { IsAccepted: true, HasChanges: true })

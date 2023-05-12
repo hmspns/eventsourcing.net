@@ -9,6 +9,8 @@ using Npgsql;
 
 namespace EventSourcing.Net.Storage.Postgres;
 
+using Engine.Pooled.Collections;
+
 public sealed class PgSqlAppender : IAppendOnly
 {
     private readonly IPayloadSerializer _serializer;
@@ -182,11 +184,11 @@ public sealed class PgSqlAppender : IAppendOnly
 
         await using NpgsqlDataReader reader = await batch.ExecuteReaderAsync().ConfigureAwait(false);
 
-        List<EventPackage> results = new List<EventPackage>((int)Math.Min(8192, (long)(to - from)));
+        PooledList<EventPackage> results = new PooledList<EventPackage>((int)Math.Min(32, (long)(to - from)));
 
         while (await reader.ReadAsync().ConfigureAwait(false))
         {
-            EventPackage package = ReadEventPackage(reader, streamName);
+            ReadEventPackage(reader, streamName, out EventPackage package);
             results.Add(package);
         }
 
@@ -299,15 +301,17 @@ public sealed class PgSqlAppender : IAppendOnly
         return _serializer.Deserialize(type, data);
     }
 
-    private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamId streamName)
+    private void ReadEventPackage(NpgsqlDataReader reader, StreamId streamName, out EventPackage package)
     {
-        EventPackage package = new EventPackage();
-        package.StreamName = streamName;
-        package.EventId = reader.GetGuid(0);
-        package.StreamPosition = reader.GetInt64(1);
-        package.Timestamp = reader.GetFieldValue<DateTime>(2);
-        package.CommandId = reader.GetGuid(3);
-        package.SequenceId = reader.GetGuid(4);
+        package = new EventPackage
+        {
+            StreamName = streamName,
+            EventId = reader.GetGuid(0),
+            StreamPosition = reader.GetInt64(1),
+            Timestamp = reader.GetFieldValue<DateTime>(2),
+            CommandId = reader.GetGuid(3),
+            SequenceId = reader.GetGuid(4)
+        };
         Guid payloadType = reader.GetGuid(5);
         byte[] serialized = reader.GetFieldValue<byte[]>(6);
 
@@ -336,8 +340,6 @@ public sealed class PgSqlAppender : IAppendOnly
                 package.PrincipalId = PrincipalId.Parse(reader.GetString(7));
             }
         }
-
-        return package;
     }
 
     private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamReadOptions readOptions)

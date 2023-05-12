@@ -92,7 +92,7 @@ public sealed class ViewsRebuilder
     /// <param name="events">Events that should be added to the bus.</param>
     private async Task BuildViews(IEventsData events)
     {
-        foreach (IEventPackage eventPackage in events.Events)
+        foreach (EventPackage eventPackage in events.Events)
         {
             throw new NotImplementedException();
             //IEventEnvelope e = eventPackage.ToEventEnvelope();

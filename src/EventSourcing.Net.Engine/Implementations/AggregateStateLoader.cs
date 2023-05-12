@@ -68,7 +68,19 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
     }
 
     /// <summary>
-    /// Return state for specific aggregate.
+    /// Return state for the specific aggregate.
+    /// </summary>
+    /// <param name="aggregateId">Aggregate id.</param>
+    /// <param name="useSnapshot">Should snapshot be used to create state.</param>
+    /// <typeparam name="TState">State type.</typeparam>
+    /// <returns>Current state of the aggregate.</returns>
+    public Task<TState> GetState(TId aggregateId, bool useSnapshot = true)
+    {
+        return GetState(TenantId.Empty, aggregateId, useSnapshot);
+    }
+
+    /// <summary>
+    /// Return state for the specific aggregate.
     /// </summary>
     /// <param name="tenantId">Tenant id.</param>
     /// <param name="aggregateId">Aggregate id.</param>

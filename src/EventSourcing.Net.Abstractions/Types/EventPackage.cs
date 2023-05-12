@@ -1,41 +1,25 @@
+﻿namespace EventSourcing.Net.Abstractions.Types;
+
 using System;
-using System.Collections.Generic;
-using EventSourcing.Net.Abstractions.Identities;
-using EventSourcing.Net.Abstractions.Types;
+using System.Runtime.InteropServices;
+using Identities;
 
-namespace EventSourcing.Net.Abstractions.Contracts;
-
-/// <summary>
-/// Data of events from storage.
-/// </summary>
-public interface IEventsData
-{
-    /// <summary>
-    /// Events.
-    /// </summary>
-    public IReadOnlyCollection<IEventPackage> Events { get; }
-        
-    /// <summary>
-    /// Stream end position.
-    /// </summary>
-    public StreamPosition StreamEndPosition { get; }
-}
-    
 /// <summary>
 /// Package with information about specific event.
 /// </summary>
-public interface IEventPackage
+[StructLayout(LayoutKind.Auto)]
+public record struct EventPackage
 {
     /// <summary>
     /// Id of tenant.
     /// </summary>
     public TenantId TenantId { get; set; }
-        
+
     /// <summary>
     /// Id of event.
     /// </summary>
     public EventId EventId { get; set; }
-        
+
     /// <summary>
     /// Name of stream.
     /// </summary>
@@ -45,7 +29,7 @@ public interface IEventPackage
     /// Event data.
     /// </summary>
     public object? Payload { get; set; }
-        
+
     /// <summary>
     /// Timestamp of event.
     /// </summary>
@@ -55,7 +39,7 @@ public interface IEventPackage
     /// Id of sequence.
     /// </summary>
     public CommandSequenceId SequenceId { get; set; }
-        
+
     /// <summary>
     /// Id of command.
     /// </summary>
@@ -65,7 +49,7 @@ public interface IEventPackage
     /// Version of aggregate.
     /// </summary>
     public AggregateVersion StreamPosition { get; set; }
-        
+
     /// <summary>
     /// Id of principal.
     /// </summary>

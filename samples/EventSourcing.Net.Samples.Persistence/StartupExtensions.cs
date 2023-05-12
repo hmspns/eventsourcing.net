@@ -51,7 +51,7 @@ public static class StartupExtensions
 
     public static async Task CreateDatabases(this WebApplication serviceProvider)
     {
-        await using var scope = serviceProvider.Services.CreateAsyncScope();
+        await using AsyncServiceScope scope = serviceProvider.Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreatedAsync();
         await scope.ServiceProvider.GetRequiredService<EventsDbContext>().Database.EnsureCreatedAsync();
     }

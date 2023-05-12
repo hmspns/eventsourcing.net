@@ -21,6 +21,7 @@ public interface IEventSourcingCommandBus
     /// <typeparam name="TId">Aggregate id type.</typeparam>
     /// <typeparam name="TPayload">Command payload type.</typeparam>
     /// <returns>Command execution result.</returns>
+    /// <remarks>Command source is the place where command was sent.</remarks>
     Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source, 
         TId aggregateId, TPayload commandPayload, 
         CancellationToken cancellationToken = default)

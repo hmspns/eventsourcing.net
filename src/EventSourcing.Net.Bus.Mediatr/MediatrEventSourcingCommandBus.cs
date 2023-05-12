@@ -13,7 +13,7 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
     {
         _sender = sender;
     }
-    
+
     /// <summary>
     /// Send message to bus.
     /// </summary>
@@ -26,6 +26,7 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
     /// <typeparam name="TId">Aggregate id type.</typeparam>
     /// <typeparam name="TPayload">Command payload type.</typeparam>
     /// <returns>Command execution result.</returns>
+    /// <remarks>Command source is the place where command was sent.</remarks>
     public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(
         TenantId tenantId,
         PrincipalId principalId,
@@ -50,5 +51,5 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
         return await _sender.Send(envelope, cancellationToken).ConfigureAwait(false);
     }
 
-    public IPublicationAwaiter PublicationAwaiter { get; }
+    public IPublicationAwaiter PublicationAwaiter { get => new InMemoryPublicationAwaiter(); } 
 }

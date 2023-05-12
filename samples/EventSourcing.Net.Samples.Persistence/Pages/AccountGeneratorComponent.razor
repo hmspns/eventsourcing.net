@@ -1,4 +1,5 @@
 ﻿@page "/account-generation"
+@using EventSourcing.Net.Abstractions.Contracts
 
 <PageTitle>Account generator</PageTitle>
 
@@ -20,7 +21,7 @@
             <th>Has changes</th>
         </tr>
         </thead>
-        @foreach (var result in Results)
+        @foreach (ICommandExecutionResult<Guid>? result in Results)
         {
             <tr>
                 <td>@result.CommandType.Name</td>

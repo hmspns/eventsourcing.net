@@ -19,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9D1C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net", "EventSourcing.Net\EventSourcing.Net.csproj", "{D535DBAA-435C-4D1C-9756-61488335870E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{8AC07F01-906D-4824-8322-41C6E1116F73}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.Simple", "..\samples\EventSourcing.Net.Samples.Simple\EventSourcing.Net.Samples.Simple.csproj", "{FC39728A-92EB-4D88-8B5B-70ABF3C0B668}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Storage.Redis", "EventSourcing.Net.Storage.Redis\EventSourcing.Net.Storage.Redis.csproj", "{7175C6E2-D981-41EB-B08B-00DDD0097FA3}"
@@ -28,12 +26,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.Persistence", "..\samples\EventSourcing.Net.Samples.Persistence\EventSourcing.Net.Samples.Persistence.csproj", "{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSouring.Benchmark.General", "..\benchmarks\EventSouring.Benchmark.General\EventSouring.Benchmark.General.csproj", "{4700D6B0-B6BA-458F-B898-BA3E46D8EE8B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Benchmark.Shared", "..\benchmarks\EventSourcing.Benchmark.Shared\EventSourcing.Benchmark.Shared.csproj", "{C9F0A705-89B6-443B-B339-6AF8F020A603}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Benchmark.Redis", "..\benchmarks\EventSourcing.Benchmark.Redis\EventSourcing.Benchmark.Redis.csproj", "{55D75D4A-E3A7-4CD0-9C1C-A406B4D765D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Bus.Mediatr", "EventSourcing.Net.Bus.Mediatr\EventSourcing.Net.Bus.Mediatr.csproj", "{28CB96FE-5046-43BE-91BB-4550E56F924E}"
 EndProject
@@ -102,18 +94,6 @@ Global
 		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4700D6B0-B6BA-458F-B898-BA3E46D8EE8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4700D6B0-B6BA-458F-B898-BA3E46D8EE8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4700D6B0-B6BA-458F-B898-BA3E46D8EE8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4700D6B0-B6BA-458F-B898-BA3E46D8EE8B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9F0A705-89B6-443B-B339-6AF8F020A603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9F0A705-89B6-443B-B339-6AF8F020A603}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9F0A705-89B6-443B-B339-6AF8F020A603}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9F0A705-89B6-443B-B339-6AF8F020A603}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55D75D4A-E3A7-4CD0-9C1C-A406B4D765D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55D75D4A-E3A7-4CD0-9C1C-A406B4D765D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55D75D4A-E3A7-4CD0-9C1C-A406B4D765D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55D75D4A-E3A7-4CD0-9C1C-A406B4D765D3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28CB96FE-5046-43BE-91BB-4550E56F924E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28CB96FE-5046-43BE-91BB-4550E56F924E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28CB96FE-5046-43BE-91BB-4550E56F924E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -158,9 +138,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FC39728A-92EB-4D88-8B5B-70ABF3C0B668} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 		{58436FAA-B2BB-4B5F-9B8A-6A6FD838FCAF} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
-		{4700D6B0-B6BA-458F-B898-BA3E46D8EE8B} = {8AC07F01-906D-4824-8322-41C6E1116F73}
-		{C9F0A705-89B6-443B-B339-6AF8F020A603} = {8AC07F01-906D-4824-8322-41C6E1116F73}
-		{55D75D4A-E3A7-4CD0-9C1C-A406B4D765D3} = {8AC07F01-906D-4824-8322-41C6E1116F73}
 		{D528A55F-988D-4D7C-9F86-8EEDDC4DF099} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 		{26C279A4-2F76-4E33-B148-394C6FE9D730} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 		{A04EA9CA-8DA7-4964-BB24-7B3AFD4A66FD} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}

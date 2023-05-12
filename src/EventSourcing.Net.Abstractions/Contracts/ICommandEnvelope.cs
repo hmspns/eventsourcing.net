@@ -9,47 +9,47 @@ namespace EventSourcing.Net.Abstractions.Contracts;
 public interface ICommandEnvelope
 {
     /// <summary>
-    /// Tenant id.
+    /// Get id of the tenant.
     /// </summary>
     TenantId TenantId { get; }
         
     /// <summary>
-    /// Command sequence id.
+    /// Get id of the command sequence.
     /// </summary>
     CommandSequenceId SequenceId { get; }
         
     /// <summary>
-    /// Command id.
+    /// Get id of the command.
     /// </summary>
     CommandId CommandId { get; }
         
     /// <summary>
-    /// Parent command id.
+    /// Get id of the parent command.
     /// </summary>
     CommandId ParentCommandId { get; }
         
     /// <summary>
-    /// Timestamp.
+    /// Get timestamp.
     /// </summary>
     DateTime Timestamp { get; }
         
     /// <summary>
-    /// Aggregate id.
+    /// Get id of the aggregate.
     /// </summary>
     object AggregateId { get; }
         
     /// <summary>
-    /// Command data.
+    /// Get command data.
     /// </summary>
     ICommand Payload { get; }
 
     /// <summary>
-    /// Principal id.
+    /// Get id of the principal.
     /// </summary>
     PrincipalId PrincipalId { get; }
         
     /// <summary>
-    /// Command source.
+    /// Get the command source.
     /// </summary>
     string Source { get; }
 }

@@ -24,8 +24,30 @@ internal static class Thrown
     }
 
     [DoesNotReturn]
+    internal static void ArgumentOutOfRangeException(string paramName, string message, object actualValue = null)
+    {
+        throw new ArgumentOutOfRangeException(paramName, actualValue, message);
+    }
+
+    [DoesNotReturn]
     internal static void ObjectDisposedException(string objectName)
     {
         throw new ObjectDisposedException(objectName);
+    }
+
+    [DoesNotReturn]
+    internal static void NotSupportedException(string message)
+    {
+        throw new NotSupportedException(message);
+    }
+    
+    [DoesNotReturn]
+    internal static void IndexOutOfRangeException(string? message = null)
+    {
+        if (message == null)
+        {
+            throw new IndexOutOfRangeException();
+        }
+        throw new IndexOutOfRangeException(message);
     }
 }

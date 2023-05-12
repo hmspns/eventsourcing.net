@@ -3,7 +3,7 @@ using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net;
 using EventSourcing.Net.Samples.Persistence;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");
 
 // Add services to the container.
@@ -16,7 +16,7 @@ builder.Services.RegisterDbContext(builder.Configuration);
 // register event sourcing
 builder.Services.RegisterEventSourcing(builder.Configuration);
 
-var app = builder.Build();
+WebApplication? app = builder.Build();
 
 // create databases for example
 await app.CreateDatabases();

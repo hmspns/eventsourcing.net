@@ -41,6 +41,8 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     /// <returns>Result of command execution.</returns>
     /// <exception cref="InvalidOperationException">Handler not registered.</exception>
     /// <remarks>
+    /// Command source is the place where command was sent.
+    /// 
     /// It's important to have a good performance use a specific type of TPayload instead of general ICommand.
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
