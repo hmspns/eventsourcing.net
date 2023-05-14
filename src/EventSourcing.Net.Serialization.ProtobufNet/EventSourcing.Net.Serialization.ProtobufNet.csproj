@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
-        <Version>0.8.4</Version>
+        <Version>0.8.4.2</Version>
         <Copyright>Pavel Gribov</Copyright>
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>

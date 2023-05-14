@@ -100,7 +100,7 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
         }
 
         IEventStore eventStore = _engine.EventStoreResolver.Get(tenantId);
-        EventsStream events = await eventStore
+        using EventsStream events = await eventStore
             .LoadEventsStream<TId>(streamId, snapshot.Version, StreamPosition.End)
             .ConfigureAwait(false);
 
