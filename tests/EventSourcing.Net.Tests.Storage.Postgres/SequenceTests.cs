@@ -7,13 +7,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Net.Storage.Postgres;
 using SequenceAggregate;
 
-public sealed class PerformanceTest : IDisposable
+public sealed class SequenceTests : IDisposable
 {
     private readonly DbUtils _utils = new DbUtils();
     private const string DB_NAME = "performance";
 
     [Fact]
-    public async Task Test()
+    public async Task SimpleSequence()
     {
         await _utils.CreateDb(DB_NAME);
         string connectionString = _utils.GetConnectionString(DB_NAME);
