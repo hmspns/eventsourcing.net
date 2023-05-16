@@ -10,7 +10,7 @@ internal static class RedisSnapshotEnvelopeSerializer
     private const int ID_LENGTH = 16;
     private const int VERSION_LENGTH = 8;
 
-    internal static void ToRedisValue(byte[] pooledArray, ref SnapshotEnvelope envelope, out RedisValue result)
+    internal static void ToRedisValue(byte[] pooledArray, in SnapshotEnvelope envelope, out RedisValue result)
     {
         int size = GetSize(envelope.State.Length);
         Memory<byte> resultMemory = new Memory<byte>(pooledArray).Slice(0, size);
@@ -26,7 +26,7 @@ internal static class RedisSnapshotEnvelopeSerializer
         result = resultMemory;
     }
 
-    internal static void FromRedisValue(byte[] pooledArray, ref RedisValue value, out SnapshotEnvelope result)
+    internal static void FromRedisValue(byte[] pooledArray, in RedisValue value, out SnapshotEnvelope result)
     {
         ReadOnlyMemory<byte> redisValueMemory = value;
         Guid id = new Guid(redisValueMemory.Slice(0, ID_LENGTH).Span);
