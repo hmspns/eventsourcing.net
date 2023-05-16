@@ -19,16 +19,28 @@ public record CommandExecutionResult<TId> : ICommandExecutionResult<TId>
     {
         if (aggregate.Uncommitted.Any())
         {
-            return new CommandExecutionResult<TId>(commandEnvelope, true, true, null);
+            return Ok(commandEnvelope);
         }
 
         return NoChange(commandEnvelope);
     }
 
     /// <summary>
+    /// Return for accepted command that made changes.
+    /// </summary>
+    /// <param name="commandEnvelope">Command data.</param>
+    /// <returns>Status of the executed command.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static CommandExecutionResult<TId> Ok(ICommandEnvelope<TId> commandEnvelope)
+    {
+        return new CommandExecutionResult<TId>(commandEnvelope, true, true, null);
+    }
+
+    /// <summary>
     /// Status for accepted command but without any changes.
     /// </summary>
     /// <param name="commandEnvelope">Command data.</param>
+    /// <returns>Status of the executed command.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CommandExecutionResult<TId> NoChange(ICommandEnvelope<TId> commandEnvelope)
     {
@@ -39,6 +51,7 @@ public record CommandExecutionResult<TId> : ICommandExecutionResult<TId>
     /// Command not valid.
     /// </summary>
     /// <param name="commandEnvelope">Command data.</param>
+    /// <returns>Status of the executed command.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CommandExecutionResult<TId> CommandNotValid(ICommandEnvelope<TId> commandEnvelope)
     {
@@ -50,6 +63,7 @@ public record CommandExecutionResult<TId> : ICommandExecutionResult<TId>
     /// </summary>
     /// <param name="commandEnvelope">Command data.</param>
     /// <param name="message">Error message.</param>
+    /// <returns>Status of the executed command.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CommandExecutionResult<TId> Error(ICommandEnvelope<TId> commandEnvelope, string? message)
     {
@@ -60,6 +74,7 @@ public record CommandExecutionResult<TId> : ICommandExecutionResult<TId>
     /// Trying to modify entity that not exists.
     /// </summary>
     /// <param name="commandEnvelope">Command data.</param>
+    /// <returns>Status of the executed command.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CommandExecutionResult<TId> NotExists(ICommandEnvelope<TId> commandEnvelope, string? message = null)
     {

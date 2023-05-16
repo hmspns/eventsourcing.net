@@ -8,6 +8,8 @@ using MassTransit.Mediator;
 
 namespace EventSourcing.Net.Bus.MassTransit;
 
+using Abstractions.Types;
+
 /// <inheritdoc />
 public sealed class MassTransitEventSourcingCommandBus : IEventSourcingCommandBus
 {

@@ -1,7 +1,8 @@
-﻿using System;
-using EventSourcing.Net.Abstractions.Identities;
+﻿namespace EventSourcing.Net.Abstractions.Types;
 
-namespace EventSourcing.Net.Abstractions.Contracts;
+using System;
+using Contracts;
+using Identities;
 
 /// <inheritdoc />
 public record CommandEnvelope<TId, TPayload> :

@@ -4,6 +4,8 @@ using EventSourcing.Net.Abstractions.Identities;
 
 namespace EventSourcing.Net.Engine.Extensions;
 
+using Abstractions.Types;
+
 /// <summary>
 /// Extension methods for events.
 /// </summary>

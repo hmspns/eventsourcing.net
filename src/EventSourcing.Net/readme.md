@@ -154,9 +154,9 @@ public class UserCommandHandler : CommandHandler<Guid, UserAggregate>
 ```
 
 Built in bus will call command handlers by convention:
-- Command handler should be inherited from `CommandHadler<TId, TAggregate>`
-- It should contains methods that accept `ICommandEnvelope<TId, TCommand>` and optional `CancellationToken`.
-- It should returns `Task<ICommandExecutionResult<TId>>`
+- Command handler should be inherited from `CommandHandler<TId, TAggregate>`
+- It should contains public methods that accept `ICommandEnvelope<TId, TCommand>` and optional `CancellationToken`.
+- Methods should returns `Task<ICommandExecutionResult<TId>>`
 
 ### Event consumers
 

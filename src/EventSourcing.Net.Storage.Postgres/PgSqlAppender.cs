@@ -83,7 +83,7 @@ public sealed class PgSqlAppender : IAppendOnly
         try
         {
             await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using NpgsqlTransaction transaction = await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken).ConfigureAwait(false);
+            await using NpgsqlTransaction transaction = await conn.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken).ConfigureAwait(false);
             await using NpgsqlCommand selectVersionCommand = _commandsBuilder.GetStreamVersionCommand(streamName, SchemaName, _eventsTableName);
             
             selectVersionCommand.Connection = conn;
