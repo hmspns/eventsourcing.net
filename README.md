@@ -2,6 +2,13 @@
 
 EventSourcing.Net is a framework inspired by the principles of [CQRS](https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs) and [event sourcing](https://docs.microsoft.com/en-us/azure/architecture/patterns/event-sourcing) architecture.
 
+### Key features
+- Built-in snapshots
+- Optimized for high performance with low memory consumption
+- Based on SOLID principles and extensibility
+- Built-in support for JSON and protobuf serialization
+- Full support for MediatR as the command bus
+
 ### Getting started
 
 Install package from [nuget.org](https://www.nuget.org/packages/EventSourcing.Net)
