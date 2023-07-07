@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+using Abstractions.Types;
+
 /// <summary>
 /// Built in command bus.
 /// </summary>

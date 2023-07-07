@@ -10,7 +10,7 @@ public static class EventSourcingBusExtensions
     /// </summary>
     /// <param name="bus">Options.</param>
     /// <remarks>
-    /// MediatrEventPublisherResolver will be registered as transient.
+    /// MediatrEventPublisherResolver will be registered as transient.<br/>
     /// MediatrEventSourcingCommandBus will be registered as transient.
     /// </remarks>
     public static EventSourcingBusOptions UseMediatr(this EventSourcingBusOptions bus)

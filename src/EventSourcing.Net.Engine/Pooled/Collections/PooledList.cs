@@ -50,7 +50,7 @@ using System.Threading;
 [DebuggerDisplay("Count = {Count}")]
 [DebuggerTypeProxy(typeof(CollectionDebugView<>))]
 [Serializable]
-public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable, IDeserializationCallback
+public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDeserializationCallback
 {
     // internal constant copied from Array.MaxArrayLength
     private const int MAX_ARRAY_LENGTH = 0x7FEFFFFF;
@@ -60,8 +60,10 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
 
     private T[] _items; // Do not rename (binary serialization)
 
-    [NonSerialized] private ArrayPool<T> _pool;
-    [NonSerialized] private object? _syncRoot;
+    [NonSerialized] 
+    private ArrayPool<T> _pool;
+    [NonSerialized] 
+    private object? _syncRoot;
     private int _version; // Do not rename (binary serialization)
 
     /// <summary>
@@ -200,6 +202,7 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
         ReturnArray();
         Count = 0;
         _version++;
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -938,7 +941,6 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
             }
 
             if (current < Count)
-
                 // copy item to the free slot.
             {
                 _items[freeIndex++] = _items[current++];
@@ -946,7 +948,6 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
         }
 
         if (_clearOnFree)
-
             // Clear the removed elements so that the gc can reclaim the references.
         {
             Array.Clear(_items, freeIndex, Count - freeIndex);
@@ -1485,7 +1486,7 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
     /// increased to DefaultCapacity, and then increased in multiples of two
     /// as required.
     /// </summary>
-    public PooledList(ClearMode clearMode, ArrayPool<T> customPool)
+    public PooledList(ClearMode clearMode, ArrayPool<T>? customPool)
     {
         _items = _emptyArray;
         _pool = customPool ?? ArrayPool<T>.Shared;
@@ -1732,10 +1733,10 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
     /// given collection.
     /// </summary>
     public PooledList(
-    IEnumerable<T> collection,
-    ClearMode clearMode,
-    ArrayPool<T> customPool,
-    int suggestCapacity = 0)
+        IEnumerable<T> collection,
+        ClearMode clearMode,
+        ArrayPool<T> customPool,
+        int suggestCapacity = 0)
     {
         _pool = customPool ?? ArrayPool<T>.Shared;
         _clearOnFree = ShouldClear(clearMode);
@@ -1832,4 +1833,15 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDi
     }
 
     #endregion
+
+    ~PooledList()
+    {
+        try
+        {
+            Dispose();
+        }
+        catch
+        {
+        }
+    }
 }

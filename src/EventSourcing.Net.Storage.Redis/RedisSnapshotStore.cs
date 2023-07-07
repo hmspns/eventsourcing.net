@@ -54,7 +54,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
             }
 
             pooledArray = ArrayPool<byte>.Shared.Rent((int)value.Length());
-            RedisSnapshotEnvelopeSerializer.FromRedisValue(pooledArray, ref value, out SnapshotEnvelope envelope);
+            RedisSnapshotEnvelopeSerializer.FromRedisValue(pooledArray, in value, out SnapshotEnvelope envelope);
 
             Type type = _typeMappingHandler.GetTypeById(envelope.TypeId);
             object state = _serializerFactory.GetSerializer().Deserialize(type, envelope.State);
@@ -126,7 +126,7 @@ public sealed class RedisSnapshotStore : ISnapshotStore
                 TypeId = typeId
             };
             pooledArray = ArrayPool<byte>.Shared.Rent(RedisSnapshotEnvelopeSerializer.GetSize(data.Length));
-            RedisSnapshotEnvelopeSerializer.ToRedisValue(pooledArray, ref envelope, out RedisValue value);
+            RedisSnapshotEnvelopeSerializer.ToRedisValue(pooledArray, in envelope, out RedisValue value);
 
             RedisKey key = _keyGenerator.GetKey(_tenantId, streamName);
             TimeSpan? expire = _redisSnapshotCreationPolicy.ExpireAfter != TimeSpan.Zero

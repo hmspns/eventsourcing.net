@@ -36,7 +36,7 @@ internal sealed class AggregateUpdater<TId, TAggregate> where TAggregate : IAggr
             
         StreamId streamId = StreamId.Parse(commandEnvelope.AggregateId.ToString());
         ISnapshot snapshot = await snapshotStore.LoadSnapshot(streamId).ConfigureAwait(false);
-        EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, (StreamPosition)snapshot.Version, StreamPosition.End).ConfigureAwait(false);
+        using EventsStream events = await eventStore.LoadEventsStream<TId>(streamId, (StreamPosition)snapshot.Version, StreamPosition.End).ConfigureAwait(false);
             
         TAggregate aggregate = _activator(commandEnvelope.AggregateId);
 

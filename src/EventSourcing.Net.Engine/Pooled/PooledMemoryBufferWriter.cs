@@ -208,7 +208,7 @@ public sealed class PooledMemoryBufferWriter<T> : IDisposable, IBufferWriter<T> 
     {
         if (_isDisposed)
         {
-            Thrown.ObjectDisposedException(nameof(PooledMemoryStream));
+            Thrown.ObjectDisposedException(nameof(PooledMemoryBufferWriter<T>));
         }
     }
 }

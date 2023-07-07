@@ -33,7 +33,7 @@ using System.Collections.Generic;
 /// Represents a read-only collection of pooled elements that can be accessed by index
 /// </summary>
 /// <typeparam name="T">The type of elements in the read-only pooled list.</typeparam>
-public interface IReadOnlyPooledList<T> : IReadOnlyList<T>
+public interface IReadOnlyPooledList<T> : IReadOnlyList<T>, IDisposable
 {
     /// <summary>
     /// Gets a <see cref="System.ReadOnlySpan{T}" /> for the items currently in the collection.

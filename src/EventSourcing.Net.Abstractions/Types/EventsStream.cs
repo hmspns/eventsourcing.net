@@ -4,10 +4,12 @@ using EventSourcing.Net.Abstractions.Identities;
 
 namespace EventSourcing.Net.Abstractions.Types;
 
+using System;
+
 /// <summary>
 /// Events stream.
 /// </summary>
-public sealed class EventsStream
+public sealed class EventsStream : IDisposable
 {
     /// <summary>
     /// Name of stream.
@@ -43,4 +45,13 @@ public sealed class EventsStream
     /// Stream events.
     /// </summary>
     public IReadOnlyList<IEventEnvelope> Events { get; init; }
+
+    /// <summary>
+    /// Dispose events from pool.
+    /// </summary>
+    public void Dispose()
+    {
+        IDisposable? disposable = Events as IDisposable;
+        disposable?.Dispose();
+    }
 }

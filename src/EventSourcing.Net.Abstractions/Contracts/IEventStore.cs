@@ -5,6 +5,8 @@ using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Net.Abstractions.Contracts;
 
+using System;
+
 /// <summary>
 /// Factory to resolve tenant specific event store.
 /// </summary>

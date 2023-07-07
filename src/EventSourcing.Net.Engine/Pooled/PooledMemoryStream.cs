@@ -34,7 +34,7 @@ public sealed class PooledMemoryStream : Stream
     /// <summary>Initialize new object with specified ArrayPool.</summary>
     /// <param name="pool">Array pool.</param>
     /// <param name="capacity">Initial capacity.</param>
-    public PooledMemoryStream(ArrayPool<byte> pool, int capacity = 4096)
+    public PooledMemoryStream(ArrayPool<byte> pool, int capacity = 256)
     {
         if (pool == null)
         {
@@ -148,10 +148,9 @@ public sealed class PooledMemoryStream : Stream
     public byte[] ToArray()
     {
         CheckDisposed();
-        byte[] ret = new byte[_length];
         byte[] result = GC.AllocateUninitializedArray<byte>(_length);
         Buffer.BlockCopy(_currentBuffer, 0, result, 0, _length);
-        return ret;
+        return result;
     }
 
     /// <summary>Create ArraySegment for current stream data without allocation buffer.</summary>

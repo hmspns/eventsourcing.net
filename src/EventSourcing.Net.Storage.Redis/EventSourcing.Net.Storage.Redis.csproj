@@ -10,7 +10,7 @@
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <Version>0.8.4</Version>
+        <Version>0.9.0</Version>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <Authors>Pavel Gribov</Authors>
         <Description>Implementation of snapshot store based on redis for EventSourcing.Net</Description>

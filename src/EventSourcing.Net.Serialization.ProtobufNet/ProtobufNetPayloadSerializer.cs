@@ -5,11 +5,13 @@ using ProtoBuf.Meta;
 
 namespace EventSourcing.Net.Serialization.ProtobufNet;
 
+using Engine.Pooled;
+
 public sealed class ProtobufNetPayloadSerializer : IPayloadSerializer
 {
     public byte[] Serialize(object obj)
     {
-        using MemoryStream ms = new MemoryStream();
+        using PooledMemoryStream ms = new PooledMemoryStream();
         RuntimeTypeModel.Default.Serialize(ms, obj);
         return ms.ToArray();
     }
