@@ -202,6 +202,7 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDe
         ReturnArray();
         Count = 0;
         _version++;
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -1732,10 +1733,10 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDe
     /// given collection.
     /// </summary>
     public PooledList(
-    IEnumerable<T> collection,
-    ClearMode clearMode,
-    ArrayPool<T> customPool,
-    int suggestCapacity = 0)
+        IEnumerable<T> collection,
+        ClearMode clearMode,
+        ArrayPool<T> customPool,
+        int suggestCapacity = 0)
     {
         _pool = customPool ?? ArrayPool<T>.Shared;
         _clearOnFree = ShouldClear(clearMode);
@@ -1832,4 +1833,15 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDe
     }
 
     #endregion
+
+    ~PooledList()
+    {
+        try
+        {
+            Dispose();
+        }
+        catch
+        {
+        }
+    }
 }
