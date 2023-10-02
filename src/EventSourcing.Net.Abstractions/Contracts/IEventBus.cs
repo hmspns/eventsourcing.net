@@ -3,7 +3,7 @@
 namespace EventSourcing.Net.Abstractions.Contracts;
 
 /// <summary>
-/// Event bus.
+/// Bus to send events to consumers.
 /// </summary>
 public interface IEventBus
 {

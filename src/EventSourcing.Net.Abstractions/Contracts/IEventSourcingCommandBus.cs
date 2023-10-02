@@ -4,6 +4,8 @@ using EventSourcing.Net.Abstractions.Identities;
 
 namespace EventSourcing.Net.Abstractions.Contracts;
 
+using System;
+
 /// <summary>
 /// Command bus.
 /// </summary>
@@ -25,6 +27,25 @@ public interface IEventSourcingCommandBus
     Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source, 
         TId aggregateId, TPayload commandPayload, 
         CancellationToken cancellationToken = default)
+        where TPayload : ICommand;
+    
+    /// <summary>
+    /// Send command to handler.
+    /// </summary>
+    /// <param name="commandEnvelope">Command envelope that will be sent to handler.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <typeparam name="TId">Type of aggregate id.</typeparam>
+    /// <typeparam name="TPayload">Type of command payload.</typeparam>
+    /// <returns>Result of command execution.</returns>
+    /// <exception cref="InvalidOperationException">Handler not registered.</exception>
+    /// <remarks>
+    /// Command source is the place where command was sent.
+    /// 
+    /// It's important to have a good performance use a specific type of TPayload instead of general ICommand.
+    /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
+    /// When a specific type passed as TPayload reflection not needed.
+    /// </remarks>
+    Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
         where TPayload : ICommand;
         
     /// <summary>

@@ -52,17 +52,11 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
         TId aggregateId, TPayload commandPayload, CancellationToken cancellationToken = default) where TPayload : ICommand
     {
-        (ICommandEnvelope<TId> command, CommandHandlerActivation activator) data;
-        if (typeof(TPayload) != typeof(ICommand))
-        {
-            data = GetDataFast(tenantId, principalId, source, aggregateId, commandPayload);
-        }
-        else
-        {
-            data = GetDataSlow(tenantId, principalId, source, aggregateId, commandPayload);
-        }
-
-        (ICommandEnvelope<TId> command, CommandHandlerActivation activator) = data;
+        ICommandEnvelope<TId> command = CommandEnvelopeBuilder.ToEnvelope(tenantId, principalId, source, aggregateId, commandPayload);
+        return Send<TId, TPayload>(command, cancellationToken);
+        
+        
+        CommandHandlerActivation activator = GetActivator<TId, TPayload>(commandPayload);
 
         ICommandHandler instance = (ICommandHandler)ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
         instance.Engine = _provider.GetRequiredService<IEventSourcingEngine>();
@@ -83,72 +77,63 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
         return result as Task<ICommandExecutionResult<TId>>;
     }
 
-    private (ICommandEnvelope<TId>, CommandHandlerActivation) GetDataFast<TId, TPayload>(
-        TenantId tenantId,
-        PrincipalId principalId,
-        string source,
-        TId aggregateId,
-        TPayload commandPayload) where TPayload : ICommand
+    /// <summary>
+    /// Send command to handler.
+    /// </summary>
+    /// <param name="commandEnvelope">Command envelope that will be sent to handler.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <typeparam name="TId">Type of aggregate id.</typeparam>
+    /// <typeparam name="TPayload">Type of command payload.</typeparam>
+    /// <returns>Result of command execution.</returns>
+    /// <exception cref="InvalidOperationException">Handler not registered.</exception>
+    /// <remarks>
+    /// Command source is the place where command was sent.
+    /// 
+    /// It's important to have a good performance use a specific type of TPayload instead of general ICommand.
+    /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
+    /// When a specific type passed as TPayload reflection not needed.
+    /// </remarks>
+    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+        where TPayload : ICommand
     {
-        ICommandEnvelope<TId, TPayload> command = new CommandEnvelope<TId, TPayload>()
+        CommandHandlerActivation activator = GetActivator<TId, TPayload>((TPayload)commandEnvelope.Payload);
+
+        ICommandHandler instance = (ICommandHandler)ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
+        instance.Engine = _provider.GetRequiredService<IEventSourcingEngine>();
+        
+        object? result;
+        if (activator.UseCancellation)
         {
-            Payload = commandPayload,
-            Timestamp = DateTime.UtcNow,
-            AggregateId = aggregateId,
-            CommandId = CommandId.New(),
-            SequenceId = CommandSequenceId.New(),
-            ParentCommandId = CommandId.Empty,
-            TenantId = tenantId,
-            Source = source,
-            PrincipalId = principalId
-        };
+            object objCancellationToken = cancellationToken == CancellationToken.None
+                ? _boxedCancellationTokenNone // to avoid boxing
+                : cancellationToken; // real token with value
+            result = activator.Method.Invoke(instance,new object?[]{ commandEnvelope, objCancellationToken});
+        }
+        else
+        {
+            result = activator.Method.Invoke(instance, new object?[] { commandEnvelope });
+        }
+
+        return result as Task<ICommandExecutionResult<TId>>;
+    }
+
+    private CommandHandlerActivation GetActivator<TId, TPayload>(TPayload payload) where TPayload : ICommand
+    {
+        Type handlerType;
+        if (typeof(TPayload) != typeof(ICommand))
+        {
+            handlerType = typeof(ICommandEnvelope<TId, TPayload>);
+        }
+        else
+        {
+            handlerType = typeof(ICommandEnvelope<,>).MakeGenericType(typeof(TId), payload.GetType());
+        }
 
         if(!_handlers.TryGetValue(typeof(ICommandEnvelope<TId, TPayload>), out CommandHandlerActivation activator))
         {
-            Thrown.InvalidOperationException($"Handler for type {command.GetType().ToString()} not registered");
+            Thrown.InvalidOperationException($"Handler for type {handlerType.ToString()} not registered");
         }
 
-        return (command, activator);
-    }
-
-    /// <summary>
-    /// Create command envelope in case when TPayload is ICommand. We have to use reflection to create proper envelop.
-    /// </summary>
-    /// <param name="tenantId">Tenant id.</param>
-    /// <param name="principalId">Principal id.</param>
-    /// <param name="source">Command source.</param>
-    /// <param name="aggregateId">Aggregate id.</param>
-    /// <param name="commandPayload">Command payload.</param>
-    /// <typeparam name="TId">Type of aggregate id.</typeparam>
-    /// <returns></returns>
-    private (ICommandEnvelope<TId>, CommandHandlerActivation) GetDataSlow<TId>(
-        TenantId tenantId,
-        PrincipalId principalId,
-        string source,
-        TId aggregateId,
-        ICommand commandPayload)
-    {
-        Type envelopeType = typeof(CommandEnvelope<,>).MakeGenericType(typeof(TId), commandPayload.GetType());
-        object command = Activator.CreateInstance(envelopeType)!;
-
-        IInitializableCommandEnvelope initializable = (IInitializableCommandEnvelope)command;
-        initializable.Payload = commandPayload;
-        initializable.Timestamp = DateTime.UtcNow;
-        initializable.AggregateId = aggregateId;
-        initializable.CommandId = CommandId.New();
-        initializable.SequenceId = CommandSequenceId.New();
-        initializable.ParentCommandId = CommandId.Empty;
-        initializable.TenantId = tenantId;
-        initializable.Source = source;
-        initializable.PrincipalId = principalId;
-
-        Type handlerType = typeof(ICommandEnvelope<,>).MakeGenericType(typeof(TId), commandPayload.GetType());
-
-        if(!_handlers.TryGetValue(handlerType, out CommandHandlerActivation activator))
-        {
-            Thrown.InvalidOperationException($"Handler for type {command.GetType().ToString()} not registered");
-        }
-
-        return ((ICommandEnvelope<TId>)command, activator);
+        return activator;
     }
 }

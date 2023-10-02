@@ -40,7 +40,7 @@ public sealed class InMemoryEventPublisher : IEventPublisher
 
     public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
-        await using var scope = _provider.CreateAsyncScope();
+        await using AsyncServiceScope scope = _provider.CreateAsyncScope();
         foreach (IEventEnvelope envelope in events)
         {
             Type envelopeType = envelope.GetEnvelopeTypedInterface();
