@@ -54,27 +54,6 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     {
         ICommandEnvelope<TId> command = CommandEnvelopeBuilder.ToEnvelope(tenantId, principalId, source, aggregateId, commandPayload);
         return Send<TId, TPayload>(command, cancellationToken);
-        
-        
-        CommandHandlerActivation activator = GetActivator<TId, TPayload>(commandPayload);
-
-        ICommandHandler instance = (ICommandHandler)ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.Type);
-        instance.Engine = _provider.GetRequiredService<IEventSourcingEngine>();
-        
-        object? result;
-        if (activator.UseCancellation)
-        {
-            object objCancellationToken = cancellationToken == CancellationToken.None
-                ? _boxedCancellationTokenNone // to avoid boxing
-                : cancellationToken; // real token with value
-            result = activator.Method.Invoke(instance,new object?[]{ command, objCancellationToken});
-        }
-        else
-        {
-            result = activator.Method.Invoke(instance, new object?[] { command });
-        }
-
-        return result as Task<ICommandExecutionResult<TId>>;
     }
 
     /// <summary>

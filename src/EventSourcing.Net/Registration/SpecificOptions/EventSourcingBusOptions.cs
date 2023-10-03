@@ -132,6 +132,10 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         IfNotRegistered<IEventSourcingCommandBus>(
             services => services.AddSingleton<IEventSourcingCommandBus>(x => new EventSourcingCommandBus(x, handlers))
         );
+        IfNotRegistered<ISagaEventSourcingCommandBus>(
+            services => services.AddSingleton<ISagaEventSourcingCommandBus>(x =>
+                new SagaEventSourcingCommandBus(x.GetRequiredService<IEventSourcingCommandBus>()))
+        );
     }
 
     private static bool IsValidCommandHandlerMethod(MethodInfo methodInfo, Type envelopeType, out bool useCancellation,
