@@ -45,7 +45,7 @@ public interface IEventSourcingCommandBus
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+    Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
         where TPayload : ICommand;
         
     /// <summary>

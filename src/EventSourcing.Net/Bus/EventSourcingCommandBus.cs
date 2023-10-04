@@ -49,7 +49,7 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
+    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
         TId aggregateId, TPayload commandPayload, CancellationToken cancellationToken = default) where TPayload : ICommand
     {
         ICommandEnvelope<TId> command = CommandEnvelopeBuilder.ToEnvelope(tenantId, principalId, source, aggregateId, commandPayload);
@@ -72,7 +72,7 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
         where TPayload : ICommand
     {
         CommandHandlerActivation activator = GetActivator<TId, TPayload>((TPayload)commandEnvelope.Payload);
@@ -93,7 +93,13 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
             result = activator.Method.Invoke(instance, new object?[] { commandEnvelope });
         }
 
-        return result as Task<ICommandExecutionResult<TId>>;
+        Task<ICommandExecutionResult<TId>>? task = result as Task<ICommandExecutionResult<TId>>;
+        if (task == null)
+        {
+            Thrown.InvalidOperationException("Command handler method must return Task<ICommandExecutionResult<TId>>");
+        }
+
+        return task;
     }
 
     private CommandHandlerActivation GetActivator<TId, TPayload>(TPayload payload) where TPayload : ICommand
@@ -108,7 +114,7 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
             handlerType = typeof(ICommandEnvelope<,>).MakeGenericType(typeof(TId), payload.GetType());
         }
 
-        if(!_handlers.TryGetValue(typeof(ICommandEnvelope<TId, TPayload>), out CommandHandlerActivation activator))
+        if(!_handlers.TryGetValue(handlerType, out CommandHandlerActivation activator))
         {
             Thrown.InvalidOperationException($"Handler for type {handlerType.ToString()} not registered");
         }

@@ -67,7 +67,7 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    public async Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+    public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
         where TPayload : ICommand
     {
         MediatrCommandEnvelope<TId, TPayload> envelope = new MediatrCommandEnvelope<TId, TPayload>()

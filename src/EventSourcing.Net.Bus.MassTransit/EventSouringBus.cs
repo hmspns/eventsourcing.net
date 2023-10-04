@@ -51,7 +51,7 @@ public sealed class MassTransitEventSourcingCommandBus : IEventSourcingCommandBu
         return Send<TId, TPayload>(command, cancellationToken);
     }
     
-    public async Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+    public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
         where TPayload : ICommand
     {
         IRequestClient<ICommandEnvelope<TId, TPayload>> requestClient = _mediator.CreateRequestClient<ICommandEnvelope<TId, TPayload>>();

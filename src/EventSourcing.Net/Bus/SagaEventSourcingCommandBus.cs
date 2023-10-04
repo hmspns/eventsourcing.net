@@ -32,7 +32,7 @@ public sealed class SagaEventSourcingCommandBus : ISagaEventSourcingCommandBus
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    public Task<ICommandExecutionResult<TId>>? Send<TId, TPayload>(TId aggregateId, IEventEnvelope originalEvent, TPayload commandPayload, string source = null, CancellationToken cancellationToken = default)
+    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TId aggregateId, IEventEnvelope originalEvent, TPayload commandPayload, string source = null, CancellationToken cancellationToken = default)
         where TPayload : ICommand
     {
         if (source == null)
@@ -43,6 +43,7 @@ public sealed class SagaEventSourcingCommandBus : ISagaEventSourcingCommandBus
         ICommandEnvelope<TId> commandEnvelope = CommandEnvelopeBuilder.ToEnvelope(originalEvent.TenantId, originalEvent.PrincipalId, source, aggregateId, commandPayload);
         IInitializableCommandEnvelope initializable = (IInitializableCommandEnvelope)commandEnvelope;
         initializable.ParentCommandId = originalEvent.CommandId;
+        initializable.SequenceId = originalEvent.SequenceId;
 
         return _innerBus.Send<TId, TPayload>(commandEnvelope, cancellationToken);
     }
