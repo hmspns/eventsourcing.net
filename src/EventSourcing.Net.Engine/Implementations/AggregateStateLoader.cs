@@ -6,6 +6,8 @@ using EventSourcing.Net.Abstractions.Types;
 
 namespace EventSourcing.Net.Engine.Implementations;
 
+using Exceptions;
+
 /// <summary>
 /// Load state for aggregate.
 /// </summary>
@@ -45,8 +47,19 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
     /// </summary>
     /// <param name="engine">Event sourcing engine.</param>
     /// <param name="activator">Factory method to create state mutator.</param>
-    public AggregateStateLoader(IEventSourcingEngine engine, Func<IStateMutator<TState>> activator) : this(engine)
+    public AggregateStateLoader(IEventSourcingEngine engine, Func<IStateMutator<TState>> activator)
     {
+        if (engine == null)
+        {
+            Thrown.ArgumentNullException(nameof(engine), "engine mustn't be null");
+        }
+        
+        if (activator == null)
+        {
+            Thrown.ArgumentNullException(nameof(activator), "activator mustn't be null");
+        }
+        
+        _engine = engine;
         _activator = activator;
     }
 
