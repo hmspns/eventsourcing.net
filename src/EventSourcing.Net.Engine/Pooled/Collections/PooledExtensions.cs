@@ -29,39 +29,39 @@ namespace EventSourcing.Net.Engine.Pooled.Collections;
 using System;
 using System.Collections.Generic;
 
-public static class PooledExtensions
+internal static class PooledExtensions
 {
-    public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items)
+    internal static PooledList<T> ToPooledList<T>(this IEnumerable<T> items)
     {
         return new PooledList<T>(items);
     }
 
-    public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items, int suggestCapacity)
+    internal static PooledList<T> ToPooledList<T>(this IEnumerable<T> items, int suggestCapacity)
     {
         return new PooledList<T>(items, suggestCapacity);
     }
 
-    public static PooledList<T> ToPooledList<T>(this T[] array)
+    internal static PooledList<T> ToPooledList<T>(this T[] array)
     {
         return new PooledList<T>(array.AsSpan());
     }
 
-    public static PooledList<T> ToPooledList<T>(this ReadOnlySpan<T> span)
+    internal static PooledList<T> ToPooledList<T>(this ReadOnlySpan<T> span)
     {
         return new PooledList<T>(span);
     }
 
-    public static PooledList<T> ToPooledList<T>(this Span<T> span)
+    internal static PooledList<T> ToPooledList<T>(this Span<T> span)
     {
         return new PooledList<T>(span);
     }
 
-    public static PooledList<T> ToPooledList<T>(this ReadOnlyMemory<T> memory)
+    internal static PooledList<T> ToPooledList<T>(this ReadOnlyMemory<T> memory)
     {
         return new PooledList<T>(memory.Span);
     }
 
-    public static PooledList<T> ToPooledList<T>(this Memory<T> memory)
+    internal static PooledList<T> ToPooledList<T>(this Memory<T> memory)
     {
         return new PooledList<T>(memory.Span);
     }
