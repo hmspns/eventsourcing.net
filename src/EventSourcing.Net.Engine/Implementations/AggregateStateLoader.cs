@@ -28,6 +28,10 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
     /// <exception cref="InvalidOperationException">Aggregate type not inherited from Aggregate<TId, TState, TStateMutator></exception>
     public AggregateStateLoader(IEventSourcingEngine engine)
     {
+        if (engine == null)
+        {
+            Thrown.ArgumentNullException(nameof(engine), "engine mustn't be null");
+        }
         _engine = engine;
         Type baseType = typeof(Aggregate<,,>);
         Type aggregateType = typeof(TAggregate);
