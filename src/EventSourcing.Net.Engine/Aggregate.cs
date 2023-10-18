@@ -7,17 +7,19 @@ using EventSourcing.Net.Engine.Exceptions;
 
 namespace EventSourcing.Net.Engine;
 
+using Pooled.Collections;
+
 /// <summary>
 /// Base class for specific aggregate.
 /// </summary>
 /// <typeparam name="TId">Type of aggregate id.</typeparam>
 /// <typeparam name="TState">Type of state.</typeparam>
 /// <typeparam name="TStateMutator">Type of state mutator.</typeparam>
-public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
+public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>, IDisposable
     where TState : class
     where TStateMutator : IStateMutator<TState>
 {
-    private readonly List<IEventEnvelope> _events = new();
+    private readonly PooledList<IEventEnvelope> _events = new();
     private readonly TStateMutator _mutator;
     private AggregateVersion _snapshotVersion = AggregateVersion.NotCreated;
 
@@ -51,6 +53,11 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
         Version = AggregateVersion.NotCreated;
         _mutator = mutator;
         _mutator.Transition(_mutator.DefaultState);
+    }
+
+    ~Aggregate()
+    {
+        Dispose(false);
     }
 
     /// <summary>
@@ -172,5 +179,22 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>
         {
             _events.Add(eventEnvelope);
         }
+    }
+    
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    /// <param name="disposing">True for explicit disposing, false for disposing from finalizer.</param>
+    /// <remarks>Don't forget to call <b>base.Dispose(disposing)</b> in case of override.</remarks>
+    protected virtual void Dispose(bool disposing)
+    {
+        _events.Dispose();
+    }
+
+    /// <summary></summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

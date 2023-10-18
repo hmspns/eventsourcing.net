@@ -10,6 +10,8 @@ using EventSourcing.Net.Engine.Extensions;
 
 namespace EventSourcing.Net.Engine;
 
+using System.Collections.Generic;
+
 /// <summary>
 /// Process aggregate flow.
 /// </summary>
@@ -40,41 +42,53 @@ internal sealed class AggregateUpdater<TId, TAggregate> where TAggregate : IAggr
             
         TAggregate aggregate = _activator(commandEnvelope.AggregateId);
 
-        aggregate.LoadSnapshot(snapshot);
-        aggregate.LoadEvents(events);
-
-        ICommandExecutionResult<TId> aggregationResult = handler(aggregate);
-
-        if (aggregate.Uncommitted.Any())
+        try
         {
-            try
+            aggregate.LoadSnapshot(snapshot);
+            aggregate.LoadEvents(events);
+
+            ICommandExecutionResult<TId> aggregationResult = handler(aggregate);
+
+            IReadOnlyList<IEventEnvelope> uncommitted = aggregate.Uncommitted;
+            if (uncommitted.Any())
             {
-                if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
+                try
                 {
-                    return cancelledResult;
-                }
+                    if (cancellationToken.CancellationWasRequested(commandEnvelope, out ICommandExecutionResult<TId> cancelledResult))
+                    {
+                        return cancelledResult;
+                    }
                     
-                IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
-                IAppendEventsResult result = await eventStore
-                    .AppendToStream<TId>(commandEnvelope, aggregate.StreamName, aggregate.Version, aggregate.Uncommitted)
-                    .ConfigureAwait(false);
-                await eventPublisher.Publish(commandEnvelope, aggregate.Uncommitted).ConfigureAwait(false);
-                await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.GetSnapshot(result)).ConfigureAwait(false);
-            }
-            catch (AppendOnlyStoreConcurrencyException e)
-            {
-                throw new AggregateConcurrencyException<TId>("There is an exception during aggregate execution", e)
+                    IAppendEventsResult result = await eventStore
+                                                       .AppendToStream<TId>(commandEnvelope, aggregate.StreamName, aggregate.Version, uncommitted)
+                                                       .ConfigureAwait(false);
+                    IEventPublisher eventPublisher = _engine.PublisherResolver.Get(commandEnvelope.TenantId);
+                    
+                    await eventPublisher.Publish(commandEnvelope, uncommitted).ConfigureAwait(false);
+                    await snapshotStore.SaveSnapshot(aggregate.StreamName, aggregate.GetSnapshot(result)).ConfigureAwait(false);
+                }
+                catch (AppendOnlyStoreConcurrencyException e)
                 {
-                    AggregateId = commandEnvelope.AggregateId,
-                    CommandId = commandEnvelope.CommandId,
-                    ExpectedVersion = e.ExpectedStreamVersion,
-                    SequenceId = commandEnvelope.SequenceId,
-                    Source = commandEnvelope.Source,
-                    ActualVersion = e.ActualStreamVersion,
-                };
+                    throw new AggregateConcurrencyException<TId>("There is an exception during aggregate execution", e)
+                    {
+                        AggregateId = commandEnvelope.AggregateId,
+                        CommandId = commandEnvelope.CommandId,
+                        ExpectedVersion = e.ExpectedStreamVersion,
+                        SequenceId = commandEnvelope.SequenceId,
+                        Source = commandEnvelope.Source,
+                        ActualVersion = e.ActualStreamVersion,
+                    };
+                }
+            }
+            
+            return aggregationResult;
+        }
+        finally
+        {
+            if (aggregate is IDisposable disposable)
+            {
+                disposable.Dispose();
             }
         }
-
-        return aggregationResult;
     }
 }

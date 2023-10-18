@@ -52,17 +52,6 @@ internal sealed class AggregateIdParsingProvider
     {
         Type idType = typeof(TId);
         
-        #if NET7_0_OR_GREATER
-
-        // Func<string, object?> handler7 = TryCreateIParsableBinder<TId>(idType);
-        // if (handler7 != null)
-        // {
-        //     _handlers.TryAdd(idType, handler7);
-        //     return handler7;
-        // }
-        
-        #endif
-        
         TypeConverterAttribute? attribute = idType.GetCustomAttribute<TypeConverterAttribute>();
         TypeConverter? converter = null;
         if (attribute != null)
@@ -92,36 +81,4 @@ internal sealed class AggregateIdParsingProvider
         _handlers.TryAdd(idType, handler);
         return handler;
     }
-
-    #if NET7_0_OR_GREATER
-    
-    private Func<string, object> TryCreateIParsableBinder<TId>(Type idType)
-    {
-        Type[] interfaces = idType.GetInterfaces();
-        Type? inter = interfaces.FirstOrDefault(x => x.FullName.Contains("System.IParsable", StringComparison.Ordinal));
-        if (inter != null)
-        {
-            MethodInfo? method = inter.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static);
-            if (method != null)
-            {
-                var tmp = method.Invoke(null, new object?[] { "tst", null });
-                Func<string, object> h = x => method.Invoke(null, new object?[] { x, null });
-                return h;
-            }
-        }
-
-        return null;
-    }
-    #endif
-    
-    public Delegate CreateDelegate(MethodInfo methodInfo)
-    {
-        IEnumerable<Type> parmTypes = methodInfo.GetParameters().Select(parm => parm.ParameterType);
-        Type[] parmAndReturnTypes = parmTypes.Append(methodInfo.ReturnType).ToArray();
-        Type delegateType = Expression.GetDelegateType(parmAndReturnTypes);
-
-        return methodInfo.CreateDelegate(delegateType);
-    }
-
-
 }

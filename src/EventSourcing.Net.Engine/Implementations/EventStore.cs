@@ -84,15 +84,21 @@ public sealed class EventStore : IEventStore
             ParentCommandId = commandEnvelope.ParentCommandId,
             TenantId = commandEnvelope.TenantId
         };
-        AppendEventPackage[] eventsPackage = events.Select(x => new AppendEventPackage()
-        {
-            Payload = x.Payload,
-            Timestamp = x.Timestamp,
-            EventId = x.EventId,
-            StreamName = streamName
-        }).ToArray();
 
-        AppendDataPackage<TId> package = new AppendDataPackage<TId>(commandPackage, eventsPackage);
+        AppendEventPackage[] eventPackages = new AppendEventPackage[events.Count];
+        for (int i = 0; i < events.Count; i++)
+        {
+            IEventEnvelope envelope = events[i];
+            eventPackages[i] = new AppendEventPackage()
+            {
+                Payload = envelope.Payload,
+                Timestamp = envelope.Timestamp,
+                EventId = envelope.EventId,
+                StreamName = streamName
+            };
+        }
+        
+        AppendDataPackage<TId> package = new AppendDataPackage<TId>(commandPackage, eventPackages);
 
         IAppendEventsResult result = await _appender.Append<TId>(streamName, package, aggregateVersion).ConfigureAwait(false);
         return result;
