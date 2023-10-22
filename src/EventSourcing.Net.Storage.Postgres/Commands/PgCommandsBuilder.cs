@@ -86,7 +86,7 @@ public sealed class PgCommandsBuilder : IPgCommandsBuilder
     {
         NpgsqlCommand selectVersionCommand = new NpgsqlCommand(
             string.Format(_commandTextProvider.SelectStreamVersion, schemaName, eventsTableName));
-        selectVersionCommand.AddParameter(streamName.ToString());
+        selectVersionCommand.AddParameter(streamName.ToString()!);
                 
         return selectVersionCommand;
     }

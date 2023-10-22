@@ -62,9 +62,9 @@ namespace EventSourcing.Net.Abstractions.Identities
         /// <exception cref="ArgumentException">String cannot be parsed to <#=item.Name#>.</exception>
         public static <#=item.Name#> Parse(string serializedId)
         {
-            if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
+            if (serializedId?.StartsWith(Prefix, StringComparison.Ordinal) != true)
             {
-                throw new ArgumentException("Invalid <#=item.Name#>", "serializedId");
+                Thrown.ArgumentException("<#=item.Name#> shouldn't be null and should starts with prefix " + Prefix, nameof(serializedId));
             }
 
             ReadOnlySpan<char> span = serializedId.AsSpan();
@@ -182,7 +182,7 @@ namespace EventSourcing.Net.Abstractions.Identities
         {
             if (id == null)
             {
-                throw new ArgumentNullException(nameof(id));
+                Thrown.ArgumentNullException(nameof(id));
             }
 
             _id = id;
@@ -198,12 +198,12 @@ namespace EventSourcing.Net.Abstractions.Identities
         {
             if (serializedId == null)
             {
-                throw new ArgumentNullException(nameof(serializedId));
+                Thrown.ArgumentNullException(nameof(serializedId));
             }
 
             if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
             {
-                throw new ArgumentException("Invalid <#=item.Name#>", "serializedId");
+                Thrown.ArgumentException("<#=item.Name#> shouldn't be null and should starts with prefix " + Prefix, "serializedId");
             }
 
             return new <#=item.Name#>(serializedId.Substring(Prefix.Length));

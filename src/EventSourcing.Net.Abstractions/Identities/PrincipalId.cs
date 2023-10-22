@@ -37,7 +37,7 @@ namespace EventSourcing.Net.Abstractions.Identities
         {
             if (id == null)
             {
-                throw new ArgumentNullException(nameof(id));
+                Thrown.ArgumentNullException(nameof(id));
             }
 
             _id = id;
@@ -53,12 +53,12 @@ namespace EventSourcing.Net.Abstractions.Identities
         {
             if (serializedId == null)
             {
-                throw new ArgumentNullException(nameof(serializedId));
+                Thrown.ArgumentNullException(nameof(serializedId));
             }
 
             if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
             {
-                throw new ArgumentException("Invalid PrincipalId", "serializedId");
+                Thrown.ArgumentException("PrincipalId shouldn't be null and should starts with prefix " + Prefix, "serializedId");
             }
 
             return new PrincipalId(serializedId.Substring(Prefix.Length));
