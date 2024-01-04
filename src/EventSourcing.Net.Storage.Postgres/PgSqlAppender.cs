@@ -295,6 +295,7 @@ public sealed class PgSqlAppender : IAppendOnly
         return _serializer.Serialize(payload);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private object Deserialize(TypeMappingId id, Memory<byte> data)
     {
         Type type = _typeMappingHandler.GetTypeById(id);
