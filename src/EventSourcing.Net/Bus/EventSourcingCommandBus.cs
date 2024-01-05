@@ -5,9 +5,11 @@ using EventSourcing.Net.Engine.Exceptions;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventSourcing.Net;
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
 
-using Abstractions.Types;
+namespace EventSourcing.Net;
 
 /// <summary>
 /// Built in command bus.
@@ -26,7 +28,11 @@ public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
     internal EventSourcingCommandBus(IServiceProvider provider, Dictionary<Type, CommandHandlerActivation> handlers)
     {
         _provider = provider;
+#if NET8_0_OR_GREATER
+        _handlers = handlers.ToFrozenDictionary();
+#else
         _handlers = handlers;
+#endif
     }
 
     /// <summary>

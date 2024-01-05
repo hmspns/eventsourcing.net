@@ -4,6 +4,10 @@ using EventSourcing.Net.Engine.Exceptions;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 namespace EventSourcing.Net;
 
 /// <inheritdoc />
@@ -35,7 +39,11 @@ public sealed class InMemoryEventPublisher : IEventPublisher
         IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
     {
         _provider = provider;
+#if NET8_0_OR_GREATER
+        _handlers = handlers.ToFrozenDictionary();
+#else
         _handlers = handlers;
+#endif
     }
 
     public async Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)

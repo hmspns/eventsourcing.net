@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>10</LangVersion>
+        <LangVersion>11</LangVersion>
         <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Storage.Postgres</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
