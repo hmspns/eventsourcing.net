@@ -32,7 +32,7 @@ namespace EventSourcing.Net.Abstractions.Identities
         {
             if (id == null)
             {
-                throw new ArgumentNullException(nameof(id));
+                Thrown.ArgumentNullException(nameof(id));
             }
 
             _id = id;
@@ -48,7 +48,7 @@ namespace EventSourcing.Net.Abstractions.Identities
         {
             if (serializedId == null)
             {
-                throw new ArgumentNullException(nameof(serializedId));
+                Thrown.ArgumentNullException(nameof(serializedId));
             }
 
             return new StreamId(serializedId);

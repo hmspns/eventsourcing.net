@@ -51,5 +51,39 @@ public sealed class MediatrEventSourcingCommandBus : IEventSourcingCommandBus
         return await _sender.Send(envelope, cancellationToken).ConfigureAwait(false);
     }
 
-    public IPublicationAwaiter PublicationAwaiter { get => new InMemoryPublicationAwaiter(); } 
+    /// <summary>
+    /// Send command to handler.
+    /// </summary>
+    /// <param name="commandEnvelope">Command envelope that will be sent to handler.</param>
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    /// <typeparam name="TId">Type of aggregate id.</typeparam>
+    /// <typeparam name="TPayload">Type of command payload.</typeparam>
+    /// <returns>Result of command execution.</returns>
+    /// <exception cref="InvalidOperationException">Handler not registered.</exception>
+    /// <remarks>
+    /// Command source is the place where command was sent.
+    /// 
+    /// It's important to have a good performance use a specific type of TPayload instead of general ICommand.
+    /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
+    /// When a specific type passed as TPayload reflection not needed.
+    /// </remarks>
+    public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+        where TPayload : ICommand
+    {
+        MediatrCommandEnvelope<TId, TPayload> envelope = new MediatrCommandEnvelope<TId, TPayload>()
+        {
+            Payload = (TPayload)commandEnvelope.Payload,
+            Source = commandEnvelope.Source,
+            Timestamp = commandEnvelope.Timestamp,
+            AggregateId = commandEnvelope.AggregateId,
+            CommandId = commandEnvelope.CommandId,
+            PrincipalId = commandEnvelope.PrincipalId,
+            SequenceId = commandEnvelope.SequenceId,
+            TenantId = commandEnvelope.TenantId,
+            ParentCommandId = commandEnvelope.ParentCommandId
+        };
+        return await _sender.Send(envelope, cancellationToken).ConfigureAwait(false);
+    }
+
+    public IPublicationAwaiter PublicationAwaiter { get => new InMemoryPublicationAwaiter(); }
 }

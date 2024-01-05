@@ -6,6 +6,10 @@ using EventSourcing.Net.Engine.Exceptions;
 
 namespace EventSourcing.Net.Engine;
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+
 internal sealed class AggregateIdParsingProvider
 {
     #region Singleton
@@ -43,10 +47,11 @@ internal sealed class AggregateIdParsingProvider
 
         return parser!;
     }
-    
+
     private Func<string, object?> RegisterHandler<TId>()
     {
         Type idType = typeof(TId);
+        
         TypeConverterAttribute? attribute = idType.GetCustomAttribute<TypeConverterAttribute>();
         TypeConverter? converter = null;
         if (attribute != null)

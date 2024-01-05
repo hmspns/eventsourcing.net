@@ -38,7 +38,7 @@ public abstract class EventSourcingConfigurationOptions
     /// <param name="handler">Handler to register service.</param>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceTransient<TInterface>(Func<IServiceProvider, TInterface> handler)
+    protected internal EventSourcingConfigurationOptions ReplaceTransient<TInterface>(Func<IServiceProvider, TInterface> handler)
         where TInterface : class
     {
         _services.Replace<TInterface>(services => services.AddTransient<TInterface>(x =>
@@ -54,7 +54,7 @@ public abstract class EventSourcingConfigurationOptions
     /// </summary>
     /// <param name="type">Service type.</param>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceTransient(Type type)
+    protected internal EventSourcingConfigurationOptions ReplaceTransient(Type type)
     {
         _services.Remove(type);
         _services.AddTransient(type);
@@ -97,7 +97,7 @@ public abstract class EventSourcingConfigurationOptions
     /// </summary>
     /// <param name="type">Service type.</param>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceScoped(Type type)
+    protected internal EventSourcingConfigurationOptions ReplaceScoped(Type type)
     {
         _services.Remove(type);
         _services.AddScoped(type);

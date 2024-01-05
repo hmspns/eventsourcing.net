@@ -30,7 +30,7 @@ public sealed class MassTransitEventSourcingCommandBus : IEventSourcingCommandBu
         return Send(TenantId.Empty, PrincipalId.Empty, string.Empty, id, command, cancellationToken);
     }
 
-    public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
+    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
         TId aggregateId, TPayload commandPayload,
         CancellationToken cancellationToken = default)
         where TPayload : ICommand
@@ -48,8 +48,14 @@ public sealed class MassTransitEventSourcingCommandBus : IEventSourcingCommandBu
             PrincipalId = principalId
         };
 
+        return Send<TId, TPayload>(command, cancellationToken);
+    }
+    
+    public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+        where TPayload : ICommand
+    {
         IRequestClient<ICommandEnvelope<TId, TPayload>> requestClient = _mediator.CreateRequestClient<ICommandEnvelope<TId, TPayload>>();
-        Response<ICommandExecutionResult<TId>> response = await requestClient.GetResponse<ICommandExecutionResult<TId>>(command, cancellationToken).ConfigureAwait(false);
+        Response<ICommandExecutionResult<TId>> response = await requestClient.GetResponse<ICommandExecutionResult<TId>>(commandEnvelope, cancellationToken).ConfigureAwait(false);
         return response.Message;
     }
 

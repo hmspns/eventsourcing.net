@@ -47,6 +47,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Tests.Storage.Postgres", "..\tests\EventSourcing.Net.Tests.Storage.Postgres\EventSourcing.Net.Tests.Storage.Postgres.csproj", "{9466ED43-02CA-4C59-8305-2EA588E001FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.Sagas", "..\samples\EventSourcing.Net.Samples.Sagas\EventSourcing.Net.Samples.Sagas.csproj", "{12BF334B-C18E-43DA-B656-1DE9A166D438}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.CustomIdTypes", "..\samples\EventSourcing.Net.Samples.CustomIdTypes\EventSourcing.Net.Samples.CustomIdTypes.csproj", "{DB41558A-17C7-43FF-A18D-89E640554282}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +140,14 @@ Global
 		{9466ED43-02CA-4C59-8305-2EA588E001FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9466ED43-02CA-4C59-8305-2EA588E001FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9466ED43-02CA-4C59-8305-2EA588E001FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12BF334B-C18E-43DA-B656-1DE9A166D438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12BF334B-C18E-43DA-B656-1DE9A166D438}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12BF334B-C18E-43DA-B656-1DE9A166D438}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12BF334B-C18E-43DA-B656-1DE9A166D438}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB41558A-17C7-43FF-A18D-89E640554282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB41558A-17C7-43FF-A18D-89E640554282}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB41558A-17C7-43FF-A18D-89E640554282}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB41558A-17C7-43FF-A18D-89E640554282}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -152,5 +164,7 @@ Global
 		{03618FB2-A5F0-4399-90B7-1443F0356308} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
 		{A9FBA8A7-21B5-4C48-8E58-785FF8D601B3} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 		{9466ED43-02CA-4C59-8305-2EA588E001FC} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
+		{12BF334B-C18E-43DA-B656-1DE9A166D438} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
+		{DB41558A-17C7-43FF-A18D-89E640554282} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 	EndGlobalSection
 EndGlobal

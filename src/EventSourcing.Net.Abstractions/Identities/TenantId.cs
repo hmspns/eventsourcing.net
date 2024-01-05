@@ -46,9 +46,9 @@ namespace EventSourcing.Net.Abstractions.Identities
         /// <exception cref="ArgumentException">String cannot be parsed to TenantId.</exception>
         public static TenantId Parse(string serializedId)
         {
-            if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
+            if (serializedId?.StartsWith(Prefix, StringComparison.Ordinal) != true)
             {
-                throw new ArgumentException("Invalid TenantId", "serializedId");
+                Thrown.ArgumentException("TenantId shouldn't be null and should starts with prefix " + Prefix, nameof(serializedId));
             }
 
             ReadOnlySpan<char> span = serializedId.AsSpan();
