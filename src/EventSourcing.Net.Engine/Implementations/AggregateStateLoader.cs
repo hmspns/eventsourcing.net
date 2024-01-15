@@ -18,9 +18,24 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
     where TAggregate : IAggregate<TId>
     where TState : class
 {
-    private readonly IEventSourcingEngine _engine;
-    private readonly Func<IStateMutator<TState>> _activator;
+    private readonly Func<IStateMutator<TState>> _stateMutatorActivator;
+    private readonly Func<IEventSourcingEngine> _engineHandler;
 
+    private Func<IStateMutator<TState>> CreateActivator()
+    {
+        Type baseType = typeof(Aggregate<,,>);
+        Type aggregateType = typeof(TAggregate);
+
+        if (aggregateType.BaseType?.GetGenericTypeDefinition() != baseType)
+        {
+            throw new InvalidOperationException("Aggregate must inherits from Aggregate<TId, TStateMutator, TState>");
+        }
+
+        Type[] arguments = aggregateType.BaseType.GetGenericArguments();
+        Type stateMutatorType = arguments[2];
+        return () => (IStateMutator<TState>)Activator.CreateInstance(stateMutatorType);
+    }
+    
     /// <summary>
     /// Initialize new object.
     /// </summary>
@@ -32,56 +47,54 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
         {
             Thrown.ArgumentNullException(nameof(engine), "engine mustn't be null");
         }
-        _engine = engine;
-        Type baseType = typeof(Aggregate<,,>);
-        Type aggregateType = typeof(TAggregate);
 
-        if (aggregateType.BaseType?.GetGenericTypeDefinition() != baseType)
-        {
-            throw new InvalidOperationException("Aggregate must inherits from Aggregate<TId, TStateMutator, TState>");
-        }
-
-        Type[] arguments = aggregateType.BaseType.GetGenericArguments();
-        Type stateMutatorType = arguments[2];
-        _activator = () => (IStateMutator<TState>)Activator.CreateInstance(stateMutatorType);
+        _engineHandler = () => engine;
+        _stateMutatorActivator = CreateActivator();
     }
 
     /// <summary>
     /// Initialize new object.
     /// </summary>
     /// <param name="engine">Event sourcing engine.</param>
-    /// <param name="activator">Factory method to create state mutator.</param>
-    public AggregateStateLoader(IEventSourcingEngine engine, Func<IStateMutator<TState>> activator)
+    /// <param name="stateMutatorActivator">Factory method to create state mutator.</param>
+    public AggregateStateLoader(IEventSourcingEngine engine, Func<IStateMutator<TState>> stateMutatorActivator)
     {
         if (engine == null)
         {
             Thrown.ArgumentNullException(nameof(engine), "engine mustn't be null");
         }
         
-        if (activator == null)
+        if (stateMutatorActivator == null)
         {
-            Thrown.ArgumentNullException(nameof(activator), "activator mustn't be null");
+            Thrown.ArgumentNullException(nameof(stateMutatorActivator), "activator mustn't be null");
         }
         
-        _engine = engine;
-        _activator = activator;
+        _engineHandler = () => engine;
+        _stateMutatorActivator = stateMutatorActivator;
     }
 
     /// <summary>
     /// Initialize new object with default engine.
     /// </summary>
-    public AggregateStateLoader() : this(EventSourcingEngine.Instance)
+    public AggregateStateLoader()
     {
-        
+        _engineHandler = () => EventSourcingEngine.Instance;
+        _stateMutatorActivator = CreateActivator();
     }
 
     /// <summary>
     /// Initialize new object with default engine.
     /// </summary>
-    /// <param name="activator">Factory method to create state mutator.</param>
-    public AggregateStateLoader(Func<IStateMutator<TState>> activator) : this(EventSourcingEngine.Instance, activator)
+    /// <param name="stateMutatorActivator">Factory method to create state mutator.</param>
+    public AggregateStateLoader(Func<IStateMutator<TState>> stateMutatorActivator)
     {
+        if (stateMutatorActivator == null)
+        {
+            Thrown.ArgumentNullException(nameof(stateMutatorActivator), "activator mustn't be null");
+        }
         
+        _engineHandler = () => EventSourcingEngine.Instance;
+        _stateMutatorActivator = stateMutatorActivator;
     }
 
     /// <summary>
@@ -110,18 +123,19 @@ public sealed class AggregateStateLoader<TId, TAggregate, TState> : IAggregateSt
 
         ISnapshot snapshot = Snapshot.Empty(streamId);
 
+        IEventSourcingEngine engine = _engineHandler();
         if (useSnapshot)
         {
-            ISnapshotStore snapshotStore = _engine.SnapshotStoreResolver.Get(tenantId);
+            ISnapshotStore snapshotStore = engine.SnapshotStoreResolver.Get(tenantId);
             snapshot = await snapshotStore.LoadSnapshot(streamId).ConfigureAwait(false);
         }
 
-        IEventStore eventStore = _engine.EventStoreResolver.Get(tenantId);
+        IEventStore eventStore = engine.EventStoreResolver.Get(tenantId);
         using EventsStream events = await eventStore
             .LoadEventsStream<TId>(streamId, snapshot.Version, StreamPosition.End)
             .ConfigureAwait(false);
 
-        IStateMutator<TState> stateMutator = _activator();
+        IStateMutator<TState> stateMutator = _stateMutatorActivator();
         object state = snapshot.HasSnapshot ? snapshot.State! : stateMutator.DefaultState;
         stateMutator.Transition(state);
 
