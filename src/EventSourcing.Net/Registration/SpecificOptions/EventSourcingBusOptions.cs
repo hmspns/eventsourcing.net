@@ -7,17 +7,44 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+using Engine.Exceptions;
+
 /// <summary>
 /// Options to configure event sourcing engine.
 /// </summary>
 public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
 {
+    private HashSet<Type> _eventConsumers = new HashSet<Type>();
+    private HashSet<Type> _sagaConsumers = new HashSet<Type>();
+    
+    private Type _genericEventConsumerType = typeof(IEventConsumer<,>);
+    private Type _genericSagaConsumerType = typeof(ISagaConsumer<,>);
+
+    private Func<Type, bool> _isEventConsumer;
+    private Func<Type, bool> _isSagaConsumer;
+    
     /// <summary>
     /// Initialize new object.
     /// </summary>
     /// <param name="services">Services to provide DI registration.</param>
     internal EventSourcingBusOptions(IServiceCollection services) : base(services)
     {
+        _isEventConsumer = x => x.IsGenericType && x.GetGenericTypeDefinition() == _genericEventConsumerType;
+        _isSagaConsumer = x => x.IsGenericType && x.GetGenericTypeDefinition() == _genericSagaConsumerType;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            _eventConsumers = null;
+            _sagaConsumers = null;
+            _genericEventConsumerType = null;
+            _genericSagaConsumerType = null;
+            _isEventConsumer = null;
+            _isSagaConsumer = null;
+        }
     }
 
     /// <summary>
@@ -26,6 +53,7 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
     /// <param name="assemblies">Assemblies to register handlers.</param>
     public void RegisterCommandHandlers(params Assembly[] assemblies)
     {
+        CheckDisposed();
         Type[] types = assemblies
             .SelectMany(x => x.GetTypes())
             .Where(x => x.IsAssignableTo(typeof(ICommandHandler)))
@@ -34,28 +62,13 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
     }
 
     /// <summary>
-    /// Register implicit command handlers.
-    /// </summary>
-    /// <param name="assembly">Assembly to register handlers.</param>
-    public void RegisterCommandHandlers(Assembly assembly)
-    {
-        Type[] types = assembly.GetTypes().Where(x => x.IsAssignableTo(typeof(ICommandHandler))).ToArray();
-        RegisterCommandHandlers(types);
-    }
-
-    /// <summary>
     /// Register event consumers.
     /// </summary>
-    /// <param name="assembly">Assembly to register consumers.</param>
-    public void RegisterEventConsumers(Assembly assembly)
+    /// <param name="assemblies">Assemblies to register event consumers.</param>
+    public void RegisterEventConsumers(params Assembly[] assemblies)
     {
-        Type interfaceType = typeof(IEventConsumer<,>);
-        Type[] types = assembly.GetTypes().Where(x =>
-        {
-            IEnumerable<Type> interfaces = x.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
-            return interfaces.Any();
-        }).ToArray();
+        CheckDisposed();
+        IEnumerable<Type> types = GetTypesFromAssemblies(assemblies, _isEventConsumer);
         RegisterEventConsumers(types);
     }
 
@@ -63,23 +76,62 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
     /// Register event consumers.
     /// </summary>
     /// <param name="types">Types that implement IEventConsumer interface.</param>
-    public void RegisterEventConsumers(Type[] types)
+    public void RegisterEventConsumers(IEnumerable<Type> types)
     {
-        EventConsumers consumers = new EventConsumers();
+        CheckDisposed();
         foreach (Type type in types)
+        {
+            if (!_isEventConsumer(type))
+            {
+                Thrown.ArgumentOutOfRangeException(nameof(types), "Each type should implement interface IEventConsumer<TId, TEventType>");
+            }
+            _eventConsumers.Add(type);
+        }
+    }
+
+    public void RegisterSagaConsumers(params Assembly[] assemblies)
+    {
+        CheckDisposed();
+        IEnumerable<Type> types = GetTypesFromAssemblies(assemblies, _isSagaConsumer);
+        RegisterEventConsumers(types);
+    }
+
+    public void RegisterSagaConsumers(Type[] types)
+    {
+        CheckDisposed();
+        foreach (Type type in types)
+        {
+            if (!_isSagaConsumer(type))
+            {
+                Thrown.ArgumentOutOfRangeException(nameof(types), "Each type should implement interface ISagaConsumer<TId, TEventType>");
+            }
+
+            _sagaConsumers.Add(type);
+        }
+    }
+
+    internal void RegisterEventConsumersInternal()
+    {
+        if (_eventConsumers == null)
+        {
+            return;
+        }
+        
+        EventConsumers consumers = new EventConsumers();
+        foreach (Type type in _eventConsumers)
         {
             Type[] interfaces = type.GetInterfaces();
             if (interfaces.Any())
             {
                 foreach (Type interfaceType in interfaces)
                 {
-                    MethodInfo methodInfo = interfaceType.GetMethods().First();
+                    MethodInfo methodInfo = interfaceType.GetMethods()[0];
                     EventConsumerActivation activation = new EventConsumerActivation()
                     {
                         Method = methodInfo,
                         Type = type
                     };
-                    Type argumentType = methodInfo.GetParameters().First().ParameterType;
+                    Type argumentType = methodInfo.GetParameters()[0].ParameterType;
                     consumers.Add(argumentType, activation);
                 }
 
@@ -91,8 +143,30 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         IfNotRegistered<IResolveEventPublisher>(
             services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
         );
+
+        _eventConsumers = null;
     }
-    
+
+    private IEnumerable<Type> GetTypesFromAssemblies(Assembly[] assemblies, Func<Type, bool> predicate)
+    {
+        if (assemblies == null)
+        {
+            Thrown.ArgumentNullException(nameof(assemblies));
+        }
+
+        if (assemblies.Length == 0)
+        {
+            Thrown.ArgumentOutOfRangeException(nameof(assemblies), "At least 1 assembly should be passed");
+        }
+
+        return assemblies.SelectMany(x => x.GetTypes()).Where(x =>
+        {
+            IEnumerable<Type> interfaces = x.GetInterfaces()
+                                            .Where(predicate);
+            return interfaces.Any();
+        });
+    }
+
     private void RegisterCommandHandlers(Type[] types)
     {
         Dictionary<Type, CommandHandlerActivation> handlers = new();
@@ -139,7 +213,7 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
     }
 
     private static bool IsValidCommandHandlerMethod(MethodInfo methodInfo, Type envelopeType, out bool useCancellation,
-        out Type commandType)
+                                                    out Type commandType)
     {
         ParameterInfo[] parameters = methodInfo.GetParameters();
         if (parameters.Length == 1 &&

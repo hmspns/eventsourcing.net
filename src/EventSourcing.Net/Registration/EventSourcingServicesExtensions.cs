@@ -15,7 +15,7 @@ public static class EventSourcingServicesExtensions
     /// <returns>Builder to configure services.</returns>
     public static IServiceCollection AddEventSourcing(this IServiceCollection services, Action<EventSourcingOptions> handler)
     {
-        EventSourcingOptions options = new EventSourcingOptions(services);
+        using EventSourcingOptions options = new EventSourcingOptions(services);
 
         handler(options);
         options.Build();

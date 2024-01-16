@@ -2,12 +2,15 @@
 
 namespace EventSourcing.Net;
 
+using Engine.Exceptions;
+
 /// <summary>
 /// Provide methods for service registration.
 /// </summary>
-public abstract class EventSourcingConfigurationOptions
+public abstract class EventSourcingConfigurationOptions : IDisposable
 {
-    private readonly IServiceCollection _services;
+    private IServiceCollection _services;
+    private bool _isDisposed;
 
     /// <summary>
     /// Initialize new object.
@@ -17,6 +20,8 @@ public abstract class EventSourcingConfigurationOptions
     {
         _services = services;
     }
+
+    protected IServiceCollection Services => _services;
 
     /// <summary>
     /// Replace transient service.
@@ -140,7 +145,7 @@ public abstract class EventSourcingConfigurationOptions
     /// </summary>
     /// <param name="type">Service type.</param>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceSingleton(Type type)
+    protected internal EventSourcingConfigurationOptions ReplaceSingleton(Type type)
     {
         _services.Remove(type);
         _services.AddSingleton(type);
@@ -152,7 +157,7 @@ public abstract class EventSourcingConfigurationOptions
     /// </summary>
     /// <param name="serviceInstance">Service type.</param>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceSingleton<TService>(TService serviceInstance)
+    protected internal EventSourcingConfigurationOptions ReplaceSingleton<TService>(TService serviceInstance)
         where TService : class
     {
         _services.Replace<TService>(services => services.AddSingleton<TService>(serviceInstance));
@@ -164,7 +169,7 @@ public abstract class EventSourcingConfigurationOptions
     /// </summary>
     /// <typeparam name="TService">Service type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions Remove<TService>() where TService : class
+    protected internal EventSourcingConfigurationOptions Remove<TService>() where TService : class
     {
         _services.Remove<TService>();
         return this;
@@ -174,5 +179,29 @@ public abstract class EventSourcingConfigurationOptions
     {
         _services.IfNotRegistered<TInterface>(handler);
         return this;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _services = null;
+        }
+
+        _isDisposed = disposing;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+    protected void CheckDisposed()
+    {
+        if (_isDisposed)
+        {
+            Thrown.ObjectDisposedException(nameof(EventSourcingConfigurationOptions));
+        }
     }
 }

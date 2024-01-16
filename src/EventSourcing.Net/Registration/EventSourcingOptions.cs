@@ -13,15 +13,12 @@ namespace EventSourcing.Net;
 /// <summary>
 /// Options to configure EventSourcing.Net.
 /// </summary>
-public sealed class EventSourcingOptions
+public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
 {
-    private IServiceCollection Services { get; }
-
     private ITypeStringConverter _typeStringConverter;
 
-    internal EventSourcingOptions(IServiceCollection services)
+    internal EventSourcingOptions(IServiceCollection services) : base(services)
     {
-        Services = services;
         Bus = new EventSourcingBusOptions(services);
         Serialization = new EventSourcingSerializationOptions(services);
         Storage = new EventSourcingStorageOptions(services);
@@ -50,6 +47,7 @@ public sealed class EventSourcingOptions
     /// <exception cref="ArgumentNullException">Assemblies is null.</exception>
     public EventSourcingOptions RegisterEventTypesMapping(params Assembly[] assemblies)
     {
+        CheckDisposed();
         if (assemblies == null)
         {
             throw new ArgumentNullException(nameof(assemblies));
@@ -84,6 +82,7 @@ public sealed class EventSourcingOptions
     /// <exception cref="ArgumentNullException">Handler is null.</exception>
     public EventSourcingOptions RegisterEventTypesMapping(ITypeStringConverter handler)
     {
+        CheckDisposed();
         if (handler == null)
         {
             throw new ArgumentNullException(nameof(handler));
@@ -108,6 +107,9 @@ public sealed class EventSourcingOptions
 
         Services.IfNotRegistered<ITypeMappingStorageProvider>(x => x.AddSingleton<ITypeMappingStorageProvider, InMemoryTypeMappingStorageProvider>());
         Services.IfNotRegistered<IEventSourcingStorage>(x => x.AddTransient<IEventSourcingStorage, InMemoryEventSourcingStorage>());
+                
+        Bus.RegisterEventConsumersInternal();
+        
         
         RegisterEventSourcingEngine();
     }
@@ -145,5 +147,16 @@ public sealed class EventSourcingOptions
         }
 
         return aggregateParts.Union(events).Union(commands).Distinct().Where(x => !x.IsInterface).ToArray();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            Bus.Dispose();
+            Serialization.Dispose();
+            Storage.Dispose();
+        }
     }
 }
