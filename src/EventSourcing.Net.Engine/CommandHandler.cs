@@ -39,7 +39,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
     protected CommandHandler(Func<TId, TAggregate> activator, IEventSourcingEngine? engine)
     {
         _aggregateActivator = activator;
-        _engine = engine; // ?? EventSourcingEngine.Instance;
+        _engine = engine;
     }
 
     /// <summary>
@@ -67,8 +67,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
         CancellationToken cancellationToken = default
     )
     {
-        CommandMessageValidator validator = new CommandMessageValidator();
-        validator.Validate(commandEnvelope);
+        commandEnvelope.Validate();
             
         int retryLimit = 15;
         for (int i = 1; i <= retryLimit; i++)
@@ -80,7 +79,7 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
                     return cancelledResult;
                 }
                     
-                Trace.WriteLine($"Processing command {commandEnvelope.Payload.GetType().Name} on iteration {i.ToString()}");
+                Trace.WriteLine($"Processing command {commandEnvelope.Payload.GetType().Name} on iteration {i}");
                     
                 AggregateUpdater<TId, TAggregate> updater = new AggregateUpdater<TId, TAggregate>(_engine ?? EventSourcingEngine.Instance, _aggregateActivator);
                 ICommandExecutionResult<TId> result = await updater.Execute(commandEnvelope, handler, cancellationToken).ConfigureAwait(false);
@@ -88,21 +87,21 @@ public abstract class CommandHandler<TId, TAggregate> : ICommandHandler where TA
             }
             catch (AggregateConcurrencyException<TId> e)
             {
-                Trace.WriteLine(nameof(AggregateConcurrencyException<TId>) + $" occurs on iteration {i.ToString()} occurs." +
-                                $" Expected version {e.ExpectedVersion.ToString()}. Actual version {e.ActualVersion.ToString()}." +
+                Trace.WriteLine(nameof(AggregateConcurrencyException<TId>) + $" occurs on iteration {i} occurs." +
+                                $" Expected version {e.ExpectedVersion}. Actual version {e.ActualVersion}." +
                                 "It means concurrent thread update an aggregate with the same AggregateId during execution of current aggregate." +
-                                $"Will try execute command again {(retryLimit - i).ToString()} times");
+                                $"Will try execute command again {(retryLimit - i)} times");
             }
         }
-        Trace.WriteLine($"It's impossible to execute command after {retryLimit.ToString()} tries");
+        Trace.WriteLine($"It's impossible to execute command after {retryLimit} tries");
 
         throw new CommandExecutionException("Couldn't execute command", commandEnvelope);
     }
 }
 
-internal sealed class CommandMessageValidator
+internal static class CommandMessageValidator
 {
-    internal void Validate<TId>(ICommandEnvelope<TId> cmd)
+    internal static void Validate<TId>(this ICommandEnvelope<TId> cmd)
     {
         if (cmd == null)
         {
@@ -119,34 +118,19 @@ internal sealed class CommandMessageValidator
             Thrown.ArgumentException("Command.Payload mustn't be null");
         }
 
-        // if (string.IsNullOrEmpty(cmd.Source))
-        // {
-        //     throw new ArgumentException("Command.Source mustn't be null nor empty string");
-        // }
-
         if (cmd.Timestamp == default || cmd.Timestamp.Kind != DateTimeKind.Utc)
         {
-            throw new ArgumentException("Command.Timestamp must be valid UTC value");
+            Thrown.ArgumentException("Command.Timestamp must be valid UTC value");
         }
 
         if (cmd.CommandId == CommandId.Empty)
         {
-            throw new ArgumentException("Command.CommandId mustn't be CommandId.Empty");
+            Thrown.ArgumentException("Command.CommandId mustn't be CommandId.Empty");
         }
-
-        // if (cmd.PrincipalId == PrincipalId.Empty)
-        // {
-        //     throw new ArgumentException("Command.PrincipalId mustn't be PrincipalId.Empty");
-        // }
 
         if (cmd.SequenceId == CommandSequenceId.Empty)
         {
-            throw new ArgumentException("Command.SequenceId mustn't be CommandSequenceId.Empty");
+            Thrown.ArgumentException("Command.SequenceId mustn't be CommandSequenceId.Empty");
         }
-
-        // if (cmd.TenantId == TenantId.Empty)
-        // {
-        //     throw new ArgumentException("Command.TenantId mustn't be TenantId.Empty");
-        // }
     }
 }
