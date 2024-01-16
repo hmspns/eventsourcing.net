@@ -14,6 +14,7 @@ using Engine.Exceptions;
 /// </summary>
 public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
 {
+    private HashSet<Type> _commandHandlers = new HashSet<Type>();
     private HashSet<Type> _eventConsumers = new HashSet<Type>();
     private HashSet<Type> _sagaConsumers = new HashSet<Type>();
     
@@ -33,20 +34,6 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         _isSagaConsumer = x => x.IsGenericType && x.GetGenericTypeDefinition() == _genericSagaConsumerType;
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
-        {
-            _eventConsumers = null;
-            _sagaConsumers = null;
-            _genericEventConsumerType = null;
-            _genericSagaConsumerType = null;
-            _isEventConsumer = null;
-            _isSagaConsumer = null;
-        }
-    }
-
     /// <summary>
     /// Register implicit command handlers.
     /// </summary>
@@ -59,6 +46,23 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
             .Where(x => x.IsAssignableTo(typeof(ICommandHandler)))
             .ToArray();
         RegisterCommandHandlers(types);
+    }
+
+    /// <summary>
+    /// Register implicit command handlers.
+    /// </summary>
+    /// <param name="types">Types of command handlers.</param>
+    public void RegisterCommandHandlers(IEnumerable<Type> types)
+    {
+        CheckDisposed();
+        foreach (Type type in types)
+        {
+            if (!type.IsAssignableTo(typeof(ICommandHandler)))
+            {
+                Thrown.ArgumentOutOfRangeException(nameof(types), "Each type should be derived from CommandHandler<TId, TAggregate>");
+            }
+            _commandHandlers.Add(type);
+        }
     }
 
     /// <summary>
@@ -109,7 +113,7 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         }
     }
 
-    internal void RegisterEventAndSagaConsumersInternal()
+    internal void BuildEventAndSagaConsumers()
     {
         EventConsumers consumers = new EventConsumers();
         foreach (Type type in _eventConsumers.Union(_sagaConsumers))
@@ -139,31 +143,11 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         );
     }
 
-    private IEnumerable<Type> GetTypesFromAssemblies(Assembly[] assemblies, Func<Type, bool> predicate)
-    {
-        if (assemblies == null)
-        {
-            Thrown.ArgumentNullException(nameof(assemblies));
-        }
-
-        if (assemblies.Length == 0)
-        {
-            Thrown.ArgumentOutOfRangeException(nameof(assemblies), "At least 1 assembly should be passed");
-        }
-
-        return assemblies.SelectMany(x => x.GetTypes()).Where(x =>
-        {
-            IEnumerable<Type> interfaces = x.GetInterfaces()
-                                            .Where(predicate);
-            return interfaces.Any();
-        });
-    }
-
-    private void RegisterCommandHandlers(Type[] types)
+    internal void BuildCommandHandlers()
     {
         Dictionary<Type, CommandHandlerActivation> handlers = new();
 
-        foreach (Type commandHandlerType in types)
+        foreach (Type commandHandlerType in _commandHandlers)
         {
             Type aggregateIdType = commandHandlerType.BaseType.GetGenericArguments()[0];
             Type envelopeType = typeof(ICommandEnvelope<,>).MakeGenericType(aggregateIdType, typeof(ICommand));
@@ -202,6 +186,41 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
             services => services.AddSingleton<ISagaEventSourcingCommandBus>(x =>
                 new SagaEventSourcingCommandBus(x.GetRequiredService<IEventSourcingCommandBus>()))
         );
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            _commandHandlers = null;
+            _eventConsumers = null;
+            _sagaConsumers = null;
+            _genericEventConsumerType = null;
+            _genericSagaConsumerType = null;
+            _isEventConsumer = null;
+            _isSagaConsumer = null;
+        }
+    }
+
+    private IEnumerable<Type> GetTypesFromAssemblies(Assembly[] assemblies, Func<Type, bool> predicate)
+    {
+        if (assemblies == null)
+        {
+            Thrown.ArgumentNullException(nameof(assemblies));
+        }
+
+        if (assemblies.Length == 0)
+        {
+            Thrown.ArgumentOutOfRangeException(nameof(assemblies), "At least 1 assembly should be passed");
+        }
+
+        return assemblies.SelectMany(x => x.GetTypes()).Where(x =>
+        {
+            IEnumerable<Type> interfaces = x.GetInterfaces()
+                                            .Where(predicate);
+            return interfaces.Any();
+        });
     }
 
     private static bool IsValidCommandHandlerMethod(MethodInfo methodInfo, Type envelopeType, out bool useCancellation,
