@@ -16,6 +16,7 @@ services.AddEventSourcing(options =>
 {
     options.Bus.RegisterCommandHandlers(assembly);
     options.Bus.RegisterEventConsumers(assembly);
+    options.Bus.RegisterSagaConsumers(assembly);
 });
 IServiceProvider provider = services.BuildServiceProvider();
 

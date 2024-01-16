@@ -11,7 +11,7 @@ public class UserProjector :
 {
     public Task Consume(IEventEnvelope<Guid, UserCreatedEvent> envelope)
     {
-        Console.WriteLine(envelope.Payload);
+        Console.WriteLine("From UserProjector: " + envelope.Payload);
         return Task.CompletedTask;
     }
 

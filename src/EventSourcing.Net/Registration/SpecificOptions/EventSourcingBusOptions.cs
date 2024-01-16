@@ -81,49 +81,43 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         CheckDisposed();
         foreach (Type type in types)
         {
-            if (!_isEventConsumer(type))
-            {
-                Thrown.ArgumentOutOfRangeException(nameof(types), "Each type should implement interface IEventConsumer<TId, TEventType>");
-            }
             _eventConsumers.Add(type);
         }
     }
 
+    /// <summary>
+    /// Register saga consumers.
+    /// </summary>
+    /// <param name="assemblies">Assemblies to register saga consumers.</param>
     public void RegisterSagaConsumers(params Assembly[] assemblies)
     {
         CheckDisposed();
         IEnumerable<Type> types = GetTypesFromAssemblies(assemblies, _isSagaConsumer);
-        RegisterEventConsumers(types);
+        RegisterSagaConsumers(types);
     }
 
-    public void RegisterSagaConsumers(Type[] types)
+    /// <summary>
+    /// Register saga consumers.
+    /// </summary>
+    /// <param name="types">Types that implement ISagaConsumer interface.</param>
+    public void RegisterSagaConsumers(IEnumerable<Type> types)
     {
         CheckDisposed();
         foreach (Type type in types)
         {
-            if (!_isSagaConsumer(type))
-            {
-                Thrown.ArgumentOutOfRangeException(nameof(types), "Each type should implement interface ISagaConsumer<TId, TEventType>");
-            }
-
             _sagaConsumers.Add(type);
         }
     }
 
-    internal void RegisterEventConsumersInternal()
+    internal void RegisterEventAndSagaConsumersInternal()
     {
-        if (_eventConsumers == null)
-        {
-            return;
-        }
-        
         EventConsumers consumers = new EventConsumers();
-        foreach (Type type in _eventConsumers)
+        foreach (Type type in _eventConsumers.Union(_sagaConsumers))
         {
             Type[] interfaces = type.GetInterfaces();
             if (interfaces.Any())
             {
-                foreach (Type interfaceType in interfaces)
+                foreach (Type interfaceType in interfaces.Where(x => _isEventConsumer(x) || _isSagaConsumer(x)))
                 {
                     MethodInfo methodInfo = interfaceType.GetMethods()[0];
                     EventConsumerActivation activation = new EventConsumerActivation()
@@ -143,8 +137,6 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         IfNotRegistered<IResolveEventPublisher>(
             services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
         );
-
-        _eventConsumers = null;
     }
 
     private IEnumerable<Type> GetTypesFromAssemblies(Assembly[] assemblies, Func<Type, bool> predicate)

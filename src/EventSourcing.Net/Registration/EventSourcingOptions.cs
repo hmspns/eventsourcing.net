@@ -108,8 +108,7 @@ public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
         Services.IfNotRegistered<ITypeMappingStorageProvider>(x => x.AddSingleton<ITypeMappingStorageProvider, InMemoryTypeMappingStorageProvider>());
         Services.IfNotRegistered<IEventSourcingStorage>(x => x.AddTransient<IEventSourcingStorage, InMemoryEventSourcingStorage>());
                 
-        Bus.RegisterEventConsumersInternal();
-        
+        Bus.RegisterEventAndSagaConsumersInternal();
         
         RegisterEventSourcingEngine();
     }
