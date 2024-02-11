@@ -4,10 +4,13 @@ using EventSourcing.Net.Abstractions.Contracts;
 
 namespace EventSourcing.Net.Engine;
 
+using Abstractions;
+using Collections;
+
 /// <inheritdoc />
 public abstract class StateMutator<TState> : IStateMutator<TState> where TState : class
 {
-    private readonly Dictionary<Type, InternalMutateStateDelegate<TState>> _handlers = new (7);
+    private readonly HybridDictionary<Type, InternalMutateStateDelegate<TState>> _handlers = new();
         
     /// <summary>
     /// Register event handler.
@@ -43,8 +46,9 @@ public abstract class StateMutator<TState> : IStateMutator<TState> where TState 
             Current = handler(eventEnvelope, Current);
             return Current;
         }
-            
-        throw new InvalidOperationException($"Couldn't find handler for type {eventEnvelope.Payload.GetType().FullName}");
+        
+        Exceptions.Thrown.InvalidOperationException($"Couldn't find handler for type {eventEnvelope.Payload.GetType().FullName}");
+        return default; // this line never will be called
     }
 
     /// <summary>
