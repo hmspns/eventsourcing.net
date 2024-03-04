@@ -44,7 +44,7 @@ public sealed class EventStore : IEventStore
         PooledList<IEventEnvelope> events = new PooledList<IEventEnvelope>(dbEvents.Events.Count);
         if (dbEvents.Events.Count > 0)
         {
-            Func<string, object> parser = AggregateIdParsingProvider.Instance.GetParser<TId>();
+            Func<string, object> parser = AggregateIdParsingProvider.Instance.GetParser(typeof(TId));
             foreach (EventPackage eventPackage in dbEvents.Events)
             {
                 IEventEnvelope eventEnvelope = eventPackage.ToEventEnvelope<TId>(parser);

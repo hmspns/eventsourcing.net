@@ -20,3 +20,19 @@ public interface IEventsData : IDisposable
     /// </summary>
     public StreamPosition StreamEndPosition { get; }
 }
+
+/// <summary>
+/// Data of events from storage.
+/// </summary>
+public interface IExtendedEventsData : IDisposable
+{
+    /// <summary>
+    /// Events.
+    /// </summary>
+    public IReadOnlyList<ExtendedEventPackage> Events { get; }
+        
+    /// <summary>
+    /// Stream end position.
+    /// </summary>
+    public StreamPosition StreamEndPosition { get; }
+}

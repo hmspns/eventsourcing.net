@@ -87,7 +87,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
                 break;
         }
 
-        sb.AppendLine($"FROM \"{0}\".\"{1}\"");
+        sb.AppendLine("FROM \"{0}\".\"{1}\"");
 
         string like = readOptions.FilterType == AggregateStreamFilterType.Include ? "LIKE" : "NOT LIKE";
         string condition = readOptions.FilterType == AggregateStreamFilterType.Include ? "OR" : "AND";

@@ -61,7 +61,7 @@ public sealed class InMemoryAppender : IAppendOnly
         }
     }
 
-    public Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
+    public Task<IExtendedEventsData> ReadAllStreams(StreamReadOptions readOptions)
     {
         lock (_locker)
         {

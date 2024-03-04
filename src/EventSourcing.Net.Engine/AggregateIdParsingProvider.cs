@@ -31,27 +31,24 @@ internal sealed class AggregateIdParsingProvider
         Type? idType = typeof(TId);
         if (!_handlers.TryGetValue(idType, out Func<string, object?>? handler))
         {
-            handler = RegisterHandler<TId>();
+            handler = RegisterHandler(idType);
         }
 
         return (TId)handler(value);
     }
 
-    internal Func<string, object> GetParser<TId>()
+    internal Func<string, object> GetParser(Type idType)
     {
-        Type idType = typeof(TId);
         if (!_handlers.TryGetValue(idType, out Func<string, object?>? parser))
         {
-            parser = RegisterHandler<TId>();
+            parser = RegisterHandler(idType);
         }
 
         return parser!;
     }
 
-    private Func<string, object?> RegisterHandler<TId>()
+    private Func<string, object?> RegisterHandler(Type idType)
     {
-        Type idType = typeof(TId);
-        
         TypeConverterAttribute? attribute = idType.GetCustomAttribute<TypeConverterAttribute>();
         TypeConverter? converter = null;
         if (attribute != null)

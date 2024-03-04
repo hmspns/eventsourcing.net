@@ -207,7 +207,7 @@ public sealed class PgSqlAppender : IAppendOnly
     /// </summary>
     /// <param name="readOptions">Search options.</param>
     /// <returns>Events data.</returns>
-    public async Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
+    public async Task<IExtendedEventsData> ReadAllStreams(StreamReadOptions readOptions)
     {
         await using NpgsqlConnection conn = await _dataSource.OpenConnectionAsync().ConfigureAwait(false);
         await using NpgsqlCommand cmd = _commandsBuilder.GetReadAllStreamsCommand(readOptions, SchemaName, _eventsTableName);
@@ -217,11 +217,11 @@ public sealed class PgSqlAppender : IAppendOnly
 
         await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
 
-        List<EventPackage> results = new List<EventPackage>((int)Math.Min(8192, (long)(readOptions.To - readOptions.From)));
+        PooledList<ExtendedEventPackage> results = new PooledList<ExtendedEventPackage>((int)Math.Min(8192, (long)(readOptions.To - readOptions.From)));
 
         while (await reader.ReadAsync().ConfigureAwait(false))
         {
-            EventPackage package = ReadEventPackage(reader, readOptions);
+            ExtendedEventPackage package = ReadEventPackage(reader, readOptions);
 
             results.Add(package);
         }
@@ -229,7 +229,7 @@ public sealed class PgSqlAppender : IAppendOnly
         await reader.CloseAsync().ConfigureAwait(false);
         await conn.CloseAsync().ConfigureAwait(false);
 
-        return new EventsData(results.ToArray(), StreamPosition.End);
+        return new ExtendedEventsData(results, StreamPosition.End);
     }
 
     /// <summary>
@@ -343,17 +343,18 @@ public sealed class PgSqlAppender : IAppendOnly
         }
     }
 
-    private EventPackage ReadEventPackage(NpgsqlDataReader reader, StreamReadOptions readOptions)
+    private ExtendedEventPackage ReadEventPackage(NpgsqlDataReader reader, StreamReadOptions readOptions)
     {
         Guid payloadType;
         byte[] serialized;
         object? payload;
 
-        EventPackage package = new EventPackage();
+        ExtendedEventPackage package = new ExtendedEventPackage();
         package.EventId = reader.GetGuid(PgCommandTextProvider.ID);
         package.StreamName = new StreamId(reader.GetString(PgCommandTextProvider.STREAM_NAME));
         package.StreamPosition = reader.GetInt64(PgCommandTextProvider.STREAM_POSITION);
         package.Timestamp = reader.GetFieldValue<DateTime>(PgCommandTextProvider.TIMESTAMP);
+        package.AggregateTypeId = reader.GetGuid(PgCommandTextProvider.AGGREGATE_ID_TYPE);
         switch (readOptions.ReadingVolume)
         {
             case StreamReadVolume.Data:

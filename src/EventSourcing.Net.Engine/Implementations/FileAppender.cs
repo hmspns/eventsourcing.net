@@ -28,7 +28,7 @@ public sealed class FileAppender : IAppendOnly
         throw new NotSupportedException();
     }
 
-    public Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions)
+    public Task<IExtendedEventsData> ReadAllStreams(StreamReadOptions readOptions)
     {
         throw new NotSupportedException();
     }

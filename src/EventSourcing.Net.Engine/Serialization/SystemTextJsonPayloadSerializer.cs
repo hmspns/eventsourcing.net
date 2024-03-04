@@ -21,7 +21,6 @@ public sealed class SystemTextJsonPayloadSerializer : IPayloadSerializer
         {
             Thrown.ArgumentNullException(nameof(obj));
         }
-        
         byte[] data = JsonSerializer.SerializeToUtf8Bytes(obj, _options);
         return data;
     }

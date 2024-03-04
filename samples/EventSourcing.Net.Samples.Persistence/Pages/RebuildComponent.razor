@@ -1,0 +1,21 @@
+﻿@page "/rebuild"
+<h3>Rebuild views DB</h3>
+
+<div>
+   By clicking button below, views DB will be dropped and recreated based on data in events DB. 
+</div>
+<div>
+    <button class="btn btn-primary" @onclick="Rebuild">Rebuild views DB</button>
+</div>
+
+
+
+@if (_sbLog.Length > 0)
+{
+    <div>
+        Log
+        <code>
+            @_sbLog.ToString()
+        </code>
+    </div>
+}

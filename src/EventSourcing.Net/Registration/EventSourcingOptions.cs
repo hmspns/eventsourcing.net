@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+using Engine.Rebuild;
+
 /// <summary>
 /// Options to configure EventSourcing.Net.
 /// </summary>
@@ -107,7 +109,7 @@ public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
 
         Services.IfNotRegistered<ITypeMappingStorageProvider>(x => x.AddSingleton<ITypeMappingStorageProvider, InMemoryTypeMappingStorageProvider>());
         Services.IfNotRegistered<IEventSourcingStorage>(x => x.AddTransient<IEventSourcingStorage, InMemoryEventSourcingStorage>());
-                
+        
         Bus.BuildEventAndSagaConsumers();
         Bus.BuildCommandHandlers();
         
@@ -121,6 +123,7 @@ public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
         Services.IfNotRegistered<IResolveAppender>(x => x.AddSingleton<IResolveAppender, InMemoryResolveAppender>());
         Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
         Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine, EventSourcingEngine>());
+        Services.IfNotRegistered<IViewsRebuilder>(x => x.AddTransient<IViewsRebuilder, ViewsRebuilder>());
     }
     
     private static Type[] GetTypesForMapping(params Assembly[] assemblies)

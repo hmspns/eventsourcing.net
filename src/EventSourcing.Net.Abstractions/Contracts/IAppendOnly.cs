@@ -51,7 +51,7 @@ public interface IAppendOnly : IDisposable, IAsyncDisposable
     /// <param name="to">Position of last event.</param>
     /// <param name="prefixPattern">Prefix of stream.</param>
     /// <returns>Events data.</returns>
-    Task<IEventsData> ReadAllStreams(StreamPosition from, StreamPosition to, params string[] prefixPattern)
+    Task<IExtendedEventsData> ReadAllStreams(StreamPosition from, StreamPosition to, params string[] prefixPattern)
         => ReadAllStreams(new StreamReadOptions(from, to, filterType: AggregateStreamFilterType.Include,
             prefixPattern: prefixPattern));
 
@@ -60,7 +60,7 @@ public interface IAppendOnly : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="readOptions">Search options.</param>
     /// <returns>Events data.</returns>
-    Task<IEventsData> ReadAllStreams(StreamReadOptions readOptions);
+    Task<IExtendedEventsData> ReadAllStreams(StreamReadOptions readOptions);
 
     /// <summary>
     /// Return streams started with given prefix.
