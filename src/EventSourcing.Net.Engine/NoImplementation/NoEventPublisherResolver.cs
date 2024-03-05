@@ -17,7 +17,7 @@ public sealed class NoEventPublisherResolver : IResolveEventPublisher
 
 public sealed class NoEventPublisher : IEventPublisher
 {
-    public Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events)
+    public Task Publish(ICommandEnvelope? commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
         return Task.CompletedTask;
     }

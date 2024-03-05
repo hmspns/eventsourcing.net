@@ -25,7 +25,7 @@ public sealed class ViewsBatchRebuiltEventArgs : EventArgs
     /// <summary>
     /// Position where rebuild of current batch started.
     /// </summary>
-    public StreamPosition FromPosition { get; init; }
+    public StreamPosition StartPosition { get; init; }
     
     /// <summary>
     /// Position where rebuild of current batch ended.

@@ -43,7 +43,7 @@ public partial class RebuildComponent
 
     private void ViewsRebuilderOnBatchRebuilt(object sender, ViewsBatchRebuiltEventArgs args)
     {
-        WriteLog($"Batch done. Processed {args.EventsProcessed} events");
+        WriteLog($"Batch done. Processed {args.EventsProcessed} events, from {args.StartPosition} to {args.EndPosition}");
     }
 
     private void WriteLog(string message)

@@ -9,6 +9,8 @@ using EventSourcing.Net.Engine.Extensions;
 
 namespace EventSourcing.Net.Engine.Rebuild;
 
+using Abstractions;
+
 /// <summary>
 /// Build views based on events stream.
 /// </summary>
@@ -17,6 +19,7 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     private readonly IResolveAppender _resolveAppender;
     private readonly IResolveEventPublisher _resolveEventPublisher;
     private readonly ITypeMappingHandler _typeMappingHandler;
+    private readonly IEventSourcingStatus _status;
 
     /// <summary>
     /// Raised when rebuild of batch done.
@@ -26,8 +29,10 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     public ViewsRebuilder(
         IResolveAppender resolveAppender,
         IResolveEventPublisher resolveEventPublisher,
-        ITypeMappingHandler typeMappingHandler)
+        ITypeMappingHandler typeMappingHandler,
+        IEventSourcingStatus status)
     {
+        _status = status;
         _typeMappingHandler = typeMappingHandler;
         _resolveEventPublisher = resolveEventPublisher;
         _resolveAppender = resolveAppender;
@@ -39,6 +44,10 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     /// <param name="batchSize">Batch size for iteration.</param>
     public Task Rebuild(int batchSize = 1000)
     {
+        if (_status.IsStarted)
+        {
+            Exceptions.Thrown.InvalidOperationException("Event sourcing engine not started");
+        }
         return RebuildTenant(TenantId.Empty, batchSize);
     }
     
@@ -79,7 +88,7 @@ public sealed class ViewsRebuilder : IViewsRebuilder
                 OnBatchRebuilt?.Invoke(this, new ViewsBatchRebuiltEventArgs()
                 {
                     BatchSize = batchSize,
-                    FromPosition = position,
+                    StartPosition = position,
                     EndPosition = position + batchSize - 1,
                     EventsProcessed = data.Events.Count
                 });

@@ -5,21 +5,25 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+using Abstractions;
+
 /// <summary>
 /// Start event sourcing engine.
 /// </summary>
 public sealed class EventSourcingEngineStarter
 {
     private IServiceProvider _provider;
-    
+    private readonly IEventSourcingStatus _status;
+
     internal bool IsStarted { get; private set; }
 
     /// <summary>
     /// Initialize new object.
     /// </summary>
     /// <param name="provider">Service provider.</param>
-    public EventSourcingEngineStarter(IServiceProvider provider)
+    public EventSourcingEngineStarter(IServiceProvider provider, IEventSourcingStatus status)
     {
+        _status = status;
         _provider = provider;
     }
 
@@ -45,6 +49,9 @@ public sealed class EventSourcingEngineStarter
         EventSourcingEngine.Instance = engine;
         
         IsStarted = true;
+
+        EventSourcingStatus castedStatus = (EventSourcingStatus)_status;
+        castedStatus.IsStarted = true;
 
         if (initializeStorageForDefaultTenant)
         {

@@ -27,5 +27,6 @@ public interface IEventPublisher
     /// </summary>
     /// <param name="commandEnvelope">Command data.</param>
     /// <param name="events">Events to be published.</param>
-    Task Publish(ICommandEnvelope commandEnvelope, IReadOnlyList<IEventEnvelope> events);
+    /// <remarks>Command envelope might be null.</remarks>
+    Task Publish(ICommandEnvelope? commandEnvelope, IReadOnlyList<IEventEnvelope> events);
 }
