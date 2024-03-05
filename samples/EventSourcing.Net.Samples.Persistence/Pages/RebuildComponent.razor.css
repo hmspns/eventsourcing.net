@@ -1,4 +1,6 @@
 ﻿code {
     display: block;
-    white-space: pre-wrap
+    white-space: pre-wrap;
+    background-color: lightgray;
+    padding: 1em;
 }

@@ -19,6 +19,7 @@ public partial class RebuildComponent
     
     private async Task Rebuild()
     {
+        _sbLog.Clear();
         int batchSize = 10;
         try
         {
