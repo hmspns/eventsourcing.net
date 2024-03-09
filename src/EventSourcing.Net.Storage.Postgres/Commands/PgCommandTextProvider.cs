@@ -99,7 +99,7 @@ public sealed class PgCommandTextProvider : IPgCommandTextProvider
                                        string.Join($" {condition} ", p.Select(x => $"{STREAM_NAME} {like} '{x}%'"))
         };
         sb.AppendLine(where);
-        sb.AppendLine($"ORDER BY {STREAM_POSITION} " +
+        sb.AppendLine($"ORDER BY {GLOBAL_POSITION} " +
                       (readOptions.ReadDirection == StreamReadDirection.Forward ? "ASC" : "DESC"));
         sb.AppendLine("LIMIT $1 OFFSET $2");
 

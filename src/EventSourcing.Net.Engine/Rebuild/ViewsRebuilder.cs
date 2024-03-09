@@ -44,10 +44,6 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     /// <param name="batchSize">Batch size for iteration.</param>
     public Task Rebuild(int batchSize = 1000)
     {
-        if (_status.IsStarted)
-        {
-            Exceptions.Thrown.InvalidOperationException("Event sourcing engine not started");
-        }
         return RebuildTenant(TenantId.Empty, batchSize);
     }
     
@@ -58,6 +54,11 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     /// <param name="batchSize">Batch size for iteration.</param>
     public async Task RebuildTenant(TenantId tenantId, int batchSize = 1000)
     {
+        if (!_status.IsStarted)
+        {
+            Exceptions.Thrown.InvalidOperationException("Event sourcing engine not started");
+        }
+        
         StreamPosition position = StreamPosition.Begin;
 
         IExtendedEventsData data = null;
@@ -65,6 +66,7 @@ public sealed class ViewsRebuilder : IViewsRebuilder
         {
             do
             {
+                Stopwatch st = Stopwatch.StartNew();
                 TraceHelper th = new TraceHelper(
                     $"Reading batch from position {position.ToString()}",
                     $"Batch read from {position.ToString()}");
@@ -85,12 +87,15 @@ public sealed class ViewsRebuilder : IViewsRebuilder
                 await BuildViews(publisher, data);
                 th.Dispose(); // to avoid second message on exception
                 
+                st.Stop();
+                
                 OnBatchRebuilt?.Invoke(this, new ViewsBatchRebuiltEventArgs()
                 {
                     BatchSize = batchSize,
                     StartPosition = position,
                     EndPosition = position + batchSize - 1,
-                    EventsProcessed = data.Events.Count
+                    EventsProcessed = data.Events.Count,
+                    TimeElapsed = st.Elapsed
                 });
                 
                 position += batchSize;

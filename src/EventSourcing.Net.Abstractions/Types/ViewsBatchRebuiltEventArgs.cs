@@ -31,4 +31,9 @@ public sealed class ViewsBatchRebuiltEventArgs : EventArgs
     /// Position where rebuild of current batch ended.
     /// </summary>
     public StreamPosition EndPosition { get; init; }
+
+    /// <summary>
+    /// How many time takes rebuild of the batch.
+    /// </summary>
+    public TimeSpan TimeElapsed { get; init; }
 }
