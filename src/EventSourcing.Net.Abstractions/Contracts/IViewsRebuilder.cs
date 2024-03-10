@@ -18,6 +18,13 @@ public interface IViewsRebuilder
     Task Rebuild(int batchSize = 1000);
     
     /// <summary>
+    /// Rebuild views by custom read options.
+    /// </summary>
+    /// <param name="tenantId">Id of tenant to rebuild.</param>
+    /// <param name="readOptions">Options how to read events.</param>
+    Task Rebuild(TenantId tenantId, StreamReadOptions readOptions);
+    
+    /// <summary>
     /// Rebuild views for tenant.
     /// </summary>
     /// <param name="tenantId">Tenant id.</param>

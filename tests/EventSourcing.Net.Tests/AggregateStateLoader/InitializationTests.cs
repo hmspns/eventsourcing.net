@@ -1,6 +1,7 @@
 ﻿namespace EventSourcing.Net.Tests.AggregateStateLoader;
 
 using Abstractions.Contracts;
+using Engine;
 using Engine.Implementations;
 using Engine.InMemory;
 using Engine.NoImplementation;
@@ -88,7 +89,7 @@ public sealed class InitializationTests : IDisposable
         e.Should().Throw<ArgumentNullException>();
     }
 
-    private EventSourcingEngine Create() => new EventSourcingEngine(new EventStoreResolver(new InMemoryResolveAppender()), new NoSnapshotStoreResolver(), new NoEventPublisherResolver());
+    private EventSourcingEngine Create() => new EventSourcingEngine(new EventStoreResolver(new InMemoryResolveAppender(), new AggregateIdParsingProvider()), new NoSnapshotStoreResolver(), new NoEventPublisherResolver());
 
     public void Dispose()
     {

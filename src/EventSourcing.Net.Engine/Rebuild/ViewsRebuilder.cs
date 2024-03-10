@@ -9,6 +9,7 @@ using EventSourcing.Net.Engine.Extensions;
 
 namespace EventSourcing.Net.Engine.Rebuild;
 
+using System.Runtime.InteropServices;
 using Abstractions;
 
 /// <summary>
@@ -20,6 +21,7 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     private readonly IResolveEventPublisher _resolveEventPublisher;
     private readonly ITypeMappingHandler _typeMappingHandler;
     private readonly IEventSourcingStatus _status;
+    private readonly IAggregateIdParsingProvider _aggregateIdParsingProvider;
 
     /// <summary>
     /// Raised when rebuild of batch done.
@@ -30,8 +32,10 @@ public sealed class ViewsRebuilder : IViewsRebuilder
         IResolveAppender resolveAppender,
         IResolveEventPublisher resolveEventPublisher,
         ITypeMappingHandler typeMappingHandler,
-        IEventSourcingStatus status)
+        IEventSourcingStatus status,
+        IAggregateIdParsingProvider aggregateIdParsingProvider)
     {
+        _aggregateIdParsingProvider = aggregateIdParsingProvider;
         _status = status;
         _typeMappingHandler = typeMappingHandler;
         _resolveEventPublisher = resolveEventPublisher;
@@ -47,6 +51,54 @@ public sealed class ViewsRebuilder : IViewsRebuilder
         return RebuildTenant(TenantId.Empty, batchSize);
     }
     
+    /// <summary>
+    /// Rebuild views by custom read options.
+    /// </summary>
+    /// <param name="tenantId">Id of tenant to rebuild.</param>
+    /// <param name="readOptions">Options how to read events.</param>
+    public async Task Rebuild(TenantId tenantId, StreamReadOptions readOptions)
+    {
+        if (!_status.IsStarted)
+        {
+            Exceptions.Thrown.InvalidOperationException("Event sourcing engine not started");
+        }
+
+        Stopwatch st = Stopwatch.StartNew();
+        TraceHelper th = new TraceHelper(
+            $"Reading batch from position {readOptions.From.ToString()}",
+            $"Batch read from {readOptions.From.ToString()}");
+        
+        IAppendOnly appender = _resolveAppender.Get(tenantId);
+        
+        using IExtendedEventsData data = await appender.ReadAllStreams(readOptions).ConfigureAwait(false);
+        
+        th.Dispose(); // to avoid second message on exception
+                
+        if (data.Events.Count == 0)
+        {
+            Trace.WriteLine("There is nothing to rebuild");
+        }
+
+        IEventPublisher publisher = _resolveEventPublisher.Get(tenantId);
+            
+        th = new TraceHelper(
+            $"Creating views for {data.Events.Count.ToString()} events",
+            "Views created");
+        await BuildViews(publisher, data);
+        th.Dispose(); // to avoid second message on exception
+                
+        st.Stop();
+                
+        OnBatchRebuilt?.Invoke(this, new ViewsBatchRebuiltEventArgs()
+        {
+            BatchSize = (int)Math.Abs(readOptions.From - readOptions.To),
+            StartPosition = readOptions.From,
+            EndPosition = readOptions.To,
+            EventsProcessed = data.Events.Count,
+            TimeElapsed = st.Elapsed
+        });
+    }
+
     /// <summary>
     /// Rebuild views for tenant.
     /// </summary>
@@ -174,7 +226,7 @@ public sealed class ViewsRebuilder : IViewsRebuilder
             {
                 typeMappingId = localTypeMappingId;
                 aggregateIdType = _typeMappingHandler.GetTypeById(typeMappingId);
-                parser = AggregateIdParsingProvider.Instance.GetParser(aggregateIdType);
+                parser = _aggregateIdParsingProvider.GetParser(aggregateIdType);
             }
         }
     }

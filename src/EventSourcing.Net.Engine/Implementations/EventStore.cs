@@ -15,15 +15,17 @@ using Pooled.Collections;
 public sealed class EventStoreResolver : IResolveEventStore
 {
     private readonly IResolveAppender _appenderResolver;
+    private readonly IAggregateIdParsingProvider _aggregateIdParsingProvider;
 
-    public EventStoreResolver(IResolveAppender appenderResolver)
+    public EventStoreResolver(IResolveAppender appenderResolver, IAggregateIdParsingProvider aggregateIdParsingProvider)
     {
+        _aggregateIdParsingProvider = aggregateIdParsingProvider;
         _appenderResolver = appenderResolver;
     }
         
     public IEventStore Get(TenantId tenantId)
     {
-        return new EventStore(_appenderResolver.Get(tenantId));
+        return new EventStore(_appenderResolver.Get(tenantId), _aggregateIdParsingProvider);
     }
 }
 
@@ -31,9 +33,11 @@ public sealed class EventStoreResolver : IResolveEventStore
 public sealed class EventStore : IEventStore
 {
     private readonly IAppendOnly _appender;
+    private readonly IAggregateIdParsingProvider _aggregateIdParsingProvider;
 
-    public EventStore(IAppendOnly appender)
+    public EventStore(IAppendOnly appender, IAggregateIdParsingProvider aggregateIdParsingProvider)
     {
+        _aggregateIdParsingProvider = aggregateIdParsingProvider;
         _appender = appender;
     }
         
@@ -44,7 +48,7 @@ public sealed class EventStore : IEventStore
         PooledList<IEventEnvelope> events = new PooledList<IEventEnvelope>(dbEvents.Events.Count);
         if (dbEvents.Events.Count > 0)
         {
-            Func<string, object> parser = AggregateIdParsingProvider.Instance.GetParser(typeof(TId));
+            Func<string, object> parser = _aggregateIdParsingProvider.GetParser(typeof(TId));
             foreach (EventPackage eventPackage in dbEvents.Events)
             {
                 IEventEnvelope eventEnvelope = eventPackage.ToEventEnvelope<TId>(parser);

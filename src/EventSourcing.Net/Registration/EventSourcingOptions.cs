@@ -117,6 +117,9 @@ public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
         RegisterEventSourcingEngine();
     }
 
+    private static readonly AggregateIdParsingProvider _aggregateIdParsingProvider = new AggregateIdParsingProvider();
+    private static readonly EventSourcingStatus _eventSourcingStatus = new EventSourcingStatus();
+
     private void RegisterEventSourcingEngine()
     {
         Services.IfNotRegistered<IResolveEventStore>(x => x.AddSingleton<IResolveEventStore, EventStoreResolver>());
@@ -125,7 +128,8 @@ public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
         Services.IfNotRegistered<IResolveEventPublisher>(x => x.AddSingleton<IResolveEventPublisher, NoEventPublisherResolver>());
         Services.IfNotRegistered<IEventSourcingEngine>(x => x.AddSingleton<IEventSourcingEngine, EventSourcingEngine>());
         Services.IfNotRegistered<IViewsRebuilder>(x => x.AddTransient<IViewsRebuilder, ViewsRebuilder>());
-        Services.IfNotRegistered<IEventSourcingStatus>(x => x.AddSingleton<IEventSourcingStatus, EventSourcingStatus>());
+        Services.IfNotRegistered<IEventSourcingStatus>(x => x.AddSingleton<IEventSourcingStatus>(_eventSourcingStatus));
+        Services.IfNotRegistered<IAggregateIdParsingProvider>(x => x.AddSingleton<IAggregateIdParsingProvider>(_aggregateIdParsingProvider));
     }
     
     private static Type[] GetTypesForMapping(params Assembly[] assemblies)

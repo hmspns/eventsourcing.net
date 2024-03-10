@@ -6,27 +6,13 @@ using EventSourcing.Net.Engine.Exceptions;
 
 namespace EventSourcing.Net.Engine;
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+using Abstractions.Contracts;
 
-internal sealed class AggregateIdParsingProvider
+internal sealed class AggregateIdParsingProvider : IAggregateIdParsingProvider
 {
-    #region Singleton
+    private readonly ConcurrentDictionary<Type, Func<string, object>> _handlers = new ConcurrentDictionary<Type, Func<string, object>>();
 
-    private static readonly AggregateIdParsingProvider _instance = new AggregateIdParsingProvider();
-
-    internal static AggregateIdParsingProvider Instance => _instance;
-
-    private AggregateIdParsingProvider()
-    {
-    }
-
-    #endregion
-
-    private readonly ConcurrentDictionary<Type, Func<string, object?>> _handlers = new ConcurrentDictionary<Type, Func<string, object?>>();
-
-    internal TId Parse<TId>(string value)
+    public TId Parse<TId>(string value)
     {
         Type? idType = typeof(TId);
         if (!_handlers.TryGetValue(idType, out Func<string, object?>? handler))
@@ -37,7 +23,7 @@ internal sealed class AggregateIdParsingProvider
         return (TId)handler(value);
     }
 
-    internal Func<string, object> GetParser(Type idType)
+    public Func<string, object> GetParser(Type idType)
     {
         if (!_handlers.TryGetValue(idType, out Func<string, object?>? parser))
         {
@@ -74,7 +60,16 @@ internal sealed class AggregateIdParsingProvider
             Thrown.InvalidOperationException("Converter doesn't support converting from string to " + idType.AssemblyQualifiedName);
         }
         
-        Func<string, object?> handler = (x) => converter.ConvertFromString(x);
+        Func<string, object> handler = (x) =>
+        {
+            object? value = converter.ConvertFromString(x);
+            if (value == null)
+            {
+                Thrown.InvalidOperationException("AggregateId couldn't be null");
+            }
+
+            return value;
+        };
         _handlers.TryAdd(idType, handler);
         return handler;
     }
