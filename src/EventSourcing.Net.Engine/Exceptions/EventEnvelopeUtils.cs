@@ -37,6 +37,6 @@ internal static class EventEnvelopeUtils
         }
         
         Thrown.InvalidOperationException($"Type {envelope.GetType()} should implement interface IEventEnvelope<TId, TPayload>");
-        return null; // exception will be thrown on line above.
+        return null; // exception will be thrown on the line above.
     }
 }

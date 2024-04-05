@@ -13,19 +13,24 @@ namespace EventSourcing.Net;
 /// <inheritdoc />
 public sealed class InMemoryEventPublisherResolver : IResolveEventPublisher
 {
-    private readonly IServiceProvider _provider;
-    private readonly IReadOnlyDictionary<Type, EventConsumerActivation[]> _handlers;
+    private readonly InMemoryEventPublisher _publisher;
 
     internal InMemoryEventPublisherResolver(IServiceProvider provider,
         IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
     {
-        _provider = provider;
-        _handlers = handlers;
+        IReadOnlyDictionary<Type, EventConsumerActivation[]> localHandlers;
+#if NET8_0_OR_GREATER
+        localHandlers = handlers.ToFrozenDictionary();
+#else
+        localHandlers = handlers;
+#endif
+
+        _publisher = new InMemoryEventPublisher(provider, localHandlers);
     }
 
     public IEventPublisher Get(TenantId tenantId)
     {
-        return new InMemoryEventPublisher(_provider, _handlers);
+        return _publisher;
     }
 }
 
@@ -39,11 +44,7 @@ public sealed class InMemoryEventPublisher : IEventPublisher
         IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
     {
         _provider = provider;
-#if NET8_0_OR_GREATER
-        _handlers = handlers.ToFrozenDictionary();
-#else
         _handlers = handlers;
-#endif
     }
 
     public async Task Publish(ICommandEnvelope? commandEnvelope, IReadOnlyList<IEventEnvelope> events)
