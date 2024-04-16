@@ -14,6 +14,7 @@ namespace EventSourcing.Net;
 /// <summary>
 /// Built in command bus.
 /// </summary>
+[Obsolete($"{nameof(CallByDelegateEventSourcingCommandBus)} has better performance")]
 public sealed class EventSourcingCommandBus : IEventSourcingCommandBus
 {
     /// <inheritdoc />

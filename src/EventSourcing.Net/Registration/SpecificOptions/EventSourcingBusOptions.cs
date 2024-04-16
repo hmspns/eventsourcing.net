@@ -181,7 +181,8 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
 
         handlers.TrimExcess();
         IfNotRegistered<IEventSourcingCommandBus>(
-            services => services.AddSingleton<IEventSourcingCommandBus>(x => new EventSourcingCommandBus(x, handlers))
+            services => services.AddSingleton<IEventSourcingCommandBus>(x => new CallByDelegateEventSourcingCommandBus(x, handlers))
+            // services => services.AddSingleton<IEventSourcingCommandBus>(x => new EventSourcingCommandBus(x, handlers))
         );
         IfNotRegistered<ISagaEventSourcingCommandBus>(
             services => services.AddSingleton<ISagaEventSourcingCommandBus>(x =>
