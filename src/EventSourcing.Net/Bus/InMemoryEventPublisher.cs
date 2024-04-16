@@ -1,16 +1,17 @@
-﻿using EventSourcing.Net.Abstractions.Contracts;
+﻿#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
+using EventSourcing.Net.Abstractions.Contracts;
 using EventSourcing.Net.Abstractions.Identities;
 using EventSourcing.Net.Engine.Exceptions;
 using EventSourcing.Net.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-#if NET8_0_OR_GREATER
-using System.Collections.Frozen;
-#endif
-
 namespace EventSourcing.Net;
 
 /// <inheritdoc />
+[Obsolete($"{nameof(InMemoryEventPublisherResolver)} is more efficient")]
 public sealed class InMemoryEventPublisherResolver : IResolveEventPublisher
 {
     private readonly InMemoryEventPublisher _publisher;
@@ -35,6 +36,7 @@ public sealed class InMemoryEventPublisherResolver : IResolveEventPublisher
 }
 
 /// <inheritdoc />
+[Obsolete($"{nameof(InMemoryCallByExpressionEventPublisher)} is more efficient")]
 public sealed class InMemoryEventPublisher : IEventPublisher
 {
     private readonly IReadOnlyDictionary<Type, EventConsumerActivation[]> _handlers;
@@ -69,3 +71,4 @@ public sealed class InMemoryEventPublisher : IEventPublisher
         }
     }
 }
+

@@ -139,7 +139,8 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
 
         Dictionary<Type, EventConsumerActivation[]> results = consumers.GetResults();
         IfNotRegistered<IResolveEventPublisher>(
-            services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
+            //services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
+            services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventCallByExpressionPublisherResolver(x, results))
         );
     }
 
