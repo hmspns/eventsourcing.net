@@ -90,7 +90,7 @@ public sealed class InMemoryCallByExpressionEventPublisher : IEventPublisher
                 foreach (SpecificMethodActivator activator in activators)
                 {
                     object instance = ActivatorUtilities.GetServiceOrCreateInstance(scope.ServiceProvider, activator.HandlerType);
-                    Task result = activator.Consumer.Invoke(instance, envelope);
+                    Task result = activator.Consumer(instance, envelope);
                     if (result != null)
                     {
                         await result.ConfigureAwait(false);

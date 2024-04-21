@@ -21,7 +21,7 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
 {
     /// <inheritdoc />
     public IPublicationAwaiter PublicationAwaiter => _publicationAwaiter;
-    
+
     private readonly IReadOnlyDictionary<Type, ByDelegateActivation> _handlers;
     private readonly IServiceProvider _provider;
     private readonly InMemoryPublicationAwaiter _publicationAwaiter = new();
@@ -31,7 +31,7 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
         _provider = provider;
 
         _handlers = handlers.ToDictionary(x => x.Key, x => CreateDelegateActivation(x.Value));
-        
+
 #if NET8_0_OR_GREATER
         _handlers = _handlers.ToFrozenDictionary();
 #endif
@@ -57,8 +57,14 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(TenantId tenantId, PrincipalId principalId, string source,
-        TId aggregateId, TPayload commandPayload, CancellationToken cancellationToken = default) where TPayload : ICommand
+    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(
+        TenantId tenantId,
+        PrincipalId principalId,
+        string source,
+        TId aggregateId,
+        TPayload commandPayload,
+        CancellationToken cancellationToken = default)
+        where TPayload : ICommand
     {
         ICommandEnvelope<TId> command = CommandEnvelopeBuilder.ToEnvelope(tenantId, principalId, source, aggregateId, commandPayload);
         return Send<TId, TPayload>(command, cancellationToken);
@@ -80,22 +86,23 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
     /// When ICommand passed as TPayload bus has to use reflection to find the proper handler and create command envelope.
     /// When a specific type passed as TPayload reflection not needed.
     /// </remarks>
-    public Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
+    public async Task<ICommandExecutionResult<TId>> Send<TId, TPayload>(ICommandEnvelope<TId> commandEnvelope, CancellationToken cancellationToken = default)
         where TPayload : ICommand
     {
         ByDelegateActivation activator = GetActivator<TId, TPayload>((TPayload)commandEnvelope.Payload);
-
-        ICommandHandler instance = (ICommandHandler)ActivatorUtilities.GetServiceOrCreateInstance(_provider, activator.HandlerType);
-        instance.Engine = _provider.GetRequiredService<IEventSourcingEngine>();
         
+        await using AsyncServiceScope scope = _provider.CreateAsyncScope();
+        ICommandHandler instance = (ICommandHandler)ActivatorUtilities.GetServiceOrCreateInstance(scope.ServiceProvider, activator.HandlerType);
+        instance.Engine = _provider.GetRequiredService<IEventSourcingEngine>();
+
         Task? result;
-        if (activator.UseCancellation)
+        if (activator.ExecuteCommandDelegate != null)
         {
-            result = activator.ExecuteCommandWithCancellationDelegate!.Invoke(instance, commandEnvelope, cancellationToken);
+            result = activator.ExecuteCommandDelegate!(instance, commandEnvelope);
         }
         else
         {
-            result = activator.ExecuteCommandDelegate!.Invoke(instance, commandEnvelope);
+            result = activator.ExecuteCommandWithCancellationDelegate!(instance, commandEnvelope, cancellationToken);
         }
 
         Task<ICommandExecutionResult<TId>>? task = result as Task<ICommandExecutionResult<TId>>;
@@ -104,10 +111,12 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
             Thrown.InvalidOperationException("Command handler method must return Task<ICommandExecutionResult<TId>>");
         }
 
-        return task;
+        ICommandExecutionResult<TId> data = await task.ConfigureAwait(false);
+        return data;
     }
 
-    private ByDelegateActivation GetActivator<TId, TPayload>(TPayload payload) where TPayload : ICommand
+    private ByDelegateActivation GetActivator<TId, TPayload>(TPayload payload)
+        where TPayload : ICommand
     {
         Type handlerType;
         if (typeof(TPayload) != typeof(ICommand))
@@ -119,7 +128,7 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
             handlerType = typeof(ICommandEnvelope<,>).MakeGenericType(typeof(TId), payload.GetType());
         }
 
-        if(!_handlers.TryGetValue(handlerType, out ByDelegateActivation activator))
+        if (!_handlers.TryGetValue(handlerType, out ByDelegateActivation activator))
         {
             Thrown.InvalidOperationException($"Handler for type {handlerType} not registered");
         }
@@ -132,18 +141,19 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
         ParameterInfo[] paramInfos = activation.Method.GetParameters();
         ExecuteCommandDelegate? executeCommandDelegate = null;
         ExecuteCommandWithCancellationDelegate? executeCommandWithCancellationDelegate = null;
-        
+
         ParameterExpression targetParameter = Expression.Parameter(typeof(object), "handler");
         ParameterExpression envelopeParameter = Expression.Parameter(typeof(ICommandEnvelope), "envelope");
-        
+
         if (activation.UseCancellation)
         {
             if (paramInfos.Length != 2)
             {
                 Thrown.InvalidOperationException("Command consumer with cancellation must accept 2 parameters");
             }
+
             ParameterExpression cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "token");
-            
+
             MethodCallExpression methodCallExpression = Expression.Call(
                 Expression.Convert(targetParameter, activation.Type),
                 activation.Method,
@@ -162,9 +172,9 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
         {
             if (paramInfos.Length != 1)
             {
-                Thrown.InvalidOperationException("Command consumer without cancellation must accept only 1 parameter");    
+                Thrown.InvalidOperationException("Command consumer without cancellation must accept only 1 parameter");
             }
-            
+
             MethodCallExpression methodCallExpression = Expression.Call(
                 Expression.Convert(targetParameter, activation.Type),
                 activation.Method,
@@ -181,15 +191,15 @@ public sealed class CallByDelegateEventSourcingCommandBus : IEventSourcingComman
         return new ByDelegateActivation(
             activation.Type,
             executeCommandDelegate,
-            executeCommandWithCancellationDelegate,
-            executeCommandWithCancellationDelegate != null);
+            executeCommandWithCancellationDelegate);
     }
 
     private delegate Task ExecuteCommandDelegate(object handler, ICommandEnvelope envelope);
 
     private delegate Task ExecuteCommandWithCancellationDelegate(object handler, ICommandEnvelope envelope, CancellationToken token);
 
-    private sealed record ByDelegateActivation(Type HandlerType,
-                                        ExecuteCommandDelegate? ExecuteCommandDelegate,
-                                        ExecuteCommandWithCancellationDelegate? ExecuteCommandWithCancellationDelegate, bool UseCancellation);
+    private sealed record ByDelegateActivation(
+        Type HandlerType,
+        ExecuteCommandDelegate? ExecuteCommandDelegate,
+        ExecuteCommandWithCancellationDelegate? ExecuteCommandWithCancellationDelegate);
 }

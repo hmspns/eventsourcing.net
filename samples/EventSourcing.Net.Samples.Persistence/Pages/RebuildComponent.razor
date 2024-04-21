@@ -2,7 +2,11 @@
 <h3>Rebuild views DB</h3>
 
 <div class="row">
-   By clicking button below, views DB will be dropped and recreated based on data in events DB. 
+    By clicking button below, views DB will be dropped and recreated based on data in events DB. 
+</div>
+<div class="row">
+    Batch size:
+    <input type="number" class="form-control" @bind="BatchSize"/>
 </div>
 <div class="row">
     <button class="btn btn-primary" @onclick="Rebuild">Rebuild views DB</button>

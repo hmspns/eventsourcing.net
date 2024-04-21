@@ -16,11 +16,19 @@ public partial class RebuildComponent
     
     [Inject]
     private ApplicationDbContext Context { get; set; }
+
+    public int BatchSize { get; set; } = 10;
     
     private async Task Rebuild()
     {
         _sbLog.Clear();
-        int batchSize = 10;
+        
+        if (BatchSize <= 0)
+        {
+            _sbLog.AppendLine("Batch size should be greater than 0");
+            return;
+        }
+        
         try
         {
             ViewsRebuilder.OnBatchRebuilt += ViewsRebuilderOnBatchRebuilt;
@@ -32,7 +40,7 @@ public partial class RebuildComponent
             await Context.Database.EnsureCreatedAsync();
             WriteLog("Views db created");
             WriteLog("Starting rebuild");
-            await ViewsRebuilder.Rebuild(batchSize);
+            await ViewsRebuilder.Rebuild(BatchSize);
             WriteLog("Rebuild done");
         }
         finally
