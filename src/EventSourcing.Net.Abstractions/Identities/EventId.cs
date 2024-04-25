@@ -8,7 +8,7 @@ namespace EventSourcing.Net.Abstractions.Identities
     /// Event identifier.
     /// </summary>
     /// <remarks>Generated from EventSourcing.Net.CodeGeneration.Identities.tt</remarks>
-    public readonly struct EventId : IIdentity, IEquatable<EventId>
+    public readonly struct EventId : IIdentity, IEquatable<EventId>, IFormattable, ISpanFormattable
     {
         private readonly Guid _id;
 
@@ -99,6 +99,37 @@ namespace EventSourcing.Net.Abstractions.Identities
         public override string ToString()
         {
             return string.Concat(Prefix, _id.ToString());
+        }
+
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            return string.Concat(Prefix, _id.ToString(format, formatProvider));
+        }
+
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider provider)
+        {
+            int prefixLength = Prefix.Length;
+            Span<char> buffer = stackalloc char[prefixLength + 68];
+            Span<char> prefixBuffer = buffer.Slice(0, prefixLength);
+            Span<char> idBuffer = buffer.Slice(prefixLength);
+            
+            ReadOnlySpan<char> prefixSpan = Prefix.AsSpan();
+            charsWritten = 0;
+            if (!Prefix.TryCopyTo(prefixBuffer))
+            {
+                return false;
+            }
+
+            charsWritten = Prefix.Length;
+            if (!_id.TryFormat(idBuffer, out int idWritten, format))
+            {
+                return false;
+            }
+
+            charsWritten += idWritten;
+            buffer = buffer.Slice(0, charsWritten);
+            
+            return buffer.TryCopyTo(destination);
         }
 
         public bool Equals(EventId other) { return _id == other._id; }
