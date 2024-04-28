@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net.Tests.Serialization;
 
+using Abstractions.Identities;
+
 public sealed class SerializationTests
 {
     [Fact]
@@ -18,7 +20,7 @@ public sealed class SerializationTests
 
         IPayloadSerializerFactory payloadSerializerFactory = provider.GetRequiredService<IPayloadSerializerFactory>();
 
-        SomeData data = new SomeData(Guid.NewGuid());
+        SomeData data = new SomeData(Guid.NewGuid(), CommandId.New(), "one-two-tree");
         byte[] serialized = payloadSerializerFactory.GetSerializer().Serialize(data);
         object deserialized = payloadSerializerFactory.GetSerializer().Deserialize(typeof(SomeData), serialized);
         
@@ -37,12 +39,12 @@ public sealed class SerializationTests
 
         ISnapshotSerializerFactory snapshotSerializerFactory = provider.GetRequiredService<ISnapshotSerializerFactory>();
 
-        SomeData data = new SomeData(Guid.NewGuid());
+        SomeData data = new SomeData(Guid.NewGuid(), CommandId.New(), "one-two-tree");
         byte[] serialized = snapshotSerializerFactory.GetSerializer().Serialize(data);
         object deserialized = snapshotSerializerFactory.GetSerializer().Deserialize(typeof(SomeData), serialized);
         
         deserialized.Should().BeOfType<SomeData>().And.Be(data);
     }
 
-    private record SomeData(Guid Id);
+    private record SomeData(Guid Id, CommandId CommandId, string Name);
 }

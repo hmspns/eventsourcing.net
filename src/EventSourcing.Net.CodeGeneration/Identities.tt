@@ -57,35 +57,50 @@ namespace EventSourcing.Net.Abstractions.Identities
         /// <summary>
         /// Parse from string.
         /// </summary>
-        /// <param name="serializedId">String value.</param>
+        /// <param name="serializedId">Value to parse.</param>
         /// <returns><#=item.Comment#>.</returns>
         /// <exception cref="ArgumentException">String cannot be parsed to <#=item.Name#>.</exception>
-        public static <#=item.Name#> Parse(string serializedId)
+        public static <#=item.Name#> Parse(ReadOnlySpan<char> serializedId)
         {
-            if (serializedId?.StartsWith(Prefix, StringComparison.Ordinal) != true)
+            if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
             {
                 Thrown.ArgumentException("<#=item.Name#> shouldn't be null and should starts with prefix " + Prefix, nameof(serializedId));
             }
-
-            ReadOnlySpan<char> span = serializedId.AsSpan();
-            Guid id = Guid.Parse(span.Slice(Prefix.Length));
+            
+            Guid id = Guid.Parse(serializedId.Slice(Prefix.Length));
 
             return new <#=item.Name#>(id);
         }
 
         /// <summary>
-        /// Parse from string without throwing exception.
+        /// Parse from string.
         /// </summary>
         /// <param name="serializedId">String value.</param>
+        /// <returns><#=item.Comment#>.</returns>
+        /// <exception cref="ArgumentException">String cannot be parsed to <#=item.Name#>.</exception>
+        public static <#=item.Name#> Parse(string serializedId)
+        {
+            if (serializedId == null)
+            {
+                Thrown.ArgumentNullException(nameof(serializedId));
+            }
+
+            return Parse(serializedId.AsSpan());
+        }
+
+        /// <summary>
+        /// Parse from string without throwing exception.
+        /// </summary>
+        /// <param name="serializedId">Value to parse.</param>
         /// <param name="id">Parsed <#=item.Name#>.</param>
         /// <returns>True if parsed successfully, otherwise false.</returns>
-        public static bool TryParse(string serializedId, out <#=item.Name#> id)
+        public static bool TryParse(ReadOnlySpan<char> serializedId, out <#=item.Name#> id)
         {
             Guid guid;
 
-            if (!string.IsNullOrWhiteSpace(serializedId) && serializedId.StartsWith(Prefix, StringComparison.Ordinal))
+            if (serializedId.StartsWith(Prefix, StringComparison.Ordinal))
             {
-                ReadOnlySpan<char> span = serializedId.AsSpan().Slice(Prefix.Length);
+                ReadOnlySpan<char> span = serializedId.Slice(Prefix.Length);
                 if (Guid.TryParse(span, out guid))
                 {
                     id = new <#=item.Name#>(guid);
@@ -95,6 +110,24 @@ namespace EventSourcing.Net.Abstractions.Identities
 
             id = default(<#=item.Name#>);
             return false;
+        }
+
+
+        /// <summary>
+        /// Parse from string without throwing exception.
+        /// </summary>
+        /// <param name="serializedId">String value.</param>
+        /// <param name="id">Parsed <#=item.Name#>.</param>
+        /// <returns>True if parsed successfully, otherwise false.</returns>
+        public static bool TryParse(string serializedId, out <#=item.Name#> id)
+        {
+            if (serializedId == null)
+            {
+                id = default;
+                return false;
+            }
+
+            return TryParse(serializedId.AsSpan(), out id);
         }
 
         /// <summary>
@@ -225,6 +258,27 @@ namespace EventSourcing.Net.Abstractions.Identities
         /// <param name="serializedId">String value.</param>
         /// <returns><#=item.Comment#>.</returns>
         /// <exception cref="ArgumentException">String cannot be parsed to <#=item.Name#>.</exception>
+        public static <#=item.Name#> Parse(ReadOnlySpan<char> serializedId)
+        {
+            if (serializedId == null)
+            {
+                throw new ArgumentNullException(nameof(serializedId));
+            }
+
+            if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                throw new ArgumentException("Invalid <#=item.Name#>", "serializedId");
+            }
+
+            return new <#=item.Name#>(serializedId.Slice(Prefix.Length).ToString());
+        }
+
+        /// <summary>
+        /// Parse from string.
+        /// </summary>
+        /// <param name="serializedId">String value.</param>
+        /// <returns><#=item.Comment#>.</returns>
+        /// <exception cref="ArgumentException">String cannot be parsed to <#=item.Name#>.</exception>
         public static <#=item.Name#> Parse(string serializedId)
         {
             if (serializedId == null)
@@ -302,6 +356,31 @@ namespace EventSourcing.Net.Abstractions.Contracts
         /// <summary>
         /// Parse from string.
         /// </summary>
+        /// <param name="raw">Value to parse.</param>
+        /// <returns>Identity with correct type.</returns>
+        /// <exception cref="ArgumentNullException">Passed null value.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Prefix couldn't be found.</exception>
+        static IIdentity Parse(ReadOnlySpan<char> raw)
+        {
+            IIdentity result = raw switch
+            {
+                ReadOnlySpan<char> s when s.IsEmpty => throw new ArgumentNullException(nameof(raw)),
+<#
+foreach (DataItem item in data.All)
+{
+#>
+                ReadOnlySpan<char> s when s.StartsWith("<#=item.Prefix#>_", StringComparison.Ordinal) => <#=item.Name#>.Parse(raw),
+<#
+}
+#>
+                _ => throw new ArgumentOutOfRangeException(nameof(raw), new string(raw), "Raw is null")
+            };
+            return result;
+        }
+
+        /// <summary>
+        /// Parse from string.
+        /// </summary>
         /// <param name="raw">Prefixed string.</param>
         /// <returns>Identity with correct type.</returns>
         /// <exception cref="ArgumentNullException">Passed null value.</exception>
@@ -325,6 +404,42 @@ foreach (var item in data.All)
         }
 
         /// <summary>
+        /// Parse value safe.
+        /// </summary>
+        /// <param name="raw">Value to parse.</param>
+        /// <param name="identity">Parsed identity with the correct type.</param>
+        /// <returns>True if parsed successfully, otherwise false.</returns>
+        /// <exception cref="ArgumentNullException">Passed null value.</exception>
+        static bool TryParse(ReadOnlySpan<char> raw, out IIdentity identity)
+        {
+            try
+            {
+                identity = raw switch
+                {
+<#
+foreach (DataItem item in data.All)
+{
+#>
+                    ReadOnlySpan<char> s when s.StartsWith("<#=item.Prefix#>_", StringComparison.Ordinal) => <#=item.Name#>.Parse(raw),
+<#
+}
+#>
+                    _ => default
+                };
+                if (identity != default)
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                identity = default;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Parse from string.
         /// </summary>
         /// <param name="raw">Prefixed string.</param>
@@ -337,12 +452,12 @@ foreach (var item in data.All)
             {
                 identity = raw switch
                 {
-                    null => throw new ArgumentNullException(nameof(raw)),
+                    null => default,
 <#
 foreach (var item in data.All)
 {
 #>
-                    var s when s.StartsWith("<#=item.Prefix#>_") => <#=item.Name#>.Parse(raw),
+                    string s when s.StartsWith("<#=item.Prefix#>_") => <#=item.Name#>.Parse(raw),
 <#
 }
 #>

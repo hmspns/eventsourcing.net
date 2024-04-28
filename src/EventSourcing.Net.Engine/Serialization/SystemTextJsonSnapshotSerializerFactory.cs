@@ -18,14 +18,14 @@ public sealed class SystemTextJsonSnapshotSerializerFactory : ISnapshotSerialize
                 WriteIndented = false,
                 Converters =
                 {
-                    new IIdentityConverter(),
+                    new IdentityJsonConverterFactory(),
                     new JsonStringEnumConverter()
                 }
             };
         }
         else
         {
-            options.Converters.Add(new IIdentityConverter());
+            options.Converters.Add(new IdentityJsonConverterFactory());
         }
         
         _serializer = new SystemTextJsonPayloadSerializer(options);

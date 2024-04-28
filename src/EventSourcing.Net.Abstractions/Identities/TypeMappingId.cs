@@ -41,35 +41,50 @@ namespace EventSourcing.Net.Abstractions.Identities
         /// <summary>
         /// Parse from string.
         /// </summary>
-        /// <param name="serializedId">String value.</param>
+        /// <param name="serializedId">Value to parse.</param>
         /// <returns>Id of mapping for type.</returns>
         /// <exception cref="ArgumentException">String cannot be parsed to TypeMappingId.</exception>
-        public static TypeMappingId Parse(string serializedId)
+        public static TypeMappingId Parse(ReadOnlySpan<char> serializedId)
         {
-            if (serializedId?.StartsWith(Prefix, StringComparison.Ordinal) != true)
+            if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
             {
                 Thrown.ArgumentException("TypeMappingId shouldn't be null and should starts with prefix " + Prefix, nameof(serializedId));
             }
-
-            ReadOnlySpan<char> span = serializedId.AsSpan();
-            Guid id = Guid.Parse(span.Slice(Prefix.Length));
+            
+            Guid id = Guid.Parse(serializedId.Slice(Prefix.Length));
 
             return new TypeMappingId(id);
         }
 
         /// <summary>
-        /// Parse from string without throwing exception.
+        /// Parse from string.
         /// </summary>
         /// <param name="serializedId">String value.</param>
+        /// <returns>Id of mapping for type.</returns>
+        /// <exception cref="ArgumentException">String cannot be parsed to TypeMappingId.</exception>
+        public static TypeMappingId Parse(string serializedId)
+        {
+            if (serializedId == null)
+            {
+                Thrown.ArgumentNullException(nameof(serializedId));
+            }
+
+            return Parse(serializedId.AsSpan());
+        }
+
+        /// <summary>
+        /// Parse from string without throwing exception.
+        /// </summary>
+        /// <param name="serializedId">Value to parse.</param>
         /// <param name="id">Parsed TypeMappingId.</param>
         /// <returns>True if parsed successfully, otherwise false.</returns>
-        public static bool TryParse(string serializedId, out TypeMappingId id)
+        public static bool TryParse(ReadOnlySpan<char> serializedId, out TypeMappingId id)
         {
             Guid guid;
 
-            if (!string.IsNullOrWhiteSpace(serializedId) && serializedId.StartsWith(Prefix, StringComparison.Ordinal))
+            if (serializedId.StartsWith(Prefix, StringComparison.Ordinal))
             {
-                ReadOnlySpan<char> span = serializedId.AsSpan().Slice(Prefix.Length);
+                ReadOnlySpan<char> span = serializedId.Slice(Prefix.Length);
                 if (Guid.TryParse(span, out guid))
                 {
                     id = new TypeMappingId(guid);
@@ -79,6 +94,24 @@ namespace EventSourcing.Net.Abstractions.Identities
 
             id = default(TypeMappingId);
             return false;
+        }
+
+
+        /// <summary>
+        /// Parse from string without throwing exception.
+        /// </summary>
+        /// <param name="serializedId">String value.</param>
+        /// <param name="id">Parsed TypeMappingId.</param>
+        /// <returns>True if parsed successfully, otherwise false.</returns>
+        public static bool TryParse(string serializedId, out TypeMappingId id)
+        {
+            if (serializedId == null)
+            {
+                id = default;
+                return false;
+            }
+
+            return TryParse(serializedId.AsSpan(), out id);
         }
 
         /// <summary>

@@ -49,6 +49,27 @@ namespace EventSourcing.Net.Abstractions.Identities
         /// <param name="serializedId">String value.</param>
         /// <returns>Principal identifier.</returns>
         /// <exception cref="ArgumentException">String cannot be parsed to PrincipalId.</exception>
+        public static PrincipalId Parse(ReadOnlySpan<char> serializedId)
+        {
+            if (serializedId == null)
+            {
+                throw new ArgumentNullException(nameof(serializedId));
+            }
+
+            if (!serializedId.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                throw new ArgumentException("Invalid PrincipalId", "serializedId");
+            }
+
+            return new PrincipalId(serializedId.Slice(Prefix.Length).ToString());
+        }
+
+        /// <summary>
+        /// Parse from string.
+        /// </summary>
+        /// <param name="serializedId">String value.</param>
+        /// <returns>Principal identifier.</returns>
+        /// <exception cref="ArgumentException">String cannot be parsed to PrincipalId.</exception>
         public static PrincipalId Parse(string serializedId)
         {
             if (serializedId == null)

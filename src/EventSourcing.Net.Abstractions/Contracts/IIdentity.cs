@@ -12,6 +12,29 @@ namespace EventSourcing.Net.Abstractions.Contracts
         /// <summary>
         /// Parse from string.
         /// </summary>
+        /// <param name="raw">Value to parse.</param>
+        /// <returns>Identity with correct type.</returns>
+        /// <exception cref="ArgumentNullException">Passed null value.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Prefix couldn't be found.</exception>
+        static IIdentity Parse(ReadOnlySpan<char> raw)
+        {
+            IIdentity result = raw switch
+            {
+                ReadOnlySpan<char> s when s.IsEmpty => throw new ArgumentNullException(nameof(raw)),
+                ReadOnlySpan<char> s when s.StartsWith("command_", StringComparison.Ordinal) => CommandId.Parse(raw),
+                ReadOnlySpan<char> s when s.StartsWith("command-sequence_", StringComparison.Ordinal) => CommandSequenceId.Parse(raw),
+                ReadOnlySpan<char> s when s.StartsWith("event_", StringComparison.Ordinal) => EventId.Parse(raw),
+                ReadOnlySpan<char> s when s.StartsWith("principal_", StringComparison.Ordinal) => PrincipalId.Parse(raw),
+                ReadOnlySpan<char> s when s.StartsWith("tenant_", StringComparison.Ordinal) => TenantId.Parse(raw),
+                ReadOnlySpan<char> s when s.StartsWith("type-mapping_", StringComparison.Ordinal) => TypeMappingId.Parse(raw),
+                _ => throw new ArgumentOutOfRangeException(nameof(raw), new string(raw), "Raw is null")
+            };
+            return result;
+        }
+
+        /// <summary>
+        /// Parse from string.
+        /// </summary>
         /// <param name="raw">Prefixed string.</param>
         /// <returns>Identity with correct type.</returns>
         /// <exception cref="ArgumentNullException">Passed null value.</exception>
@@ -33,6 +56,40 @@ namespace EventSourcing.Net.Abstractions.Contracts
         }
 
         /// <summary>
+        /// Parse value safe.
+        /// </summary>
+        /// <param name="raw">Value to parse.</param>
+        /// <param name="identity">Parsed identity with the correct type.</param>
+        /// <returns>True if parsed successfully, otherwise false.</returns>
+        /// <exception cref="ArgumentNullException">Passed null value.</exception>
+        static bool TryParse(ReadOnlySpan<char> raw, out IIdentity identity)
+        {
+            try
+            {
+                identity = raw switch
+                {
+                    ReadOnlySpan<char> s when s.StartsWith("command_", StringComparison.Ordinal) => CommandId.Parse(raw),
+                    ReadOnlySpan<char> s when s.StartsWith("command-sequence_", StringComparison.Ordinal) => CommandSequenceId.Parse(raw),
+                    ReadOnlySpan<char> s when s.StartsWith("event_", StringComparison.Ordinal) => EventId.Parse(raw),
+                    ReadOnlySpan<char> s when s.StartsWith("principal_", StringComparison.Ordinal) => PrincipalId.Parse(raw),
+                    ReadOnlySpan<char> s when s.StartsWith("tenant_", StringComparison.Ordinal) => TenantId.Parse(raw),
+                    ReadOnlySpan<char> s when s.StartsWith("type-mapping_", StringComparison.Ordinal) => TypeMappingId.Parse(raw),
+                    _ => default
+                };
+                if (identity != default)
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                identity = default;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Parse from string.
         /// </summary>
         /// <param name="raw">Prefixed string.</param>
@@ -45,13 +102,13 @@ namespace EventSourcing.Net.Abstractions.Contracts
             {
                 identity = raw switch
                 {
-                    null => throw new ArgumentNullException(nameof(raw)),
-                    var s when s.StartsWith("command_") => CommandId.Parse(raw),
-                    var s when s.StartsWith("command-sequence_") => CommandSequenceId.Parse(raw),
-                    var s when s.StartsWith("event_") => EventId.Parse(raw),
-                    var s when s.StartsWith("principal_") => PrincipalId.Parse(raw),
-                    var s when s.StartsWith("tenant_") => TenantId.Parse(raw),
-                    var s when s.StartsWith("type-mapping_") => TypeMappingId.Parse(raw),
+                    null => default,
+                    string s when s.StartsWith("command_") => CommandId.Parse(raw),
+                    string s when s.StartsWith("command-sequence_") => CommandSequenceId.Parse(raw),
+                    string s when s.StartsWith("event_") => EventId.Parse(raw),
+                    string s when s.StartsWith("principal_") => PrincipalId.Parse(raw),
+                    string s when s.StartsWith("tenant_") => TenantId.Parse(raw),
+                    string s when s.StartsWith("type-mapping_") => TypeMappingId.Parse(raw),
                     _ => default
                 };
                 if (identity != default)
