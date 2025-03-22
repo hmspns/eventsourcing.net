@@ -2,6 +2,7 @@ namespace EventSourcing.Net.Tests.Storage.Postgres;
 
 using System.Reflection;
 using Abstractions.Contracts;
+using Abstractions.Identities;
 using Engine.Implementations;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Storage.Postgres;
@@ -41,7 +42,7 @@ public sealed class SequenceTests : IDisposable
         {
             for (int i = 0; i < 100; i++)
             {
-                await bus.Send(id, new AddItemCommand()).ConfigureAwait(false);
+                await bus.Send(TenantId.Empty, PrincipalId.New("test"), id, new AddItemCommand()).ConfigureAwait(false);
             }
         }
 

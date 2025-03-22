@@ -197,5 +197,3 @@ public async Task CreateUser(IEventSourcingCommandBus bus)
 - [EventSourcing.Net.Bus.Mediatr](https://www.nuget.org/packages/EventSourcing.Net.Bus.Mediatr/) - the implementation of EventSourcing.Net bus based on MediatR.
 - [EventSourcing.Net.Serialization.NewtonsoftJson](https://www.nuget.org/packages/EventSourcing.Net.Serialization.NewtonsoftJson/) - the implementation of EventSourcing.Net serialization based on Newtonsoft.Json.
 - [EventSourcing.Net.Serialization.ProtobufNet](https://www.nuget.org/packages/EventSourcing.Net.Serialization.ProtobufNet/) - the implementation of EventSourcing.Net serialization based on protobuf-net.
-
-

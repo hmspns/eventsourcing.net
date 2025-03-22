@@ -20,7 +20,7 @@ public abstract class StateMutator<TState> : IStateMutator<TState> where TState 
     /// <typeparam name="TPayload">Type of payload.</typeparam>
     protected void Register<TId, TPayload>(MutateStateDelegate<TId, TPayload, TState> handler) where TPayload : IEvent
     {
-        // use non-generic version of IEventEnvelop<TId, TPayload> to allow call from non generic context.
+        // use non-generic version of IEventEnvelop<TId, TPayload> to allow call from non-generic context.
         TState Wrapper(IEventEnvelope @event, TState state)
         {
             return handler((IEventEnvelope<TId, TPayload>)@event, state);

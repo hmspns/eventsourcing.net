@@ -304,43 +304,34 @@ public sealed class PgSqlAppender : IAppendOnly
 
     private void ReadEventPackage(NpgsqlDataReader reader, StreamId streamName, out EventPackage package)
     {
-        package = new EventPackage
-        {
-            StreamName = streamName,
-            EventId = reader.GetGuid(0),
-            StreamPosition = reader.GetInt64(1),
-            Timestamp = reader.GetFieldValue<DateTime>(2),
-            CommandId = reader.GetGuid(3),
-            SequenceId = reader.GetGuid(4)
-        };
+        Unsafe.SkipInit(out package);
+        package.StreamName = streamName;
+        package.EventId = reader.GetGuid(0);
+        package.StreamPosition = reader.GetInt64(1);
+        package.Timestamp = reader.GetFieldValue<DateTime>(2);
+        package.CommandId = reader.GetGuid(3);
+        package.SequenceId = reader.GetGuid(4);
+
         Guid payloadType = reader.GetGuid(5);
         byte[] serialized = reader.GetFieldValue<byte[]>(6);
 
         object payload = Deserialize(payloadType, serialized);
         package.Payload = payload;
 
+        int principalIdPosition = 7;
         PgStorageOptions options = _storageOptions;
-        if (options.StoreTenantId && options.StorePrincipal)
+        
+        if (options.StoreTenantId)
         {
             package.TenantId = reader.GetGuid(7);
-            package.PrincipalId = PrincipalId.Parse(reader.GetString(8));
+            principalIdPosition = 8;
         }
         else
         {
-            if (options.StoreTenantId)
-            {
-                package.TenantId = reader.GetGuid(7);
-            }
-            else
-            {
-                package.TenantId = _tenantId;
-            }
-
-            if (options.StorePrincipal)
-            {
-                package.PrincipalId = PrincipalId.Parse(reader.GetString(7));
-            }
+            package.TenantId = _tenantId;
         }
+        
+        package.PrincipalId = options.StorePrincipal ? PrincipalId.Parse(reader.GetString(principalIdPosition)) : PrincipalId.Empty;
     }
 
     private ExtendedEventPackage ReadEventPackage(NpgsqlDataReader reader, StreamReadOptions readOptions)
