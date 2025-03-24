@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>EventSourcing.Net.Storage.Sqlite</AssemblyName>
+        <RootNamespace>EventSourcing.Net.Storage.Sqlite</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="readme.md">
+        <Pack>true</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventSourcing.Net.Abstractions\EventSourcing.Net.Abstractions.csproj" />
+      <ProjectReference Include="..\EventSourcing.Net\EventSourcing.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.3" />
+    </ItemGroup>
+
+</Project>

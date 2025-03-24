@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.CustomIdTypes", "..\samples\EventSourcing.Net.Samples.CustomIdTypes\EventSourcing.Net.Samples.CustomIdTypes.csproj", "{DB41558A-17C7-43FF-A18D-89E640554282}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Storage.SQLite", "EventSourcing.Net.Storage.SQLite\EventSourcing.Net.Storage.SQLite.csproj", "{869BAE6A-5EB1-40A2-A8A2-15305D4F40A1}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,6 +150,10 @@ Global
 		{DB41558A-17C7-43FF-A18D-89E640554282}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB41558A-17C7-43FF-A18D-89E640554282}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB41558A-17C7-43FF-A18D-89E640554282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869BAE6A-5EB1-40A2-A8A2-15305D4F40A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869BAE6A-5EB1-40A2-A8A2-15305D4F40A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869BAE6A-5EB1-40A2-A8A2-15305D4F40A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869BAE6A-5EB1-40A2-A8A2-15305D4F40A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
