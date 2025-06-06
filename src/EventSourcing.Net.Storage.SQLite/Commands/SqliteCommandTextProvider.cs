@@ -220,7 +220,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
 
     private void BuildCreateDataStorage()
     {
-        string binaryType = _options.BinaryDataType == BinaryDataType.Json ? "TEXT" : "BLOB";
+        string binaryType = "TEXT";
         StringBuilder sb = new StringBuilder();
         sb.AppendLine($@"CREATE TABLE IF NOT EXISTS ""{{1}}""
             (

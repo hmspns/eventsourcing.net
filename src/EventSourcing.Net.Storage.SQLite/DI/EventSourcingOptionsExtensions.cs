@@ -49,7 +49,7 @@ public static class EventSourcingOptionsExtensions
             .ReplaceTransient<ITypeMappingStorageProvider>(x =>
             {
                 ISqliteCommandsBuilder commandsBuilder = x.GetRequiredService<ISqliteCommandsBuilder>();
-                return new SqliteTypeMappingStorageProvider(connectionString, storageOptions, commandsBuilder);
+                return new SqliteTypeMappingStorageProvider(new SqliteDataSource(connectionString), storageOptions, commandsBuilder);
             })
             .ReplaceTransient<IEventSourcingStorage, SqliteEventSourcingStorage>();
         

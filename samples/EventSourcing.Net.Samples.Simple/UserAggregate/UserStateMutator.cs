@@ -13,7 +13,7 @@ public class UserStateMutator : StateMutator<UserState>
         IsCreated = false,
         IsDeleted = false
     };
-
+    
     public UserStateMutator()
     {
         // here we register our handlers witch will be update the state
@@ -25,7 +25,7 @@ public class UserStateMutator : StateMutator<UserState>
         Register<Guid, UserDeletedEvent>(Handle);
     }
     
-    private UserState Handle(IEventEnvelope<Guid, UserCreatedEvent> e, UserState state)
+    private static UserState Handle(IEventEnvelope<Guid, UserCreatedEvent> e, UserState state)
     {
         state.Name = e.Payload.Name;
         state.BirthDate = e.Payload.BirthDate;
@@ -35,21 +35,21 @@ public class UserStateMutator : StateMutator<UserState>
         return state;
     }
 
-    private UserState Handle(IEventEnvelope<Guid, UserNameChangedEvent> e, UserState state)
+    private static UserState Handle(IEventEnvelope<Guid, UserNameChangedEvent> e, UserState state)
     {
         state.Name = e.Payload.NewName;
 
         return state;
     }
     
-    private UserState Handle(IEventEnvelope<Guid, UserPhoneChangedEvent> e, UserState state)
+    private static UserState Handle(IEventEnvelope<Guid, UserPhoneChangedEvent> e, UserState state)
     {
         state.PhoneNumber = e.Payload.NewPhoneNumber;
 
         return state;
     }
     
-    private UserState Handle(IEventEnvelope<Guid, UserDeletedEvent> e, UserState state)
+    private static UserState Handle(IEventEnvelope<Guid, UserDeletedEvent> e, UserState state)
     {
         state.IsDeleted = true; // mark that current user is deleted now
 

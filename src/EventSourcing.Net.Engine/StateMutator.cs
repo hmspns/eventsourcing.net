@@ -10,7 +10,27 @@ using Collections;
 /// <inheritdoc />
 public abstract class StateMutator<TState> : IStateMutator<TState> where TState : class
 {
-    private readonly HybridDictionary<Type, InternalMutateStateDelegate<TState>> _handlers = new();
+    private static readonly HybridDictionary<Type, InternalMutateStateDelegate<TState>> _staticHandlers = new();
+        
+    private HybridDictionary<Type, InternalMutateStateDelegate<TState>> _instanceHandlers = new();
+    
+    /// <summary>
+    /// Register event handler.
+    /// </summary>
+    /// <param name="handler">Handler.</param>
+    /// <typeparam name="TId">Type of id.</typeparam>
+    /// <typeparam name="TPayload">Type of payload.</typeparam>
+    /// <remarks>This is the same operation as "Register", but register handler in a static dictionary. It's more efficient than instance registration.</remarks>
+    protected static void RegisterStatic<TId, TPayload>(MutateStateDelegate<TId, TPayload, TState> handler) where TPayload : IEvent
+    {
+        // use non-generic version of IEventEnvelop<TId, TPayload> to allow call from non-generic context.
+        TState Wrapper(IEventEnvelope @event, TState state)
+        {
+            return handler((IEventEnvelope<TId, TPayload>)@event, state);
+        }
+        
+        _staticHandlers[typeof(TPayload)] = Wrapper;
+    }
         
     /// <summary>
     /// Register event handler.
@@ -20,13 +40,18 @@ public abstract class StateMutator<TState> : IStateMutator<TState> where TState 
     /// <typeparam name="TPayload">Type of payload.</typeparam>
     protected void Register<TId, TPayload>(MutateStateDelegate<TId, TPayload, TState> handler) where TPayload : IEvent
     {
+        if (_instanceHandlers == null)
+        {
+            _instanceHandlers = new HybridDictionary<Type, InternalMutateStateDelegate<TState>>();
+        }
+        
         // use non-generic version of IEventEnvelop<TId, TPayload> to allow call from non-generic context.
         TState Wrapper(IEventEnvelope @event, TState state)
         {
             return handler((IEventEnvelope<TId, TPayload>)@event, state);
         }
         
-        _handlers[typeof(TPayload)] = Wrapper;
+        _instanceHandlers[typeof(TPayload)] = Wrapper;
     }
 
     /// <summary>
@@ -41,13 +66,20 @@ public abstract class StateMutator<TState> : IStateMutator<TState> where TState 
     /// <returns>State after changes.</returns>
     public TState Transition(IEventEnvelope eventEnvelope)
     {
-        if (_handlers.TryGetValue(eventEnvelope.Payload.GetType(), out InternalMutateStateDelegate<TState>? handler))
+        Type type = eventEnvelope.Payload.GetType();
+        if (_staticHandlers.Count > 0 && _staticHandlers.TryGetValue(type, out InternalMutateStateDelegate<TState>? handler))
         {
             Current = handler(eventEnvelope, Current);
             return Current;
         }
         
-        Exceptions.Thrown.InvalidOperationException($"Couldn't find handler for type {eventEnvelope.Payload.GetType().FullName}");
+        if (_instanceHandlers != null && _instanceHandlers.TryGetValue(type, out handler))
+        {
+            Current = handler(eventEnvelope, Current);
+            return Current;
+        }
+        
+        Exceptions.Thrown.InvalidOperationException($"Couldn't find handler for type {type.FullName}");
         return default; // this line never will be called
     }
 

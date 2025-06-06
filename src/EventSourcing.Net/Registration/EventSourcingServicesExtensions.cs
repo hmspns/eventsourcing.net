@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+/// <summary>
+/// Provides extension methods to integrate event sourcing features into services.
+/// </summary>
 public static class EventSourcingServicesExtensions
 {
     /// <summary>
