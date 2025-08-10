@@ -7,11 +7,11 @@ using MassTransit.Mediator;
 namespace EventSourcing.Net.Bus.MassTransit;
 
 /// <inheritdoc />
-public sealed class EventPublisherResolver : IResolveEventPublisher
+public sealed class MassTransitEventPublisherResolver : IResolveEventPublisher
 {
     private readonly IMediator _mediator;
 
-    public EventPublisherResolver(IMediator mediator)
+    public MassTransitEventPublisherResolver(IMediator mediator)
     {
         _mediator = mediator;
     }

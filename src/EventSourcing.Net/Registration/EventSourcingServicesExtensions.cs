@@ -28,7 +28,7 @@ public static class EventSourcingServicesExtensions
     
     internal static void Remove(this IServiceCollection services, Type interfaceType)
     {
-        IEnumerable<ServiceDescriptor> descriptors = services.Where(x => x.ServiceType == interfaceType);
+        IEnumerable<ServiceDescriptor> descriptors = services.Where(x => x.ServiceType == interfaceType).ToArray();
         foreach (ServiceDescriptor? descriptor in descriptors)
         {
             if (descriptor != null)

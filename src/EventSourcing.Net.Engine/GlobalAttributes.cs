@@ -6,3 +6,4 @@
 [assembly: InternalsVisibleTo("EventSourcing.Net.Storage.Sqlite")]
 [assembly: InternalsVisibleTo("EventSourcing.Net.Bus.Mediatr")]
 [assembly: InternalsVisibleTo("EventSourcing.Net.Tests")]
+[assembly: InternalsVisibleTo("EventSourcing.Net.Telemetry")]

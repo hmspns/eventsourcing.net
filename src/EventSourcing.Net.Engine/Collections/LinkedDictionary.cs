@@ -11,6 +11,8 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     private Node? _head;
     private byte _count;
     private readonly IEqualityComparer<TKey>? _comparer;
+    private KeyCollection? _keys;
+    private ValueCollection? _values;
 
     internal LinkedDictionary(IEqualityComparer<TKey>? comparer)
     {
@@ -249,35 +251,11 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     /// <summary>Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2" />.</summary>
     /// <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
-    public ICollection<TKey> Keys
-    {
-        get
-        {
-            List<TKey> keys = new List<TKey>(_count);
-            for (Node? node = _head; node != null; node = node.next)
-            {
-                keys.Add(node.key);
-            }
-
-            return keys;
-        }
-    }
+    public ICollection<TKey> Keys => _keys ??= new KeyCollection(this);
 
     /// <summary>Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2" />.</summary>
     /// <returns>An <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" />.</returns>
-    public ICollection<TValue> Values
-    {
-        get
-        {
-            List<TValue> values = new List<TValue>(_count);
-            for (Node? node = _head; node != null; node = node.next)
-            {
-                values.Add(node.value);
-            }
-
-            return values;
-        }
-    }
+    public ICollection<TValue> Values => _values ??= new ValueCollection(this);
 
     /// <summary>Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
     /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
@@ -381,12 +359,12 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     /// <summary>Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</summary>
     /// <returns>
     /// <see langword="true" /> if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, <see langword="false" />.</returns>
-    public bool IsReadOnly => true;
+    public bool IsReadOnly => false;
 
 
     /// <summary>Returns an enumerator that iterates through the collection.</summary>
     /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
     {
         return new LinkedDictionaryEnumerator(this);
     }
@@ -398,6 +376,11 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         return GetEnumerator();
     }
 
+    public LinkedDictionaryEnumerator GetEnumerator()
+    {
+        return new LinkedDictionaryEnumerator(this);
+    }
+
     private sealed class Node
     {
         internal Node(TKey key, TValue value)
@@ -406,15 +389,15 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
             this.value = value;
         }
         
-        public TKey key;
+        internal readonly TKey key;
 
-        public TValue value;
+        internal TValue value;
 
-        public Node? next;
+        internal Node? next;
     }
 
     [StructLayout(LayoutKind.Auto)]
-    private struct LinkedDictionaryEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
+    public struct LinkedDictionaryEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
     {
         private LinkedDictionary<TKey, TValue>? _dictionary;
         private Node? _current;
@@ -455,7 +438,7 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
             _current = null;
         }
 
-        KeyValuePair<TKey, TValue> IEnumerator<KeyValuePair<TKey, TValue>>.Current
+        public KeyValuePair<TKey, TValue> Current
         {
             get
             {
@@ -470,7 +453,7 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
         /// <summary>Gets the element in the collection at the current position of the enumerator.</summary>
         /// <returns>The element in the collection at the current position of the enumerator.</returns>
-        public object Current
+        object IEnumerator.Current
         {
             get
             {
@@ -488,6 +471,115 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         {
             _current = null;
             _dictionary = null;
+        }
+    }
+
+    private sealed class KeyCollection : ICollection<TKey>
+    {
+        private readonly LinkedDictionary<TKey, TValue> _dictionary;
+    
+        public KeyCollection(LinkedDictionary<TKey, TValue> dictionary)
+        {
+            _dictionary = dictionary;
+        }
+    
+        public int Count => _dictionary._count;
+        public bool IsReadOnly => true;
+    
+        public IEnumerator<TKey> GetEnumerator()
+        {
+            for (Node? node = _dictionary._head; node != null; node = node.next)
+            {
+                yield return node.key;
+            }
+        }
+    
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    
+        // Остальные методы ICollection<TKey> с NotSupportedException для модификации
+        public void Add(TKey item) => throw new NotSupportedException();
+        public void Clear() => throw new NotSupportedException();
+        public bool Remove(TKey item) => throw new NotSupportedException();
+    
+        public bool Contains(TKey item) => _dictionary.ContainsKey(item);
+    
+        public void CopyTo(TKey[] array, int arrayIndex)
+        {
+            ArgumentNullException.ThrowIfNull(array);
+            if (arrayIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+
+            if (array.Length - arrayIndex < Count)
+            {
+                throw new ArgumentException("Not enough space in array");
+            }
+
+            for (Node? node = _dictionary._head; node != null; node = node.next)
+            {
+                array[arrayIndex++] = node.key;
+            }
+        }
+    }
+    
+    private sealed class ValueCollection : ICollection<TValue>
+    {
+        private readonly LinkedDictionary<TKey, TValue> _dictionary;
+    
+        public ValueCollection(LinkedDictionary<TKey, TValue> dictionary)
+        {
+            _dictionary = dictionary;
+        }
+    
+        public int Count => _dictionary._count;
+        public bool IsReadOnly => true;
+    
+        public IEnumerator<TValue> GetEnumerator()
+        {
+            for (Node? node = _dictionary._head; node != null; node = node.next)
+            {
+                yield return node.value;
+            }
+        }
+    
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    
+        // Остальные методы ICollection<TKey> с NotSupportedException для модификации
+        public void Add(TValue item) => throw new NotSupportedException();
+        public void Clear() => throw new NotSupportedException();
+        public bool Remove(TValue item) => throw new NotSupportedException();
+
+        public bool Contains(TValue item)
+        {
+            foreach (KeyValuePair<TKey, TValue> pair in _dictionary)
+            {
+                if (Equals(item, pair.Value))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    
+        public void CopyTo(TValue[] array, int arrayIndex)
+        {
+            ArgumentNullException.ThrowIfNull(array);
+            if (arrayIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+
+            if (array.Length - arrayIndex < Count)
+            {
+                throw new ArgumentException("Not enough space in array");
+            }
+
+            for (Node? node = _dictionary._head; node != null; node = node.next)
+            {
+                array[arrayIndex++] = node.value;
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ public sealed class EventSourcingEngineStarter
     /// Initialize new object.
     /// </summary>
     /// <param name="provider">Service provider.</param>
+    /// <param name="status">Status of event sourcing.</param>
     public EventSourcingEngineStarter(IServiceProvider provider, IEventSourcingStatus status)
     {
         _status = status;

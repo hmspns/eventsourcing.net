@@ -3,7 +3,7 @@
     <PropertyGroup>
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>

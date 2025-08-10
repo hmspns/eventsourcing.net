@@ -6,6 +6,8 @@ using MediatR;
 
 namespace EventSourcing.Net.Bus.Mediatr;
 
+using Engine.Extensions;
+
 /// <summary>
 /// Resolver for Mediatr publishing.
 /// </summary>

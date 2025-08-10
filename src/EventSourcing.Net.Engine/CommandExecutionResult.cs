@@ -17,7 +17,7 @@ public record CommandExecutionResult<TId> : ICommandExecutionResult<TId>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CommandExecutionResult<TId> OkIfChanges(IAggregate<TId> aggregate, ICommandEnvelope<TId> commandEnvelope)
     {
-        if (aggregate.Uncommitted.Any())
+        if (aggregate.Uncommitted.Count > 0)
         {
             return Ok(commandEnvelope);
         }

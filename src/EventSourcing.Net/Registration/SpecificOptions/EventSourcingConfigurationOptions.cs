@@ -72,7 +72,7 @@ public abstract class EventSourcingConfigurationOptions : IDisposable
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <typeparam name="TService">Service type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceScoped<TInterface, TService>()
+    protected internal EventSourcingConfigurationOptions ReplaceScoped<TInterface, TService>()
         where TInterface : class
         where TService : class, TInterface
     {
@@ -86,7 +86,7 @@ public abstract class EventSourcingConfigurationOptions : IDisposable
     /// <param name="handler">Handler to register service.</param>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceScoped<TInterface>(Func<IServiceProvider, TInterface> handler)
+    protected internal EventSourcingConfigurationOptions ReplaceScoped<TInterface>(Func<IServiceProvider, TInterface> handler)
         where TInterface : class
     {
         _services.Replace<TInterface>(services => services.AddScoped<TInterface>(x =>
@@ -115,7 +115,7 @@ public abstract class EventSourcingConfigurationOptions : IDisposable
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <typeparam name="TService">Service type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceSingleton<TInterface, TService>()
+    protected internal EventSourcingConfigurationOptions ReplaceSingleton<TInterface, TService>()
         where TInterface : class
         where TService : class, TInterface
     {
@@ -129,7 +129,7 @@ public abstract class EventSourcingConfigurationOptions : IDisposable
     /// <param name="handler">Handler to register service.</param>
     /// <typeparam name="TInterface">Interface type.</typeparam>
     /// <returns>Options for the fluent flow.</returns>
-    protected internal  EventSourcingConfigurationOptions ReplaceSingleton<TInterface>(Func<IServiceProvider, TInterface> handler)
+    protected internal EventSourcingConfigurationOptions ReplaceSingleton<TInterface>(Func<IServiceProvider, TInterface> handler)
         where TInterface : class
     {
         _services.Replace<TInterface>(services => services.AddSingleton<TInterface>(x =>

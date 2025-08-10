@@ -49,12 +49,15 @@ public interface IEventEnvelope
     public PrincipalId PrincipalId { get; }
 }
 
-
 /// <inheritdoc />
-public interface IEventEnvelope<out TId, out TPayload> : IEventEnvelope where TPayload : IEvent 
+public interface IEventEnvelope<out TId> : IEventEnvelope
 {
     public new TId AggregateId { get; }
-        
+}
+
+/// <inheritdoc />
+public interface IEventEnvelope<out TId, out TPayload> : IEventEnvelope<TId> where TPayload : IEvent 
+{
     public new TPayload Payload { get; }
         
     object IEventEnvelope.AggregateId => AggregateId;

@@ -55,6 +55,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Storage.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Tests.Storage.SQLite", "EventSourcing.Net.Tests.Storage.SQLite\EventSourcing.Net.Tests.Storage.SQLite.csproj", "{5B3EA8A4-D13B-4C85-A90E-EA1B31DDFEFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Telemetry", "EventSourcing.Net.Telemetry\EventSourcing.Net.Telemetry.csproj", "{50A80846-8E89-4D69-86C0-E4E48726C814}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +162,10 @@ Global
 		{5B3EA8A4-D13B-4C85-A90E-EA1B31DDFEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B3EA8A4-D13B-4C85-A90E-EA1B31DDFEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B3EA8A4-D13B-4C85-A90E-EA1B31DDFEFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A80846-8E89-4D69-86C0-E4E48726C814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A80846-8E89-4D69-86C0-E4E48726C814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A80846-8E89-4D69-86C0-E4E48726C814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A80846-8E89-4D69-86C0-E4E48726C814}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

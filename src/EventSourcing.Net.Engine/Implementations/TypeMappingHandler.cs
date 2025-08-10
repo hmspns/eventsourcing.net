@@ -149,7 +149,11 @@ public sealed class TypeMappingHandler : ITypeMappingHandler
         {
             try
             {
-                Type type = _typeStringConverter.GetType(mapping.TypeName);
+                Type? type = _typeStringConverter.GetType(mapping.TypeName);
+                if (type == null)
+                {
+                    Thrown.InvalidOperationException($"Couldn't load type with Id '{mapping.Id}' for '{mapping.TypeName}'. This exception usually happens when you rename or move implementation of IEvent or ICommand. To fix it, rename '{mapping.TypeName}' in the mapping table");
+                }
                 if (!_mappings.TryAdd(mapping.Id, type))
                 {
                     Thrown.InvalidOperationException($"Type with id '{mapping.Id.ToString()}' already added. It means that storage contains duplicate type mapping entries");

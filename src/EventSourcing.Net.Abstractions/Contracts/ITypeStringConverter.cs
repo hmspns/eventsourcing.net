@@ -12,7 +12,7 @@ public interface ITypeStringConverter
     /// </summary>
     /// <param name="stringRepresentation">String representation of type.</param>
     /// <returns>Event type.</returns>
-    Type GetType(string? stringRepresentation);
+    Type? GetType(string? stringRepresentation);
 
     /// <summary>
     /// Get string representation of type to store it in the storage.

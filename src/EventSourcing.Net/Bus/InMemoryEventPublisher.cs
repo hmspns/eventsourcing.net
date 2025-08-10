@@ -10,8 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Net;
 
+using Engine.Extensions;
+
 /// <inheritdoc />
-[Obsolete($"{nameof(InMemoryEventPublisherResolver)} is more efficient")]
+[Obsolete($"{nameof(InMemoryEventCallByExpressionPublisherResolver)} is more efficient")]
 public sealed class InMemoryEventPublisherResolver : IResolveEventPublisher
 {
     private readonly InMemoryEventPublisher _publisher;

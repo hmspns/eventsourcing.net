@@ -3,19 +3,20 @@
 #if NET8_0_OR_GREATER
 using System.Collections.Frozen;
 #endif
-
 using System.Linq.Expressions;
 using System.Reflection;
 using Abstractions.Contracts;
 using Abstractions.Identities;
+using Engine;
 using Engine.Exceptions;
+using Engine.Extensions;
 using Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <inheritdoc />
 public sealed class InMemoryEventCallByExpressionPublisherResolver : IResolveEventPublisher
 {
-    private readonly InMemoryCallByExpressionEventPublisher _publisher;
+    private readonly IEventPublisher _publisher;
 
     internal InMemoryEventCallByExpressionPublisherResolver(IServiceProvider provider,
                                                         IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
@@ -28,7 +29,7 @@ public sealed class InMemoryEventCallByExpressionPublisherResolver : IResolveEve
 #if NET8_0_OR_GREATER
         localHandlers = localHandlers.ToFrozenDictionary();
 #endif
-
+        
         _publisher = new InMemoryCallByExpressionEventPublisher(provider, localHandlers);
     }
 
@@ -37,7 +38,7 @@ public sealed class InMemoryEventCallByExpressionPublisherResolver : IResolveEve
         return _publisher;
     }
 
-    private SpecificMethodActivator GetActivator(EventConsumerActivation activation)
+    internal static SpecificMethodActivator GetActivator(EventConsumerActivation activation)
     {
         ParameterInfo[] paramInfos = activation.Method.GetParameters();
 

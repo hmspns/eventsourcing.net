@@ -3,8 +3,8 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-        <Version>0.9.4</Version>
+        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
+        <Version>0.9.7</Version>
         <Copyright>Pavel Gribov</Copyright>
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>

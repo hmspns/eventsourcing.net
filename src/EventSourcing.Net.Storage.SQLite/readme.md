@@ -1,4 +1,4 @@
-﻿This package provides functionality to use Postgres DB as the events store.
+﻿This package provides functionality to use SQLite DB as the events store.
 
 ### Configuration example
 

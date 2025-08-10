@@ -43,17 +43,16 @@ public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
     }
 
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(this);
+    }
+    
     /// <summary>Returns an enumerator that iterates through the collection.</summary>
     /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
     {
-        if (_list != null)
-        {
-            return _list.GetEnumerator();
-        }
-
-        IDictionary<TKey, TValue> dictionary = _dictionary;
-        return dictionary.GetEnumerator();
+        return GetEnumerator();
     }
 
     /// <summary>Returns an enumerator that iterates through a collection.</summary>
@@ -356,5 +355,60 @@ public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         _dictionary = new Dictionary<TKey, TValue>(THRESHOLD + 2, _comparer);
         _list.CopyTo(_dictionary);
         _list = null;
+    }
+
+    public readonly struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
+    {
+        private readonly Dictionary<TKey, TValue>.Enumerator _dictionaryEnumerator = default;
+        private readonly LinkedDictionary<TKey, TValue>.LinkedDictionaryEnumerator _listEnumerator = default;
+        private readonly bool _useDictionary = false;
+
+        public Enumerator(HybridDictionary<TKey, TValue> dictionary)
+        {
+            if (dictionary._dictionary != null)
+            {
+                _useDictionary = true;
+                _dictionaryEnumerator = dictionary._dictionary.GetEnumerator();
+            }
+            else
+            {
+                _useDictionary = false;
+                _listEnumerator = dictionary._list.GetEnumerator();
+            }
+        }
+        
+        public bool MoveNext()
+        {
+            return _useDictionary ? _dictionaryEnumerator.MoveNext() : _listEnumerator.MoveNext();
+        }
+
+        public void Reset()
+        {
+            if (_useDictionary)
+            {
+                IEnumerator enumerator = _dictionaryEnumerator;
+                enumerator.Reset();
+            }
+            else
+            {
+                _listEnumerator.Reset();
+            }
+        }
+
+        public KeyValuePair<TKey, TValue> Current => _useDictionary ? _dictionaryEnumerator.Current : _listEnumerator.Current;
+
+        object? IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+            if (_useDictionary)
+            {
+                _dictionaryEnumerator.Dispose();
+            }
+            else
+            {
+                _listEnumerator.Dispose();
+            }
+        }
     }
 }

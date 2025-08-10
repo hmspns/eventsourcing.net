@@ -3,14 +3,14 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0;net9.0;</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Storage.Redis</RootNamespace>
         <Copyright>Pavel Gribov</Copyright>
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <Version>0.9.4</Version>
+        <Version>0.9.7</Version>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <Authors>Pavel Gribov</Authors>
         <Description>Implementation of snapshot store based on redis for EventSourcing.Net</Description>
@@ -23,7 +23,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="StackExchange.Redis" Version="2.7.10" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.41" />
     </ItemGroup>
 
     <ItemGroup>

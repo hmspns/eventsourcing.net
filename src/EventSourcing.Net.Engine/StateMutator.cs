@@ -12,7 +12,7 @@ public abstract class StateMutator<TState> : IStateMutator<TState> where TState 
 {
     private static readonly HybridDictionary<Type, InternalMutateStateDelegate<TState>> _staticHandlers = new();
         
-    private HybridDictionary<Type, InternalMutateStateDelegate<TState>> _instanceHandlers = new();
+    private HybridDictionary<Type, InternalMutateStateDelegate<TState>>? _instanceHandlers;
     
     /// <summary>
     /// Register event handler.

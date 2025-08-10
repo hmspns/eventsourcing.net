@@ -188,6 +188,7 @@ public sealed class ViewsRebuilder : IViewsRebuilder
     /// <summary>
     /// Send events to the bus to generate views.
     /// </summary>
+    /// <param name="eventPublisher">Publisher that will send events to event handlers.</param>
     /// <param name="events">Events that should be added to the bus.</param>
     private async Task BuildViews(IEventPublisher eventPublisher, IExtendedEventsData events)
     {

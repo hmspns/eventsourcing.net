@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using EventSourcing.Net.Abstractions.Contracts;
+﻿namespace EventSourcing.Net.Engine.Extensions;
 
-namespace EventSourcing.Net.Engine.Exceptions;
+using System;
+using System.Collections.Concurrent;
+using Abstractions.Contracts;
+using Exceptions;
 
 /// <summary>
 /// Utils for IEventEnvelope.

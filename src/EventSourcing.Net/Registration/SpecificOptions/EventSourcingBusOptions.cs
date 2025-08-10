@@ -113,7 +113,7 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         }
     }
 
-    internal void BuildEventAndSagaConsumers()
+    internal Dictionary<Type, EventConsumerActivation[]> CreateEventConsumers()
     {
         EventConsumers consumers = new EventConsumers();
         foreach (Type type in _eventConsumers.Union(_sagaConsumers))
@@ -138,8 +138,13 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
         }
 
         Dictionary<Type, EventConsumerActivation[]> results = consumers.GetResults();
+        return results;
+    }
+
+    internal void BuildEventAndSagaConsumers()
+    {
+        Dictionary<Type, EventConsumerActivation[]> results = CreateEventConsumers();
         IfNotRegistered<IResolveEventPublisher>(
-            //services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventPublisherResolver(x, results))
             services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventCallByExpressionPublisherResolver(x, results))
         );
     }

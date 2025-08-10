@@ -29,7 +29,7 @@ public sealed class DefaultTypeStringConverter : ITypeStringConverter
         }
     }
 
-    public Type GetType(string? stringRepresentation)
+    public Type? GetType(string? stringRepresentation)
     {
         if (stringRepresentation == null)
         {
@@ -44,7 +44,7 @@ public sealed class DefaultTypeStringConverter : ITypeStringConverter
         type = Type.GetType(stringRepresentation, AssemblyResolver, null);
         if (type == null)
         {
-            Thrown.InvalidOperationException($"Couldn't load type for '{stringRepresentation}'");
+            return null;
         }
 
         _typeCache.TryAdd(stringRepresentation, type);
