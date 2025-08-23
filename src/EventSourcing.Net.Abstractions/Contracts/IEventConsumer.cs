@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-using EventSourcing.Net.Abstractions.Contracts;
+﻿namespace EventSourcing.Net.Abstractions.Contracts;
 
-namespace EventSourcing.Net.Abstractions.ServiceRegistration;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Implementation of event consumption method.

@@ -1,7 +1,6 @@
 ﻿namespace EventSourcing.Net.Samples.Sagas;
 
 using Abstractions.Contracts;
-using Abstractions.ServiceRegistration;
 using UserAggregate;
 using UsersListAggregate;
 

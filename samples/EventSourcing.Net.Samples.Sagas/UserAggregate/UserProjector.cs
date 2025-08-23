@@ -1,7 +1,6 @@
 ﻿namespace EventSourcing.Net.Samples.Sagas.UserAggregate;
 
 using Abstractions.Contracts;
-using Abstractions.ServiceRegistration;
 
 public class UserProjector :
     IEventConsumer<Guid, UserCreatedEvent>,

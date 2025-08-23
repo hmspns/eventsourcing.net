@@ -86,7 +86,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
                 break;
         }
 
-        sb.AppendLine("FROM \"{1}\""); // Убрана схема
+        sb.AppendLine("FROM \"{1}\"");
 
         string like = readOptions.FilterType == AggregateStreamFilterType.Include ? "LIKE" : "NOT LIKE";
         string condition = readOptions.FilterType == AggregateStreamFilterType.Include ? "OR" : "AND";
@@ -100,7 +100,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
         sb.AppendLine(where);
         sb.AppendLine($"ORDER BY {GLOBAL_POSITION} " +
             (readOptions.ReadDirection == StreamReadDirection.Forward ? "ASC" : "DESC"));
-        sb.AppendLine("LIMIT ? OFFSET ?"); // Замена параметров
+        sb.AppendLine("LIMIT ? OFFSET ?");
 
         return sb.ToString();
     }
@@ -108,7 +108,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
     private void BuildInsertEvent()
     {
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine(@"INSERT INTO ""{1}"""); // Убрана схема
+        sb.AppendLine(@"INSERT INTO ""{1}""");
         sb.Append($"({ID}, {STREAM_NAME}, {AGGREGATE_ID_TYPE}, {STREAM_POSITION}, {TIMESTAMP}, {COMMAND_ID}, {SEQUENCE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
         if (_options.StoreTenantId)
         {
@@ -122,7 +122,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
 
         sb.AppendLine(")");
         sb.AppendLine("VALUES");
-        sb.Append("(?, ?, ?, ?, ?, ?, ?, ?, ?"); // Замена параметров
+        sb.Append("(?, ?, ?, ?, ?, ?, ?, ?, ?");
         int paramCount = 9;
         if (_options.StoreTenantId)
         {
@@ -141,7 +141,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
     private void BuildInsertCommand()
     {
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine(@"INSERT INTO ""{2}"""); // Убрана схема
+        sb.AppendLine(@"INSERT INTO ""{2}""");
         sb.Append($"({ID}, {PARENT_COMMAND_ID}, {SEQUENCE_ID}, {TIMESTAMP}, {AGGREGATE_ID}, {PAYLOAD_TYPE}, {PAYLOAD}");
         if (_options.StoreTenantId)
         {
@@ -160,7 +160,7 @@ public sealed class SqliteCommandTextProvider : ISqliteCommandTextProvider
 
         sb.AppendLine(")");
         sb.AppendLine("VALUES");
-        sb.Append("(?, ?, ?, ?, ?, ?, ?"); // Замена параметров
+        sb.Append("(?, ?, ?, ?, ?, ?, ?");
         int paramCount = 7;
         if (_options.StoreTenantId)
         {

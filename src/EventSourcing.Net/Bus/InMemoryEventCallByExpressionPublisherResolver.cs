@@ -8,6 +8,7 @@ using System.Reflection;
 using Abstractions.Contracts;
 using Abstractions.Identities;
 using Engine;
+using Engine.Collections;
 using Engine.Exceptions;
 using Engine.Extensions;
 using Internal;
@@ -82,6 +83,8 @@ public sealed class InMemoryCallByExpressionEventPublisher : IEventPublisher
     public async Task Publish(ICommandEnvelope? commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
         await using AsyncServiceScope scope = _provider.CreateAsyncScope();
+
+        HybridSet<IPublicationCompletionHandler>? publicationCompletionHandlers = null;
         foreach (IEventEnvelope envelope in events)
         {
             Type envelopeType = envelope.GetEnvelopeTypedInterface();
@@ -96,7 +99,21 @@ public sealed class InMemoryCallByExpressionEventPublisher : IEventPublisher
                     {
                         await result.ConfigureAwait(false);
                     }
+
+                    if (instance is IPublicationCompletionHandler publicationCompletionHandler)
+                    {
+                        publicationCompletionHandlers ??= new HybridSet<IPublicationCompletionHandler>();
+                        publicationCompletionHandlers.Add(publicationCompletionHandler);
+                    }
                 }
+            }
+        }
+        
+        if(publicationCompletionHandlers != null)
+        {
+            foreach (IPublicationCompletionHandler publicationCompletionHandler in publicationCompletionHandlers)
+            {
+                await publicationCompletionHandler.PublicationDone().ConfigureAwait(false);
             }
         }
     }

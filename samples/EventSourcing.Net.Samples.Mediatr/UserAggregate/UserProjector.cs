@@ -1,5 +1,4 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.ServiceRegistration;
 using EventSourcing.Net.Bus.Mediatr;
 using MediatR;
 

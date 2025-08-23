@@ -1,0 +1,1 @@
+﻿1. Since version 0.9.8 types IEventConsumer and ISagaConsumer moved from EventSourcing.Net.Abstractions.ServiceRegistration to EventSourcing.Net.Abstractions.Contracts

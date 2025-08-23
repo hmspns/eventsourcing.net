@@ -1,5 +1,4 @@
 ﻿using EventSourcing.Net.Abstractions.Contracts;
-using EventSourcing.Net.Abstractions.ServiceRegistration;
 
 namespace EventSourcing.Net.Samples.Simple.UserAggregate;
 
@@ -7,7 +6,7 @@ public class UserProjector :
     IEventConsumer<Guid, UserCreatedEvent>,
     IEventConsumer<Guid, UserNameChangedEvent>,
     IEventConsumer<Guid, UserPhoneChangedEvent>,
-    IEventConsumer<Guid, UserDeletedEvent>
+    IEventConsumer<Guid, UserDeletedEvent>, IPublicationCompletionHandler
 {
     public Task Consume(IEventEnvelope<Guid, UserCreatedEvent> envelope)
     {
@@ -31,5 +30,10 @@ public class UserProjector :
     {
         Console.WriteLine(envelope.Payload);
         return Task.CompletedTask;
+    }
+
+    public async Task PublicationDone()
+    {
+        
     }
 }

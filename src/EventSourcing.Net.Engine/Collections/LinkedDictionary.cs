@@ -496,7 +496,6 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     
-        // Остальные методы ICollection<TKey> с NotSupportedException для модификации
         public void Add(TKey item) => throw new NotSupportedException();
         public void Clear() => throw new NotSupportedException();
         public bool Remove(TKey item) => throw new NotSupportedException();
@@ -545,7 +544,6 @@ internal sealed class LinkedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     
-        // Остальные методы ICollection<TKey> с NotSupportedException для модификации
         public void Add(TValue item) => throw new NotSupportedException();
         public void Clear() => throw new NotSupportedException();
         public bool Remove(TValue item) => throw new NotSupportedException();

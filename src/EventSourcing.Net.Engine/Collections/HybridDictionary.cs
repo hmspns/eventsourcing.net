@@ -4,28 +4,63 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// A dictionary implementation that uses a linked list for small collections and switches to a hash table
+/// when the collection grows beyond a certain threshold. This provides better performance for small collections
+/// while maintaining O(1) lookup times for larger ones.
+/// </summary>
+/// <typeparam name="TKey">The type of keys in the dictionary. Must be non-null.</typeparam>
+/// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
 public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     where TKey : notnull
 {
+    /// <summary>
+    /// The maximum number of elements that can be stored in the linked list before switching to dictionary.
+    /// </summary>
     private const int THRESHOLD = 8;
 
+    /// <summary>
+    /// The equality comparer used to compare keys.
+    /// </summary>
     private readonly IEqualityComparer<TKey>? _comparer;
 
+    /// <summary>
+    /// The linked list implementation used for small collections.
+    /// </summary>
     private LinkedDictionary<TKey, TValue>? _list;
+
+    /// <summary>
+    /// The dictionary implementation used for larger collections.
+    /// </summary>
     private Dictionary<TKey, TValue>? _dictionary;
 
+    /// <summary>
+    /// The number of elements in the collection.
+    /// </summary>
     private int _count = 0;
 
+    /// <summary>
+    /// Initializes a new instance of the HybridDictionary class that is empty and uses the default equality comparer.
+    /// </summary>
     public HybridDictionary() : this(null)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the HybridDictionary class that is empty and uses the specified equality comparer.
+    /// </summary>
+    /// <param name="comparer">The equality comparer to use when comparing keys.</param>
     public HybridDictionary(IEqualityComparer<TKey>? comparer)
     {
         _comparer = comparer;
         _list = new LinkedDictionary<TKey, TValue>(comparer);
     }
 
+    /// <summary>
+    /// Initializes a new instance of the HybridDictionary class that has the specified initial capacity and uses the specified equality comparer.
+    /// </summary>
+    /// <param name="capacity">The initial number of elements that the HybridDictionary can contain.</param>
+    /// <param name="comparer">The equality comparer to use when comparing keys.</param>
     public HybridDictionary(int capacity, IEqualityComparer<TKey>? comparer)
     {
         _comparer = comparer;
@@ -39,6 +74,10 @@ public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the HybridDictionary class that has the specified initial capacity and uses the default equality comparer.
+    /// </summary>
+    /// <param name="capacity">The initial number of elements that the HybridDictionary can contain.</param>
     public HybridDictionary(int capacity) : this(capacity, null)
     {
     }
@@ -357,12 +396,30 @@ public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         _list = null;
     }
 
-    public readonly struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
+    /// <summary>
+    /// Enumerates the elements of a HybridDictionary collection.
+    /// </summary>
+    public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>
     {
-        private readonly Dictionary<TKey, TValue>.Enumerator _dictionaryEnumerator = default;
-        private readonly LinkedDictionary<TKey, TValue>.LinkedDictionaryEnumerator _listEnumerator = default;
+        /// <summary>
+        /// The enumerator for dictionary-based storage
+        /// </summary>
+        private Dictionary<TKey, TValue>.Enumerator _dictionaryEnumerator = default;
+
+        /// <summary>
+        /// The enumerator for linked list-based storage
+        /// </summary>
+        private LinkedDictionary<TKey, TValue>.LinkedDictionaryEnumerator _listEnumerator = default;
+
+        /// <summary>
+        /// Indicates whether to use dictionary or linked list enumerator
+        /// </summary>
         private readonly bool _useDictionary = false;
 
+        /// <summary>
+        /// Initializes a new instance of the Enumerator struct.
+        /// </summary>
+        /// <param name="dictionary">The HybridDictionary to enumerate.</param>
         public Enumerator(HybridDictionary<TKey, TValue> dictionary)
         {
             if (dictionary._dictionary != null)
@@ -376,12 +433,19 @@ public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
                 _listEnumerator = dictionary._list.GetEnumerator();
             }
         }
-        
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection.
+        /// </summary>
+        /// <returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns>
         public bool MoveNext()
         {
             return _useDictionary ? _dictionaryEnumerator.MoveNext() : _listEnumerator.MoveNext();
         }
 
+        /// <summary>
+        /// Sets the enumerator to its initial position, which is before the first element in the collection.
+        /// </summary>
         public void Reset()
         {
             if (_useDictionary)
@@ -395,10 +459,16 @@ public sealed class HybridDictionary<TKey, TValue> : IDictionary<TKey, TValue>
             }
         }
 
+        /// <summary>
+        /// Gets the element in the collection at the current position of the enumerator.
+        /// </summary>
         public KeyValuePair<TKey, TValue> Current => _useDictionary ? _dictionaryEnumerator.Current : _listEnumerator.Current;
 
         object? IEnumerator.Current => Current;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (_useDictionary)

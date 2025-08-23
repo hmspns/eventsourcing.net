@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Abstractions.Contracts;
 using Abstractions.Identities;
 using Contracts;
+using Engine.Collections;
 using Engine.Extensions;
 using Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +59,7 @@ public sealed class InMemoryCallByExpressionEventPublisherWithTelemetry : IEvent
     public async Task Publish(ICommandEnvelope? commandEnvelope, IReadOnlyList<IEventEnvelope> events)
     {
         await using AsyncServiceScope scope = _provider.CreateAsyncScope();
+        HybridSet<IPublicationCompletionHandler>? publicationCompletionHandlers = null;
         foreach (IEventEnvelope envelope in events)
         {
             Type envelopeType = envelope.GetEnvelopeTypedInterface();
@@ -75,9 +77,23 @@ public sealed class InMemoryCallByExpressionEventPublisherWithTelemetry : IEvent
                         await result.ConfigureAwait(false);
                     }
                     
+                    if (instance is IPublicationCompletionHandler publicationCompletionHandler)
+                    {
+                        publicationCompletionHandlers ??= new HybridSet<IPublicationCompletionHandler>();
+                        publicationCompletionHandlers.Add(publicationCompletionHandler);
+                    }
+                    
                     TimeSpan elapsed = st.Elapsed;
                     _telemetryService.AddTelemetry(envelope.GetType(), envelope.Payload.GetType(), activator.HandlerType, elapsed);;
                 }
+            }
+        }
+        
+        if(publicationCompletionHandlers != null)
+        {
+            foreach (IPublicationCompletionHandler publicationCompletionHandler in publicationCompletionHandlers)
+            {
+                await publicationCompletionHandler.PublicationDone().ConfigureAwait(false);
             }
         }
     }

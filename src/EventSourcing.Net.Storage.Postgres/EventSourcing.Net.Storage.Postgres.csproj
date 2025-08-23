@@ -7,7 +7,7 @@
         <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Storage.Postgres</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.9.7</Version>
+        <Version>0.9.8</Version>
         <Title>Storage implementation based on Postgres for EventSourcing.net</Title>
         <Authors>Pavel Gribov</Authors>
         <Copyright>Pavel Gribov</Copyright>
