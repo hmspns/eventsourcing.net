@@ -233,15 +233,27 @@ public sealed class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDe
     public void Clear()
     {
         _version++;
-        int size = Count;
-        Count = 0;
-
-        if (size > 0 && _clearOnFree)
-
-            // Clear the elements so that the gc can reclaim the references.
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
         {
-            Array.Clear(_items, 0, size);
+            int size = Count;
+            if (size > 0)
+            {
+                Array.Clear(_items, 0, size); // Clear the elements so that the gc can reclaim the references.
+            }
         }
+        Count = 0;
+        
+        // _version++;
+        // int size = Count;
+        // Count = 0;
+        //
+        // List<int> test;
+        //
+        // if (size > 0 && _clearOnFree)
+        // {
+        //     // Clear the elements so that the gc can reclaim the references.
+        //     Array.Clear(_items, 0, size);
+        // }
     }
 
     /// <summary>

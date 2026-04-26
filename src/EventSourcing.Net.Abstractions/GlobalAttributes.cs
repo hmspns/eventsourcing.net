@@ -3,3 +3,4 @@
 [assembly: InternalsVisibleTo("EventSourcing.Net.Bus.Mediatr")]
 [assembly: InternalsVisibleTo("EventSourcing.Net.Engine")]
 [assembly: InternalsVisibleTo("EventSourcing.Net")]
+[assembly: InternalsVisibleTo("EventSourcing.Net.Telemetry")]

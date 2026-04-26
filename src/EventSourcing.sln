@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Tests.Sto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Telemetry", "EventSourcing.Net.Telemetry\EventSourcing.Net.Telemetry.csproj", "{50A80846-8E89-4D69-86C0-E4E48726C814}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Net.Samples.Rebuild", "EventSourcing.Net.Samples.Rebuild\EventSourcing.Net.Samples.Rebuild.csproj", "{6DF6EA5C-1EC8-4A5E-8270-60CEC3C4AA4E}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,6 +168,10 @@ Global
 		{50A80846-8E89-4D69-86C0-E4E48726C814}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50A80846-8E89-4D69-86C0-E4E48726C814}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50A80846-8E89-4D69-86C0-E4E48726C814}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DF6EA5C-1EC8-4A5E-8270-60CEC3C4AA4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DF6EA5C-1EC8-4A5E-8270-60CEC3C4AA4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DF6EA5C-1EC8-4A5E-8270-60CEC3C4AA4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DF6EA5C-1EC8-4A5E-8270-60CEC3C4AA4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,5 +191,6 @@ Global
 		{12BF334B-C18E-43DA-B656-1DE9A166D438} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 		{DB41558A-17C7-43FF-A18D-89E640554282} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 		{5B3EA8A4-D13B-4C85-A90E-EA1B31DDFEFD} = {EDFFC3F3-D323-4EB0-8AE9-B677C0253CBB}
+		{6DF6EA5C-1EC8-4A5E-8270-60CEC3C4AA4E} = {9D1CC8E9-A9CF-44DC-8AD1-1ED018DB26A5}
 	EndGlobalSection
 EndGlobal

@@ -189,6 +189,10 @@ public abstract class Aggregate<TId, TState, TStateMutator> : IAggregate<TId>, I
     protected virtual void Dispose(bool disposing)
     {
         _events.Dispose();
+        if(_mutator is IDisposable stateMutatorDispose)
+        {
+            stateMutatorDispose.Dispose();
+        }
     }
 
     /// <summary></summary>

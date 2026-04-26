@@ -21,9 +21,9 @@ internal static class EventEnvelopeUtils
     {
         Type envelopeType = envelope.GetType();
 
-        if (_cache.TryGetValue(envelopeType, out Type intrefaceType))
+        if (_cache.TryGetValue(envelopeType, out Type foundType))
         {
-            return intrefaceType;
+            return foundType;
         }
         
         Type genericInterfaceType = typeof(IEventEnvelope<,>);

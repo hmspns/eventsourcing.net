@@ -9,7 +9,7 @@ using Abstractions.Types;
 /// Extended events data.
 /// </summary>
 /// <param name="Events">Events.</param>
-/// <param name="StreamEndPosition">Information about stream end.</param>
+/// <param name="StreamEndPosition">Information about the stream end.</param>
 public sealed record ExtendedEventsData(IReadOnlyList<ExtendedEventPackage> Events, StreamPosition StreamEndPosition) : IExtendedEventsData
 {
     /// <inheritdoc />

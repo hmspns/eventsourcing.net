@@ -6,14 +6,13 @@ namespace EventSourcing.Net.Abstractions.Contracts;
 /// <summary>
 /// Result of executed command.
 /// </summary>
-/// <typeparam name="TId">Type of aggregate id.</typeparam>
-public interface ICommandExecutionResult<out TId>
-{
+public interface ICommandExecutionResult
+{    
     /// <summary>
     /// Aggregate id.
     /// </summary>
-    TId AggregateId { get; }
-
+    object AggregateId { get; }
+    
     /// <summary>
     /// Command id.
     /// </summary>
@@ -43,4 +42,21 @@ public interface ICommandExecutionResult<out TId>
     /// Command type.
     /// </summary>
     Type CommandType { get; }
+}
+
+/// <summary>
+/// Result of executed command.
+/// </summary>
+/// <typeparam name="TId">Type of aggregate id.</typeparam>
+public interface ICommandExecutionResult<out TId> : ICommandExecutionResult
+{
+    /// <summary>
+    /// Aggregate id.
+    /// </summary>
+    TId AggregateId { get; }
+    
+    /// <summary>
+    /// Aggregate id.
+    /// </summary>
+    object ICommandExecutionResult.AggregateId => AggregateId;
 }

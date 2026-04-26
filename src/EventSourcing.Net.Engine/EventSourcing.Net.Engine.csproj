@@ -4,7 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
         <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
-        <Version>0.9.8</Version>
+        <Version>0.9.9</Version>
         <Title>EventSourcing.Net.Engine</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Event sourcing engine</Description>

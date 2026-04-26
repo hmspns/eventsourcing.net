@@ -34,4 +34,30 @@ public static class TelemetryExtensions
         );
         return options;
     }
+    
+    /// <summary>
+    /// Add telemetry.
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static EventSourcingOptions UseTelemetryAndPreload(this EventSourcingOptions options)
+    {
+        if (options.Bus == null)
+        {
+            Thrown.InvalidOperationException("Bus is not configured.");
+        }
+        Dictionary<Type, EventConsumerActivation[]> results = options.Bus.CreateEventConsumers();
+        
+        options.IfNotRegistered<IPublicationTelemetryService>(services =>
+            services.AddSingleton<IPublicationTelemetryService, PublicationTelemetryService>());
+        
+        options.IfNotRegistered<IResolveEventPublisher>(
+            services => services.AddSingleton<IResolveEventPublisher>(x => 
+                new EventPublisherWithPreloadAndTelemetryResolver(
+                    x,
+                    x.GetRequiredService<IPublicationTelemetryService>(),
+                    results))
+        );
+        return options;
+    }
 }

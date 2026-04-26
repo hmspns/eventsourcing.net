@@ -4,7 +4,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
-        <Version>0.9.8</Version>
+        <Version>0.9.9</Version>
         <Title>EventSourcing.net</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Fast event sourcing engine</Description>

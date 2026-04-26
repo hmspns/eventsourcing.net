@@ -8,7 +8,7 @@ using Abstractions;
 using Collections;
 
 /// <inheritdoc />
-public abstract class StateMutator<TState> : IStateMutator<TState> where TState : class
+public abstract class StateMutator<TState> : IDisposable, IStateMutator<TState> where TState : class
 {
     private static readonly HybridDictionary<Type, InternalMutateStateDelegate<TState>> _staticHandlers = new();
         
@@ -102,6 +102,26 @@ public abstract class StateMutator<TState> : IStateMutator<TState> where TState 
     /// Return current state.
     /// </summary>
     public TState Current { get; private set; }
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    /// <param name="disposing">True for explicit disposing, false for disposing from finalizer.</param>
+    /// <remarks>Don't forget to call <b>base.Dispose(disposing)</b> in case of override.</remarks>
+    protected virtual void Dispose(bool disposing)
+    {
+        if(Current is IDisposable stateDisposer)
+        {
+            stateDisposer.Dispose();
+        }
+    }
+
+    /// <summary></summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 }
 
 internal delegate TState InternalMutateStateDelegate<TState>(IEventEnvelope e, TState state);

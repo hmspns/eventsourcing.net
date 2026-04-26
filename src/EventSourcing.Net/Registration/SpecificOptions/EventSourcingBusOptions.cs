@@ -144,8 +144,7 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
     {
         Dictionary<Type, EventConsumerActivation[]> results = CreateEventConsumers();
         IfNotRegistered<IResolveEventPublisher>(
-            services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventCallByExpressionPublisherResolver(x, results))
-        );
+            services => services.AddSingleton<IResolveEventPublisher>(x => new InMemoryEventCallByExpressionPublisherResolver(x, results)));
     }
 
     internal void BuildCommandHandlers()
@@ -154,7 +153,12 @@ public sealed class EventSourcingBusOptions : EventSourcingConfigurationOptions
 
         foreach (Type commandHandlerType in _commandHandlers)
         {
-            Type aggregateIdType = commandHandlerType.BaseType.GetGenericArguments()[0];
+            Type[]? arguments = commandHandlerType.BaseType?.GetGenericArguments();
+            if(arguments == null || arguments.Length == 0)
+            {
+                continue;
+            }
+            Type aggregateIdType = arguments[0];
             Type envelopeType = typeof(ICommandEnvelope<,>).MakeGenericType(aggregateIdType, typeof(ICommand));
             Type returnType = typeof(ICommandExecutionResult<>).MakeGenericType(aggregateIdType);
             Type taskReturnType = typeof(Task<>).MakeGenericType(returnType);
