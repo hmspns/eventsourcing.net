@@ -12,6 +12,8 @@ namespace EventSourcing.Net;
 
 using Abstractions;
 using Engine.Rebuild;
+using Internal;
+using Telemetry.Services;
 
 /// <summary>
 /// Options to configure EventSourcing.Net.
@@ -91,6 +93,27 @@ public sealed class EventSourcingOptions : EventSourcingConfigurationOptions
             throw new ArgumentNullException(nameof(handler));
         }
         _typeStringConverter = handler;
+        return this;
+    }
+    
+    /// <summary>
+    /// Adding support for preloading of event publications. Consumer should implement <typeparamref name="EventSourcing.Net.Abstractions.Contracts.IPublicationStartedHandler"/>
+    /// </summary>
+    /// <returns></returns>
+    public EventSourcingOptions UsePublicationPreload()
+    {
+        if (Bus == null)
+        {
+            throw new InvalidOperationException("Bus is not configured.");
+        }
+        Dictionary<Type, EventConsumerActivation[]> results = Bus.CreateEventConsumers();
+        
+        IfNotRegistered<IResolveEventPublisher>(
+            services => services.AddSingleton<IResolveEventPublisher>(x => 
+                new InMemoryEventPublisherWithPreloadResolver(
+                    x,
+                    results))
+        );
         return this;
     }
 

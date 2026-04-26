@@ -8,6 +8,13 @@ using Services;
 public interface IPublicationTelemetryService
 {
     /// <summary>
+    /// Added telemetry about preload data.
+    /// </summary>
+    /// <param name="consumerType">Type of the consumer.</param>
+    /// <param name="duration">Publication duration.</param>
+    void AddPreloadDataTelemetry(Type consumerType, TimeSpan duration);
+    
+    /// <summary>
     /// Added telemetry about event publication.
     /// </summary>
     /// <param name="envelopeType">Type of the event envelope.</param>
@@ -16,6 +23,13 @@ public interface IPublicationTelemetryService
     /// <param name="duration">Publication duration.</param>
     void AddTelemetry(Type envelopeType, Type payloadType, Type consumerType, TimeSpan duration);
 
+    /// <summary>
+    /// Added telemetry about save data.
+    /// </summary>
+    /// <param name="consumerType">Type of the consumer.</param>
+    /// <param name="duration">Publication duration.</param>
+    void AddSaveTelemetry(Type consumerType, TimeSpan duration);
+    
     /// <summary>
     /// Retrieves telemetry data for a specific envelope and consumer type combination.
     /// </summary>
@@ -29,6 +43,18 @@ public interface IPublicationTelemetryService
     /// </summary>
     /// <returns>Collection of telemetry data entries</returns>
     IEnumerable<PublicationTelemetryData> GetTelemetry();
+    
+    /// <summary>
+    /// Get preload telemetry.
+    /// </summary>
+    /// <remarks>Key is the type of consumer. Value is publication duration.</remarks>
+    public IReadOnlyDictionary<Type, TimeSpan> PreloadDataTelemetry { get; }
+    
+    /// <summary>
+    /// Get save telemetry.
+    /// </summary>
+    /// <remarks>Key is the type of consumer. Value is saving duration.</remarks>
+    public IReadOnlyDictionary<Type, TimeSpan> SaveDataTelemetry { get; }
     
     /// <summary>
     /// Clear all telemetry data.

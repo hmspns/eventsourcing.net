@@ -6,7 +6,6 @@ using System.Collections.Frozen;
 using System.Diagnostics;
 using Abstractions.Contracts;
 using Abstractions.Identities;
-using Contracts;
 using Engine.Collections;
 using Engine.Extensions;
 using Engine.Pooled.Collections;
@@ -14,13 +13,12 @@ using Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <inheritdoc />
-public sealed class EventPublisherWithPreloadAndTelemetryResolver : IResolveEventPublisher
+public sealed class InMemoryEventPublisherWithPreloadResolver : IResolveEventPublisher
 {
     private readonly IEventPublisher _publisher;
 
-    internal EventPublisherWithPreloadAndTelemetryResolver(IServiceProvider provider,
-                                                           IPublicationTelemetryService telemetryService,
-                                                           IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
+    internal InMemoryEventPublisherWithPreloadResolver(IServiceProvider provider,
+                                                       IReadOnlyDictionary<Type, EventConsumerActivation[]> handlers)
     {
         IReadOnlyDictionary<Type, SpecificMethodActivator[]> localHandlers = handlers
             .ToDictionary(
@@ -31,7 +29,7 @@ public sealed class EventPublisherWithPreloadAndTelemetryResolver : IResolveEven
         localHandlers = localHandlers.ToFrozenDictionary();
 #endif
         
-        _publisher = new EventPublisherWithPreloadAndTelemetry(provider, telemetryService, localHandlers);
+        _publisher = new InMemoryEventPublisherWithPreload(provider, localHandlers);
     }
 
     public IEventPublisher Get(TenantId tenantId)
@@ -40,17 +38,15 @@ public sealed class EventPublisherWithPreloadAndTelemetryResolver : IResolveEven
     }
 }
 
-public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
+
+public class InMemoryEventPublisherWithPreload : IEventPublisher
 {
     private readonly IReadOnlyDictionary<Type, SpecificMethodActivator[]> _handlers;
     private readonly IServiceProvider _provider;
-    private readonly IPublicationTelemetryService _telemetryService;
 
-    internal EventPublisherWithPreloadAndTelemetry(IServiceProvider provider,
-                                                   IPublicationTelemetryService telemetryService,
-                                                   IReadOnlyDictionary<Type, SpecificMethodActivator[]> handlers)
+    internal InMemoryEventPublisherWithPreload(IServiceProvider provider,
+                                       IReadOnlyDictionary<Type, SpecificMethodActivator[]> handlers)
     {
-        _telemetryService = telemetryService;
         _provider = provider;
         _handlers = handlers;
     }
@@ -61,7 +57,7 @@ public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
         await using AsyncServiceScope scope = _provider.CreateAsyncScope();
         HybridSet<IPublicationCompletionHandler>? publicationCompletionHandlers = null;
 
-        using PooledList<Data> consumers = new PooledList<Data>(events.Count);
+        using PooledList<Func<Task>> consumers = new PooledList<Func<Task>>(events.Count);
         Dictionary<IPublicationStartedHandler, BatchEvents> mapping = new Dictionary<IPublicationStartedHandler, BatchEvents>(events.Count);
         foreach (IEventEnvelope envelope in events)
         {
@@ -71,7 +67,6 @@ public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
             {
                 foreach (SpecificMethodActivator activator in activators)
                 {
-
                     object instance = ActivatorUtilities.GetServiceOrCreateInstance(scope.ServiceProvider, activator.HandlerType);
 
                     if (instance is IPublicationStartedHandler publicationStartingHandler)
@@ -85,7 +80,7 @@ public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
                         batchEvents.Add(envelope);
                     }
                     
-                    consumers.Add(new Data(envelope, activator, () =>
+                    consumers.Add(() =>
                     {
                         Task result = activator.Consumer(instance, envelope);
                         if (result != null)
@@ -94,7 +89,8 @@ public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
                         }
 
                         return Task.CompletedTask;
-                    }));
+                    });
+
                     
                     if (instance is IPublicationCompletionHandler publicationCompletionHandler)
                     {
@@ -110,12 +106,9 @@ public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
             await pair.Key.PublicationStarting(pair.Value).ConfigureAwait(false);
         }
 
-        foreach (Data consumer in consumers)
+        foreach (Func<Task> consumer in consumers)
         {
-            Stopwatch st = Stopwatch.StartNew();
-            await consumer.Handler().ConfigureAwait(false);
-            TimeSpan elapsed = st.Elapsed;
-            _telemetryService.AddTelemetry(consumer.Event.GetType(), consumer.Event.Payload.GetType(), consumer.Activator.HandlerType, elapsed);;
+            await consumer().ConfigureAwait(false);
         }
         
         if(publicationCompletionHandlers != null)
@@ -126,6 +119,4 @@ public class EventPublisherWithPreloadAndTelemetry : IEventPublisher
             }
         }
     }
-
-    private record struct Data(IEventEnvelope Event, SpecificMethodActivator Activator, Func<Task> Handler);
 }

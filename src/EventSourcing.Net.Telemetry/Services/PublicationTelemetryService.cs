@@ -5,7 +5,20 @@ using Contracts;
 
 public sealed class PublicationTelemetryService : IPublicationTelemetryService
 {
+    private readonly ConcurrentDictionary<Type, TimeSpan> _preloadDataTelemetry = new ConcurrentDictionary<Type, TimeSpan>();
+    private readonly ConcurrentDictionary<Type, TimeSpan> _saveDataTelemetry = new ConcurrentDictionary<Type, TimeSpan>();
+    
     private readonly ConcurrentDictionary<Key, Value> _telemetry = new ConcurrentDictionary<Key, Value>();
+
+    /// <summary>
+    /// Added telemetry about preload data.
+    /// </summary>
+    /// <param name="consumerType">Type of the consumer.</param>
+    /// <param name="duration">Publication duration.</param>
+    public void AddPreloadDataTelemetry(Type consumerType, TimeSpan duration)
+    {
+        _preloadDataTelemetry.TryAdd(consumerType, duration);
+    }
 
     /// <summary>
     /// Added telemetry about event publication.
@@ -23,6 +36,11 @@ public sealed class PublicationTelemetryService : IPublicationTelemetryService
                 value.Update(duration);
                 return value;
             });
+    }
+
+    public void AddSaveTelemetry(Type consumerType, TimeSpan duration)
+    {
+        _saveDataTelemetry.TryAdd(consumerType, duration);
     }
 
     /// <summary>
@@ -53,6 +71,18 @@ public sealed class PublicationTelemetryService : IPublicationTelemetryService
             yield return new PublicationTelemetryData(pair.Key.EnvelopeType, pair.Value.PayloadType, pair.Key.ConsumerType, pair.Value.AverageDuration, pair.Value.Count);
         }
     }
+
+    /// <summary>
+    /// Get preload telemetry.
+    /// </summary>
+    /// <remarks>Key is the type of consumer. Value is publication duration.</remarks>
+    public IReadOnlyDictionary<Type, TimeSpan> PreloadDataTelemetry => _preloadDataTelemetry.AsReadOnly();
+
+    /// <summary>
+    /// Get save telemetry.
+    /// </summary>
+    /// <remarks>Key is the type of consumer. Value is saving duration.</remarks>
+    public IReadOnlyDictionary<Type, TimeSpan> SaveDataTelemetry => _saveDataTelemetry.AsReadOnly();
 
     /// <summary>
     /// Clear all telemetry data.

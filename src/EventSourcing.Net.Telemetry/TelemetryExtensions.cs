@@ -40,7 +40,7 @@ public static class TelemetryExtensions
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static EventSourcingOptions UseTelemetryAndPreload(this EventSourcingOptions options)
+    public static EventSourcingOptions UsePreloadWithTelemetry(this EventSourcingOptions options)
     {
         if (options.Bus == null)
         {

@@ -64,7 +64,7 @@ async Task Rebuild(VirtualStorage virtualStorage)
         options.Bus.RegisterCommandHandlers(assembly);
         // use different type of projector for rebuild
         options.Bus.RegisterEventConsumers([typeof(UserRebuildProjector)]);
-        options.UseTelemetryAndPreload();
+        options.UsePublicationPreload();
     });
     IServiceProvider provider = services.BuildServiceProvider();
 
