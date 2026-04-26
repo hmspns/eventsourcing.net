@@ -3,14 +3,14 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net7.0;net8.0;net9.0;</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0;net9.0;net10.0;</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Telemetry</RootNamespace>
         <Copyright>Pavel Gribov</Copyright>
         <PackageProjectUrl>https://github.com/hmspns/eventsourcing.net</PackageProjectUrl>
         <RepositoryUrl>https://github.com/hmspns/eventsourcing.net</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <Version>0.9.9</Version>
+        <Version>0.9.10</Version>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <Authors>Pavel Gribov</Authors>
         <Description>Implementation of telemetry for event sourcing.</Description>

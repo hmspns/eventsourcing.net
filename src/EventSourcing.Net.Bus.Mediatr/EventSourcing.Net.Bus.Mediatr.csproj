@@ -3,9 +3,9 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
         <LangVersion>11</LangVersion>
-        <Version>0.9.9</Version>
+        <Version>0.9.10</Version>
         <Title>EventSourcing.Net.Bus.Mediatr</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Bus implementation based on Mediatr for EventSourcing.Net library.</Description>

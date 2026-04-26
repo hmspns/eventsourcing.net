@@ -4,10 +4,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>12</LangVersion>
-        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
         <RootNamespace>EventSourcing.Net.Storage.Postgres</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.9.9</Version>
+        <Version>0.9.10</Version>
         <Title>Storage implementation based on Postgres for EventSourcing.net</Title>
         <Authors>Pavel Gribov</Authors>
         <Copyright>Pavel Gribov</Copyright>

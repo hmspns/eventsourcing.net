@@ -3,8 +3,8 @@
     <PropertyGroup>
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
-        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
-        <Version>0.9.9</Version>
+        <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+        <Version>0.9.10</Version>
         <Title>EventSourcing.Net.Abstractions</Title>
         <Authors>Pavel Gribov</Authors>
         <Description>Abstraction for EventSourcing.Net library.</Description>
